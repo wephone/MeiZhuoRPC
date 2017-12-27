@@ -6,10 +6,19 @@ package org.meizhuo.rpc.client;
  */
 public class RPCRequest {
 
+    private String requestID;
     private String className;
     private String methodName;
     private Class[] parameterTypes;
     private Object[] parameters;
+
+    public String getRequestID() {
+        return requestID;
+    }
+
+    public void setRequestID(String requestID) {
+        this.requestID = requestID;
+    }
 
     public String getClassName() {
         return className;

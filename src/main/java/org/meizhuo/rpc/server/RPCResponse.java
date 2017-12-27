@@ -5,6 +5,8 @@ package org.meizhuo.rpc.server;
  */
 public class RPCResponse {
 
+    //每个请求对应的唯一ID
+    private String requestID;
     private Object result;
 
     public Object getResult() {

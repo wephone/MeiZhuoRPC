@@ -4,12 +4,18 @@ import org.meizhuo.rpc.server.RPCResponse;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by wephone on 17-12-26.
  */
 public class RPCProxyHandler  implements InvocationHandler {
 
+    private static AtomicLong requestTimes=new AtomicLong(0);//记录调用的次数 也作为ID标志
     private RPCResponse rpcResponse=new RPCResponse();
 
     /**
@@ -24,10 +30,31 @@ public class RPCProxyHandler  implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         RPCRequest request=new RPCRequest();
+        request.setRequestID(buildRequestID(method.getName()));
         request.setClassName(method.getDeclaringClass().getName());//返回表示声明由此 Method 对象表示的方法的类或接口的Class对象
         request.setMethodName(method.getName());
         request.setParameterTypes(method.getParameterTypes());//返回形参类型
         request.setParameters(args);//输入的实参
+        //同步等待实现端返回的锁
+        Lock lock = new ReentrantLock();
+        Condition condition=lock.newCondition();
+        RPCRequestNet.requestLockMap.put(request.getRequestID(),condition);
+        lock.lock();//获取锁
+        RPCRequestNet.connect().send(request);
+        //调用用结束后移除对应的condition映射关系
+        RPCRequestNet.requestLockMap.remove(request.getRequestID());
+        lock.unlock();
         return rpcResponse.getResult();//目标方法的返回结果
+    }
+
+    //生成请求的唯一ID
+    private String buildRequestID(String methodName){
+        StringBuilder sb=new StringBuilder();
+        sb.append(requestTimes.incrementAndGet());
+        sb.append(System.currentTimeMillis());
+        sb.append(methodName);
+        Random random = new Random();
+        sb.append(random.nextInt(1000));
+        return sb.toString();
     }
 }
