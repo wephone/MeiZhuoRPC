@@ -8,8 +8,10 @@ import io.netty.channel.ChannelHandlerContext;
  */
 public class RPCRequestHandler extends ChannelHandlerAdapter {
 
+    public static ChannelHandlerContext channelCtx;
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        super.channelActive(ctx);
+        channelCtx=ctx;
     }
 }

@@ -1,36 +1,30 @@
 package org.meizhuo.rpc.client;
 
+import org.springframework.beans.BeansException;
+
 /**
  * Created by wephone on 17-12-26.
  */
-public class ClientConfig {
+public class ClientConfig{
 
-    private String host;
-    private int port;
+    public static String host;
+    public static int port;
     //调用超时时间
-    private long overtime;
+    public static long overtime;
 
-    public String getHost() {
-        return host;
+    private ClientConfig() {
     }
 
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public long getOvertime() {
-        return overtime;
-    }
-
-    public void setOvertime(long overtime) {
-        this.overtime = overtime;
-    }
+    /**
+     * 加载Spring配置文件时，如果Spring配置文件中所定义的Bean类
+     * 如果该类实现了ApplicationContextAware接口
+     * 那么在加载Spring配置文件时，会自动调用ApplicationContextAware接口中的
+     * @param applicationContext
+     * @throws BeansException
+     */
+//    @Override
+//    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+//        ClientConfig clientConfig=applicationContext.getBean(ClientConfig.class);
+//
+//    }
 }
