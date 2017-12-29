@@ -73,7 +73,7 @@ public class RPCRequestNet {
                 connectCondition.wait();
                 connectlock.unlock();
             }
-            //TODO 发送请求
+            //TODO 发送请求 编解码对象
             System.out.print("调用"+request.getRequestID()+"已发送");
             //挂起等待实现端处理完毕返回 TODO 后续配置超时时间
             requestLockMap.get(request.getRequestID()).wait();
