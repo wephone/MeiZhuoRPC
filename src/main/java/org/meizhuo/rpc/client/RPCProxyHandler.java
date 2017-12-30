@@ -33,7 +33,7 @@ public class RPCProxyHandler  implements InvocationHandler {
         request.setRequestID(buildRequestID(method.getName()));
         request.setClassName(method.getDeclaringClass().getName());//返回表示声明由此 Method 对象表示的方法的类或接口的Class对象
         request.setMethodName(method.getName());
-        request.setParameterTypes(method.getParameterTypes());//返回形参类型
+//        request.setParameterTypes(method.getParameterTypes());//返回形参类型
         request.setParameters(args);//输入的实参
         //同步等待实现端返回的锁
         Lock lock = new ReentrantLock();

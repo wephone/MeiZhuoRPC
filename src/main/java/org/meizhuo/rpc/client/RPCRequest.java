@@ -9,7 +9,7 @@ public class RPCRequest {
     private String requestID;
     private String className;
     private String methodName;
-    private Class[] parameterTypes;
+//    private Class[] parameterTypes;
     private Object[] parameters;
 
     public String getRequestID() {
@@ -36,13 +36,13 @@ public class RPCRequest {
         this.methodName = methodName;
     }
 
-    public Class[] getParameterTypes() {
-        return parameterTypes;
-    }
-
-    public void setParameterTypes(Class[] parameterTypes) {
-        this.parameterTypes = parameterTypes;
-    }
+//    public Class[] getParameterTypes() {
+//        return parameterTypes;
+//    }
+//
+//    public void setParameterTypes(Class[] parameterTypes) {
+//        this.parameterTypes = parameterTypes;
+//    }
 
     public Object[] getParameters() {
         return parameters;

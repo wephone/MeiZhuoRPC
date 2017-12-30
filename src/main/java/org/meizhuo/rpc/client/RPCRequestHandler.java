@@ -13,5 +13,6 @@ public class RPCRequestHandler extends ChannelHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         channelCtx=ctx;
+        RPCRequestNet.connectCondition.signalAll();
     }
 }
