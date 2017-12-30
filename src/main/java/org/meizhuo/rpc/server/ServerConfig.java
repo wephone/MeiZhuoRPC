@@ -7,13 +7,8 @@ import java.util.Map;
  */
 public class ServerConfig {
 
-    private Map<String,Object> serverImplMap;
+    public static int port;
 
-    public Map<String, Object> getServerImplMap() {
-        return serverImplMap;
-    }
+    public static Map<String,Object> serverImplMap;
 
-    public void setServerImplMap(Map<String, Object> serverImplMap) {
-        this.serverImplMap = serverImplMap;
-    }
 }

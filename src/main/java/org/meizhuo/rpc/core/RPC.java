@@ -3,6 +3,7 @@ package org.meizhuo.rpc.core;
 import com.google.gson.Gson;
 import org.meizhuo.rpc.client.RPCProxyHandler;
 import org.meizhuo.rpc.client.RPCRequest;
+import org.meizhuo.rpc.server.RPCResponseNet;
 
 import java.lang.reflect.Proxy;
 
@@ -30,6 +31,7 @@ public class RPC {
      */
     public static void start(){
         System.out.println("welcome to use MeiZhuoRPC");
+        RPCResponseNet.connect();
     }
 
     public static String requestEncode(RPCRequest request){
