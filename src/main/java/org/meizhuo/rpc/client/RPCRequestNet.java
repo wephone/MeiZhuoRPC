@@ -24,7 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class RPCRequestNet {
 
     public static Map requestLockMap=new ConcurrentHashMap<String,Condition>();;//全局map 每个请求对应的锁 用于同步等待每个异步的RPC请求
-    private static Lock connectlock=new ReentrantLock();//阻塞等待连接成功的锁
+    public static Lock connectlock=new ReentrantLock();//阻塞等待连接成功的锁
     public static Condition connectCondition=connectlock.newCondition();
     private static RPCRequestNet instance;
 
@@ -52,7 +52,7 @@ public class RPCRequestNet {
             f.addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                    f.channel().closeFuture().sync();
+//                    f.channel().closeFuture().sync();//这句会造成死锁异常BlockingOperationException
                 }
             });
 
@@ -75,13 +75,14 @@ public class RPCRequestNet {
 
     //向实现端发送请求
     public void send(RPCRequest request){
+//        System.out.println("Send RPC Thread:"+Thread.currentThread().getName());
         try {
             //判断连接是否已完成 只在连接启动时会产生阻塞
             if (RPCRequestHandler.channelCtx==null){
                 connectlock.lock();
                 //挂起等待连接成功
                 System.out.println("正在等待连接实现端");
-                connectCondition.wait();
+                connectCondition.await();
                 connectlock.unlock();
             }
             //编解码对象为json 发送请求
@@ -90,7 +91,7 @@ public class RPCRequestNet {
             RPCRequestHandler.channelCtx.writeAndFlush(requestBuf);
             System.out.print("调用"+request.getRequestID()+"已发送");
             //挂起等待实现端处理完毕返回 TODO 后续配置超时时间
-            requestLockMap.get(request.getRequestID()).wait();
+            ((Condition)requestLockMap.get(request.getRequestID())).await();
             System.out.print("调用"+request.getRequestID()+"接收完毕");
         } catch (InterruptedException e) {
             e.printStackTrace();

@@ -38,6 +38,7 @@ public class RPCProxyHandler  implements InvocationHandler {
         //同步等待实现端返回的锁
         Lock lock = new ReentrantLock();
         Condition condition=lock.newCondition();
+//        System.out.println("Invoke Method Thread:"+Thread.currentThread().getName());
         RPCRequestNet.requestLockMap.put(request.getRequestID(),condition);
         lock.lock();//获取锁
         RPCRequestNet.connect().send(request);
