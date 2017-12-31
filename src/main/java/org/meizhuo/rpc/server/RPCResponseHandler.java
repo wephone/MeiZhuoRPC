@@ -24,7 +24,9 @@ public class RPCResponseHandler extends ChannelHandlerAdapter {
         //netty的write方法并没有直接写入通道(为避免多次唤醒多路复用选择器)
         //而是把待发送的消息放到缓冲数组中，flush方法再全部写到通道中
 //        ctx.write(resp);
-        ByteBuf responseBuf= Unpooled.copiedBuffer(request.getRequestID().getBytes());
+        //记得加分隔符 不然客户端一直不会处理
+        String respStr=request.getRequestID()+System.getProperty("line.separator");;
+        ByteBuf responseBuf= Unpooled.copiedBuffer(respStr.getBytes());
         ctx.writeAndFlush(responseBuf);
     }
 

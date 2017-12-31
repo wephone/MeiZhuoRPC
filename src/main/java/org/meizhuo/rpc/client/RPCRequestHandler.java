@@ -25,7 +25,9 @@ public class RPCRequestHandler extends ChannelHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         String requestID= (String) msg;
-        System.out.println("请求"+msg+"已返回");
-        ((Condition)RPCRequestNet.requestLockMap.get(requestID)).signalAll();
+        synchronized (RPCRequestNet.requestLockMap.get(requestID)) {
+            //唤醒在该对象锁上wait的线程
+            RPCRequestNet.requestLockMap.get(requestID).notifyAll();
+        }
     }
 }
