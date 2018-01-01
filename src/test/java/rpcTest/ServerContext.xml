@@ -6,6 +6,7 @@
         <property name="port" value="9999"></property>
         <property name="serverImplMap">
             <map>
+                <!--配置对应的抽象接口及其实现-->
                 <entry key="rpcTest.Service" value="rpcTest.ServiceImpl"></entry>
             </map>
         </property>
