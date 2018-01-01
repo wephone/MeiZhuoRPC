@@ -16,7 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class RPCProxyHandler  implements InvocationHandler {
 
     private static AtomicLong requestTimes=new AtomicLong(0);//记录调用的次数 也作为ID标志
-    private RPCResponse rpcResponse=new RPCResponse();
+//    private RPCResponse rpcResponse=new RPCResponse();
 
     /**
      * 代理抽象接口调用的方法
@@ -45,7 +45,7 @@ public class RPCProxyHandler  implements InvocationHandler {
         //调用用结束后移除对应的condition映射关系
         RPCRequestNet.requestLockMap.remove(request.getRequestID());
 //        lock.unlock();
-        return rpcResponse.getResult();//目标方法的返回结果
+        return request.getResult();//目标方法的返回结果
     }
 
     //生成请求的唯一ID

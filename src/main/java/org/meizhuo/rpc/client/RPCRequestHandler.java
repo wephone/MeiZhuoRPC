@@ -2,6 +2,8 @@ package org.meizhuo.rpc.client;
 
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import org.meizhuo.rpc.core.RPC;
+import org.meizhuo.rpc.server.RPCResponse;
 
 import java.util.concurrent.locks.Condition;
 
@@ -24,10 +26,13 @@ public class RPCRequestHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        String requestID= (String) msg;
-        synchronized (RPCRequestNet.requestLockMap.get(requestID)) {
+        String responseJson= (String) msg;
+        RPCResponse response= (RPCResponse) RPC.responseDecode(responseJson);
+        synchronized (RPCRequestNet.requestLockMap.get(response.getRequestID())) {
             //唤醒在该对象锁上wait的线程
-            RPCRequestNet.requestLockMap.get(requestID).notifyAll();
+            RPCRequest request= (RPCRequest) RPCRequestNet.requestLockMap.get(response.getRequestID());
+            request.setResult(response.getResult());
+            request.notifyAll();
         }
     }
 }

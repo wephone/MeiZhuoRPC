@@ -6,6 +6,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import org.meizhuo.rpc.client.RPCRequest;
+import org.meizhuo.rpc.core.RPC;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -19,13 +20,16 @@ public class RPCResponseHandler extends ChannelHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws UnsupportedEncodingException {
         String requestJson= (String) msg;
         System.out.println("receive request:"+requestJson);
-        RPCRequest request=new Gson().fromJson(requestJson,RPCRequest.class);
-        System.out.println(request);
+        RPCRequest request= RPC.requestDeocde(requestJson);
+        Object result=InvokeServiceUtil.invoke(request);
         //netty的write方法并没有直接写入通道(为避免多次唤醒多路复用选择器)
         //而是把待发送的消息放到缓冲数组中，flush方法再全部写到通道中
 //        ctx.write(resp);
         //记得加分隔符 不然客户端一直不会处理
-        String respStr=request.getRequestID()+System.getProperty("line.separator");;
+        RPCResponse response=new RPCResponse();
+        response.setRequestID(request.getRequestID());
+        response.setResult(result);
+        String respStr=RPC.responseEncode(response);
         ByteBuf responseBuf= Unpooled.copiedBuffer(respStr.getBytes());
         ctx.writeAndFlush(responseBuf);
     }

@@ -13,7 +13,7 @@ public class Client {
         ClientConfig.host="127.0.0.1";
         ClientConfig.port=9999;
         Service service= (Service) RPC.call(Service.class);
-        service.remoteService(233,"hhh");
+        System.out.println("RPC接收成功:"+service.remoteService(233.0,"hhh"));
     }
 
 }

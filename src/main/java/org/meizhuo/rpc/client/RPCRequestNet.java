@@ -23,7 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class RPCRequestNet {
 
-    public static Map requestLockMap=new ConcurrentHashMap<String,Condition>();;//全局map 每个请求对应的锁 用于同步等待每个异步的RPC请求
+    public static Map requestLockMap=new ConcurrentHashMap<String,RPCRequest>();;//全局map 每个请求对应的锁 用于同步等待每个异步的RPC请求
     public static Lock connectlock=new ReentrantLock();//阻塞等待连接成功的锁
     public static Condition connectCondition=connectlock.newCondition();
     private static RPCRequestNet instance;
@@ -52,7 +52,14 @@ public class RPCRequestNet {
             f.addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture channelFuture) throws Exception {
-//                    f.channel().closeFuture().sync();//这句会造成死锁异常BlockingOperationException
+                    /*
+                     * sync内部会在NIO线程wait阻塞 导致这个接口回调时阻塞和唤醒可能都在同一线程造成死锁
+                     * 不论是用户直接关闭或者eventLoop的轮询状态关闭，都会在eventLoop的线程内完成notify动作，所以不要在IO线程内调用future对象的sync或者await方法
+                     * 应用程序代码都是编写的channelHandler，而channelHandler是在eventLoop的线程内执行的，所以是不能在channelHandler中调用sync或者await方法的
+                     * channel.closeFuture()不做任何操作，只是简单的返回channel对象中的closeFuture对象，对于每个Channel对象，都会有唯一的一个CloseFuture，用来表示关闭的Future，
+                     所有执行channel.closeFuture().sync()就是执行的CloseFuture的sync方法，从上面的解释可以知道，这步是会将当前线程阻塞在CloseFuture上
+                     */
+//                    f.channel().closeFuture().sync();//应用程序会一直等待，直到channel关闭 这句会造成死锁异常BlockingOperationException
                 }
             });
 

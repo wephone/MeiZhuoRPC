@@ -5,6 +5,7 @@ package rpcTest;
  */
 public interface Service {
 
-    int remoteService(int arg1,String arg2);
+    //TODO json会自动把数据变为Double 这里先写着Double 而且还是包装类
+    Double remoteService(Double arg1,String arg2);
 
 }

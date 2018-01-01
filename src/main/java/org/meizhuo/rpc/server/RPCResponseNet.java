@@ -10,6 +10,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
+import org.meizhuo.rpc.core.RPC;
 
 import static org.meizhuo.rpc.client.ClientConfig.port;
 
@@ -38,8 +39,8 @@ public class RPCResponseNet {
                         }
                     });//绑定IO事件处理类
             //绑定端口 同步等待成功
-            ChannelFuture future=b.bind(ServerConfig.port).sync();
-            System.out.println("server start on port"+ServerConfig.port);
+            ChannelFuture future=b.bind(RPC.getServerConfig().getPort()).sync();
+            System.out.println("server start on port:"+RPC.getServerConfig().getPort());
             //同步等待服务端监听端口关闭
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
