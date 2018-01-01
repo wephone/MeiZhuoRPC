@@ -15,6 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class RPCProxyHandler  implements InvocationHandler {
 
+    //TODO 每次创建新代理这个变量好像都会被重新赋值
     private static AtomicLong requestTimes=new AtomicLong(0);//记录调用的次数 也作为ID标志
 //    private RPCResponse rpcResponse=new RPCResponse();
 

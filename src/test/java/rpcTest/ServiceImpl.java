@@ -23,4 +23,9 @@ public class ServiceImpl implements Service {
     public int intMethodIntegerArgsTest(Integer a) {
         return a+10086;
     }
+
+    @Override
+    public String stringMethodIntegerArgsTest(Integer a, Double b) {
+        return "String"+a+b;
+    }
 }
