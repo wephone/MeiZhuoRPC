@@ -33,7 +33,7 @@ public class ServerConfig implements ApplicationContextAware{
         this.serverImplMap = serverImplMap;
     }
 
-    //获取运行过程中的IOC容器
+    //运行过程中获取IOC容器
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         RPC.serverContext=applicationContext;

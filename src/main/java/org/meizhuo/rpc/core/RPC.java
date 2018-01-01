@@ -1,6 +1,7 @@
 package org.meizhuo.rpc.core;
 
 import com.google.gson.Gson;
+import org.meizhuo.rpc.client.ClientConfig;
 import org.meizhuo.rpc.client.RPCProxyHandler;
 import org.meizhuo.rpc.client.RPCRequest;
 import org.meizhuo.rpc.server.RPCResponse;
@@ -17,6 +18,7 @@ public class RPC {
 
     private static Gson gson=new Gson();
     public static ApplicationContext serverContext;
+    public static ApplicationContext clientContext;
     /**
      * 暴露调用端使用的静态方法 为抽象接口生成动态代理对象
      * TODO 考虑后面优化不在使用时仍需强转
@@ -55,5 +57,9 @@ public class RPC {
 
     public static ServerConfig getServerConfig(){
         return serverContext.getBean(ServerConfig.class);
+    }
+
+    public static ClientConfig getClientConfig(){
+        return clientContext.getBean(ClientConfig.class);
     }
 }

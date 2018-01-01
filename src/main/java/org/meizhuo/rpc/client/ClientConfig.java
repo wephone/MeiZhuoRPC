@@ -1,18 +1,42 @@
 package org.meizhuo.rpc.client;
 
+import org.meizhuo.rpc.core.RPC;
 import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 /**
  * Created by wephone on 17-12-26.
  */
-public class ClientConfig{
+public class ClientConfig implements ApplicationContextAware {
 
-    public static String host;
-    public static int port;
+    private String host;
+    private int port;
     //调用超时时间
-    public static long overtime;
+    private long overtime;
 
-    private ClientConfig() {
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public long getOvertime() {
+        return overtime;
+    }
+
+    public void setOvertime(long overtime) {
+        this.overtime = overtime;
     }
 
     /**
@@ -22,9 +46,8 @@ public class ClientConfig{
      * @param applicationContext
      * @throws BeansException
      */
-//    @Override
-//    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-//        ClientConfig clientConfig=applicationContext.getBean(ClientConfig.class);
-//
-//    }
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        RPC.clientContext=applicationContext;
+    }
 }

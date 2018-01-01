@@ -47,7 +47,7 @@ public class RPCRequestNet {
                 });
         try {
             //TODO 从自定义标签配置中读取参数 启动网络连接
-            ChannelFuture f=b.connect(ClientConfig.host,ClientConfig.port).sync();
+            ChannelFuture f=b.connect(RPC.getClientConfig().getHost(),RPC.getClientConfig().getPort()).sync();
 //            f.channel().closeFuture().sync();//会造成阻塞构造方法
             f.addListener(new ChannelFutureListener() {
                 @Override
