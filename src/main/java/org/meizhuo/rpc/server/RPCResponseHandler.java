@@ -1,6 +1,7 @@
 package org.meizhuo.rpc.server;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+//import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerAdapter;
@@ -8,6 +9,7 @@ import io.netty.channel.ChannelHandlerContext;
 import org.meizhuo.rpc.client.RPCRequest;
 import org.meizhuo.rpc.core.RPC;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
@@ -17,7 +19,7 @@ import java.util.Date;
 public class RPCResponseHandler extends ChannelHandlerAdapter {
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws UnsupportedEncodingException {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws IOException {
         String requestJson= (String) msg;
         System.out.println("receive request:"+requestJson);
         RPCRequest request= RPC.requestDeocde(requestJson);

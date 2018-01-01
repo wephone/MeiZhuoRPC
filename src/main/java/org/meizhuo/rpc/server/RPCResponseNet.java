@@ -12,7 +12,7 @@ import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import org.meizhuo.rpc.core.RPC;
 
-import static org.meizhuo.rpc.client.ClientConfig.port;
+
 
 /**
  * Created by wephone on 17-12-30.

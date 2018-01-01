@@ -18,6 +18,12 @@ public class Client {
     public void start(){
         Service service= (Service) RPC.call(Service.class);
         System.out.println("RPC接收成功:"+service.remoteService(233.0,"hhh"));
+        /**
+         *
+         * java.lang.NoSuchMethodException: rpcTest.ServiceImpl.intMethodTest(java.lang.Integer)
+         */
+//        System.out.println("测试int类型传参与返回:"+service.intMethodTest(666));
+        System.out.println("测试Integer类型传参与返回:"+service.IntegerMethodTest(233));
     }
 
 }

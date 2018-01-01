@@ -61,11 +61,16 @@
             <artifactId>protobuf-java</artifactId>
             <version>3.5.1</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+        <!--gson导致int默认被转为了double https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+        <!--<dependency>-->
+            <!--<groupId>com.google.code.gson</groupId>-->
+            <!--<artifactId>gson</artifactId>-->
+            <!--<version>2.8.2</version>-->
+        <!--</dependency>-->
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.8.2</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.7.2</version>
         </dependency>
     </dependencies>
     <properties>

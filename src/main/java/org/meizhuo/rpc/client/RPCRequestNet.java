@@ -1,5 +1,6 @@
 package org.meizhuo.rpc.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -93,7 +94,12 @@ public class RPCRequestNet {
                 connectlock.unlock();
             }
             //编解码对象为json 发送请求
-            String requestJson= RPC.requestEncode(request);
+            String requestJson= null;
+            try {
+                requestJson = RPC.requestEncode(request);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
             ByteBuf requestBuf= Unpooled.copiedBuffer(requestJson.getBytes());
             RPCRequestHandler.channelCtx.writeAndFlush(requestBuf);
             System.out.println("调用"+request.getRequestID()+"已发送");

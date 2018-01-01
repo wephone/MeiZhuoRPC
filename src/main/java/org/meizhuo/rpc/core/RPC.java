@@ -1,6 +1,8 @@
 package org.meizhuo.rpc.core;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+//import com.google.gson.Gson;
 import org.meizhuo.rpc.client.ClientConfig;
 import org.meizhuo.rpc.client.RPCProxyHandler;
 import org.meizhuo.rpc.client.RPCRequest;
@@ -9,6 +11,7 @@ import org.meizhuo.rpc.server.RPCResponseNet;
 import org.meizhuo.rpc.server.ServerConfig;
 import org.springframework.context.ApplicationContext;
 
+import java.io.IOException;
 import java.lang.reflect.Proxy;
 
 /**
@@ -16,7 +19,8 @@ import java.lang.reflect.Proxy;
  */
 public class RPC {
 
-    private static Gson gson=new Gson();
+    private static ObjectMapper objectMapper=new ObjectMapper();
+//    private static Gson gson=new Gson();
     public static ApplicationContext serverContext;
     public static ApplicationContext clientContext;
     /**
@@ -39,20 +43,20 @@ public class RPC {
         RPCResponseNet.connect();
     }
 
-    public static String requestEncode(RPCRequest request){
-        return gson.toJson(request)+System.getProperty("line.separator");
+    public static String requestEncode(RPCRequest request) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(request)+System.getProperty("line.separator");
     }
 
-    public static RPCRequest requestDeocde(String json){
-        return gson.fromJson(json,RPCRequest.class);
+    public static RPCRequest requestDeocde(String json) throws IOException {
+        return objectMapper.readValue(json,RPCRequest.class);
     }
 
-    public static String responseEncode(RPCResponse response){
-        return gson.toJson(response)+System.getProperty("line.separator");
+    public static String responseEncode(RPCResponse response) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(response)+System.getProperty("line.separator");
     }
 
-    public static Object responseDecode(String json){
-        return gson.fromJson(json,RPCResponse.class);
+    public static Object responseDecode(String json) throws IOException {
+        return objectMapper.readValue(json,RPCResponse.class);
     }
 
     public static ServerConfig getServerConfig(){
