@@ -13,6 +13,10 @@ import java.util.Map;
 public class ServerConfig implements ApplicationContextAware{
 
     private int port;
+    //zookeeper集群地址 逗号隔开
+    private String zooKeeperHost;
+    //服务提供者IP 没配置默认127.0.0.1 8888端口
+    private String serverHost;
 
     private Map<String,String> serverImplMap;
 
@@ -27,6 +31,22 @@ public class ServerConfig implements ApplicationContextAware{
     //为spring提供setter
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public String getZooKeeperHost() {
+        return zooKeeperHost;
+    }
+
+    public void setZooKeeperHost(String zooKeeperHost) {
+        zooKeeperHost = zooKeeperHost;
+    }
+
+    public String getServerHost() {
+        return serverHost;
+    }
+
+    public void setServerHost(String serverHost) {
+        this.serverHost = serverHost;
     }
 
     public void setServerImplMap(Map<String, String> serverImplMap) {

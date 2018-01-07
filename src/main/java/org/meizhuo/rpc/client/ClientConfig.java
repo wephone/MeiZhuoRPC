@@ -12,6 +12,8 @@ public class ClientConfig implements ApplicationContextAware {
 
     private String host;
     private int port;
+    //zookeeper集群地址 逗号隔开
+    private String zooKeeperHost;
     //调用超时时间
     private long overtime;
 
@@ -29,6 +31,14 @@ public class ClientConfig implements ApplicationContextAware {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public String getZooKeeperHost() {
+        return zooKeeperHost;
+    }
+
+    public void setZooKeeperHost(String zooKeeperHost) {
+        zooKeeperHost = zooKeeperHost;
     }
 
     public long getOvertime() {
