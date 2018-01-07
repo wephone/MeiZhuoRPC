@@ -1,4 +1,4 @@
-package org.meizhuo.rpc.ZKSupport;
+package org.meizhuo.rpc.zksupport;
 
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -18,7 +18,7 @@ public class ZKConnect {
     private ZooKeeper connect(String host) throws InterruptedException, IOException {
         CountDownLatch countDownLatch=new CountDownLatch(1);
         //2秒sessionTimeOut
-        zooKeeper=new ZooKeeper(host, 2000, new Watcher() {
+        zooKeeper=new ZooKeeper(host, ZKConst.sessionTimeout, new Watcher() {
             @Override
             public void process(WatchedEvent watchedEvent) {
                 if (watchedEvent.getState()== Event.KeeperState.SyncConnected){

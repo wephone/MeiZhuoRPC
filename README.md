@@ -1,6 +1,9 @@
 # MeiZhuoRPC
 **java远程调用框架**
 **[By MeiZhuo Studio][www.meizhuo.org]**
+## Branch master
+zookeeper注册中心持续更新中...
+
 ## Version/Branch1.0
 ### Usage
 - Download the jar in /out/artifacts/MeiZhuoRPC_jar

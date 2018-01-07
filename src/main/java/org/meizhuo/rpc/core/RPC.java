@@ -3,16 +3,21 @@ package org.meizhuo.rpc.core;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 //import com.google.gson.Gson;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.ZooKeeper;
 import org.meizhuo.rpc.client.ClientConfig;
 import org.meizhuo.rpc.client.RPCProxyHandler;
 import org.meizhuo.rpc.client.RPCRequest;
 import org.meizhuo.rpc.server.RPCResponse;
 import org.meizhuo.rpc.server.RPCResponseNet;
 import org.meizhuo.rpc.server.ServerConfig;
+import org.meizhuo.rpc.zksupport.ZKConnect;
+import org.meizhuo.rpc.zksupport.service.ZKServerService;
 import org.springframework.context.ApplicationContext;
 
 import java.io.IOException;
 import java.lang.reflect.Proxy;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Created by wephone on 17-12-26.
@@ -38,9 +43,20 @@ public class RPC {
     /**
      * 实现端启动RPC服务
      */
-    public static void start(){
+    public static void start() throws InterruptedException, IOException {
+        CountDownLatch countDownLatch=new CountDownLatch(1);
         System.out.println("welcome to use MeiZhuoRPC");
         RPCResponseNet.connect();
+        ZooKeeper zooKeeper= new ZKConnect().serverConnect();
+        ZKServerService zkServerService=new ZKServerService(zooKeeper);
+        try {
+            //创建所有提供者服务的znode
+            zkServerService.createServerService();
+        } catch (KeeperException e) {
+            e.printStackTrace();
+        }
+        //阻塞服务端不会退出
+        countDownLatch.await();
     }
 
     public static String requestEncode(RPCRequest request) throws JsonProcessingException {
