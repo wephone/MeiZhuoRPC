@@ -4,7 +4,6 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
-import org.meizhuo.rpc.zksupport.LoadBalance;
 import org.meizhuo.rpc.zksupport.ZKConst;
 
 import java.util.ArrayList;
@@ -41,9 +40,9 @@ public class IPWatcher implements Watcher{
         }
         //判断是提供者数量变了还是调用者数量变了
         if (path.contains(ZKConst.providersPath)){
-            LoadBalance.getInstance().setServerCount(children.size());
+//            Polling.getInstance().setServerCount(children.size());
         }else if (path.contains(ZKConst.consumersPath)){
-            LoadBalance.getInstance().setClientCount(children.size());
+//            Polling.getInstance().setClientCount(children.size());
         }
 
     }

@@ -19,18 +19,18 @@ public class RPCRequestHandler extends ChannelHandlerAdapter {
 //        System.out.println("ChannelActive Thread:"+Thread.currentThread().getName());
         channelCtx=ctx;
         //需要在lock和unlock的包裹下 否则报出IllegalMonitorStateException
-        RPCRequestNet.connectlock.lock();
-        RPCRequestNet.connectCondition.signalAll();
-        RPCRequestNet.connectlock.unlock();
+        RPCRequestNet.getInstance().connectlock.lock();
+        RPCRequestNet.getInstance().connectCondition.signalAll();
+        RPCRequestNet.getInstance().connectlock.unlock();
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         String responseJson= (String) msg;
         RPCResponse response= (RPCResponse) RPC.responseDecode(responseJson);
-        synchronized (RPCRequestNet.requestLockMap.get(response.getRequestID())) {
+        synchronized (RPCRequestNet.getInstance().requestLockMap.get(response.getRequestID())) {
             //唤醒在该对象锁上wait的线程
-            RPCRequest request= (RPCRequest) RPCRequestNet.requestLockMap.get(response.getRequestID());
+            RPCRequest request= (RPCRequest) RPCRequestNet.getInstance().requestLockMap.get(response.getRequestID());
             request.setResult(response.getResult());
             request.notifyAll();
         }

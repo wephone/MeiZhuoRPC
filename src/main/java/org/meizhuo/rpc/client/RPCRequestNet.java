@@ -11,6 +11,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import org.meizhuo.rpc.core.RPC;
+import org.meizhuo.rpc.zksupport.service.ServiceInfo;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,12 +22,18 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by wephone on 17-12-27.
+ * 单例RPC请求类 调用端通过此单例进行对提供者端的请求
+ * 有些属性需要是全局的例如requestLockMap 所以这里是单例的
  */
 public class RPCRequestNet {
 
-    public static Map requestLockMap=new ConcurrentHashMap<String,RPCRequest>();;//全局map 每个请求对应的锁 用于同步等待每个异步的RPC请求
-    public static Lock connectlock=new ReentrantLock();//阻塞等待连接成功的锁
-    public static Condition connectCondition=connectlock.newCondition();
+    public Map requestLockMap=new ConcurrentHashMap<String,RPCRequest>();//全局map 每个请求对应的锁 用于同步等待每个异步的RPC请求
+    public Lock connectlock=new ReentrantLock();//阻塞等待连接成功的锁
+    public Condition connectCondition=connectlock.newCondition();
+    //服务名称 映射 服务信息类
+    public ConcurrentHashMap<String,ServiceInfo> serviceNameInfoMap;
+    //IP地址 映射 对应的NIO Channel及其引用次数
+    public ConcurrentHashMap<String,IPChannelInfo> IPChannelMap;
     private static RPCRequestNet instance;
 
     private RPCRequestNet() {
@@ -70,7 +77,7 @@ public class RPCRequestNet {
     }
 
     //单例模式 避免重复连接 构造方法中进行连接操作
-    public static RPCRequestNet connect(){
+    public static RPCRequestNet getInstance(){
         if (instance==null){
             synchronized (RPCRequest.class){
                 if (instance==null){
