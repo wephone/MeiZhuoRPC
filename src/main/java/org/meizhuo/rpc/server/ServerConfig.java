@@ -42,6 +42,9 @@ public class ServerConfig implements ApplicationContextAware{
     }
 
     public String getServerHost() {
+        if (serverHost==null){
+            serverHost="127.0.0.1:8888";
+        }
         return serverHost;
     }
 

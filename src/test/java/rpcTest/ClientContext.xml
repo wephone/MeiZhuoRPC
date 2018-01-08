@@ -3,7 +3,10 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     <bean class="org.meizhuo.rpc.client.ClientConfig">
-        <property name="host" value="127.0.0.1"></property>
-        <property name="port" value="9999"></property>
+        <property name="serviceInterface">
+            <set>
+                <value>rpcTest.Service</value>
+            </set>
+        </property>
     </bean>
 </beans>

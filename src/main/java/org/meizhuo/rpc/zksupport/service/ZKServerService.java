@@ -23,9 +23,10 @@ public class ZKServerService {
     public void createServerService() throws KeeperException, InterruptedException {
         ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
         Map<String,String> serviceMap= RPC.getServerConfig().getServerImplMap();
+        String ip=RPC.getServerConfig().getServerHost();
         for (Map.Entry<String,String> entry:serviceMap.entrySet()){
-            //TODO 获取配置中设置的IP设置为IP顺序节点的值 默认127.0.0.1
-            zkTempZnodes.createTempSeqZnode(ZKConst.rootPath+ZKConst.servicePath+ZKConst.providersPath+ZKConst.ipSeqPath,"获取配置中设置的IP 默认127.0.0.1");
+            //获取配置中设置的IP设置为IP顺序节点的值 默认127.0.0.1:8888
+            zkTempZnodes.createTempSeqZnode(ZKConst.rootPath+ZKConst.servicePath+"/"+entry.getKey()+ZKConst.consumersPath+ZKConst.consumerSeqNodePath,ip);
         }
     }
 
