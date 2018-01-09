@@ -10,9 +10,15 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
+import org.apache.zookeeper.ZooKeeper;
 import org.meizhuo.rpc.core.RPC;
+import org.meizhuo.rpc.zksupport.LoadBalance.LoadBalance;
+import org.meizhuo.rpc.zksupport.LoadBalance.Polling;
+import org.meizhuo.rpc.zksupport.ZKConnect;
 import org.meizhuo.rpc.zksupport.service.ServiceInfo;
+import org.meizhuo.rpc.zksupport.service.ZKClientService;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Condition;
@@ -34,9 +40,19 @@ public class RPCRequestNet {
     public ConcurrentHashMap<String,ServiceInfo> serviceNameInfoMap;
     //IP地址 映射 对应的NIO Channel及其引用次数
     public ConcurrentHashMap<String,IPChannelInfo> IPChannelMap;
+    private LoadBalance loadBalance;
     private static RPCRequestNet instance;
 
     private RPCRequestNet() {
+        //TODO 后续改为根据配置选择负载均衡策略
+        loadBalance=new Polling();
+    }
+
+    //负载均衡获取对应IP 端口后发起连接
+    private void connect(String ip){
+        String[] IPArr=ip.split(":");
+        String host=IPArr[0];
+        Integer port=Integer.valueOf(IPArr[2]);
         //netty线程组
         EventLoopGroup group=new NioEventLoopGroup();
         //启动辅助类 用于配置各种参数
@@ -47,7 +63,7 @@ public class RPCRequestNet {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        socketChannel.pipeline().addLast(new LineBasedFrameDecoder(2048));//以换行符分包 防止念包半包 2048为最大长度 到达最大长度没出现换行符则抛出异常
+                        socketChannel.pipeline().addLast(new LineBasedFrameDecoder(2048));//以换行符分包 防止粘包半包 2048为最大长度 到达最大长度没出现换行符则抛出异常
                         socketChannel.pipeline().addLast(new StringDecoder());//将接收到的对象转为字符串
                         //添加相应回调处理和编解码器
                         socketChannel.pipeline().addLast(new RPCRequestHandler());
@@ -55,7 +71,7 @@ public class RPCRequestNet {
                 });
         try {
             //TODO 从自定义标签配置中读取参数 启动网络连接
-            ChannelFuture f=b.connect(RPC.getClientConfig().getHost(),RPC.getClientConfig().getPort()).sync();
+            ChannelFuture f=b.connect(host,port).sync();
 //            f.channel().closeFuture().sync();//会造成阻塞构造方法
             f.addListener(new ChannelFutureListener() {
                 @Override

@@ -1,6 +1,10 @@
 package org.meizhuo.rpc.zksupport.LoadBalance;
 
 import io.netty.channel.ChannelHandlerContext;
+import org.apache.zookeeper.ZooKeeper;
+import org.meizhuo.rpc.zksupport.service.ZnodeType;
+
+import java.util.List;
 
 /**
  * Created by wephone on 18-1-8.
@@ -9,11 +13,14 @@ import io.netty.channel.ChannelHandlerContext;
  */
 public interface LoadBalance {
 
+//    //平衡连接消费者端的所有服务 仅在启动时使用
+//    void balanceAll();
+
     /**
      * 负载均衡的连接平衡操作
      * @param serviceName
      */
-    void balance(String serviceName);
+    void balance(ZooKeeper zooKeeper, String serviceName, List<String> znodes, ZnodeType type);
 
     /**
      * 负载均衡选择服务中已有的连接之一

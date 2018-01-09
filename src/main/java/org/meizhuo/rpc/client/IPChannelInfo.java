@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class IPChannelInfo {
 
     private ChannelHandlerContext channelHandlerContext;
+    //保证多线程修改时引用计数正确
     private AtomicInteger serviceQuoteNum;
 
     public ChannelHandlerContext getChannelHandlerContext() {

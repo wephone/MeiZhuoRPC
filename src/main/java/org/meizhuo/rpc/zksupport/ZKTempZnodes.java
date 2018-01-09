@@ -1,6 +1,7 @@
 package org.meizhuo.rpc.zksupport;
 
 import org.apache.zookeeper.*;
+import org.apache.zookeeper.data.Stat;
 
 import java.util.List;
 
@@ -14,6 +15,19 @@ public class ZKTempZnodes {
 
     public ZKTempZnodes(ZooKeeper zooKeeper) {
         this.zooKeeper = zooKeeper;
+    }
+
+    public byte[] getData(String path) throws KeeperException, InterruptedException {
+        return zooKeeper.getData(path,
+                false, null);
+    }
+
+    public void setData(String path, byte[] data,int version) throws KeeperException, InterruptedException {
+        zooKeeper.setData(path,data,version);
+    }
+
+    public Stat exists(String path) throws KeeperException, InterruptedException {
+        return zooKeeper.exists(path,true);
     }
 
     //创建临时顺序节点

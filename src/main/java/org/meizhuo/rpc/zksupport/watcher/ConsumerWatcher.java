@@ -6,7 +6,7 @@ import org.apache.zookeeper.Watcher;
 /**
  * Created by wephone on 18-1-7.
  */
-public class LoadBalanceWatcher implements Watcher {
+public class ConsumerWatcher implements Watcher {
     @Override
     public void process(WatchedEvent watchedEvent) {
 
