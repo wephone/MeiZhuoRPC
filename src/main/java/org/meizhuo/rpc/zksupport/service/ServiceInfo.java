@@ -38,8 +38,17 @@ public class ServiceInfo {
         this.serverCount.set(serverCount);
     }
 
-    public Set<String> getConnectIPSet() {
+    public ConcurrentSkipListSet<String> getConnectIPSet() {
         return serviceIPSet;
+    }
+
+    public void setServiceIPSet(Set<String> serviceIPSet) {
+        this.serviceIPSet.clear();
+        this.serviceIPSet.addAll(serviceIPSet);
+    }
+
+    public int getConnectIPSetCount(){
+        return serviceIPSet.size();
     }
 
     public void addConnectIP(String IP) {

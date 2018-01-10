@@ -32,7 +32,7 @@ public class IPChannelInfo {
         return serviceQuoteNum.incrementAndGet();
     }
 
-    //TODO 服务不使用后 接收到的watcher里 需要减去对channel的引用数量
+    //服务不使用后 需要减去对channel的引用数量
     public int decrementServiceQuoteNum(){
         return serviceQuoteNum.decrementAndGet();
     }

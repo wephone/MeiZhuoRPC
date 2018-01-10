@@ -23,9 +23,9 @@ public interface LoadBalance {
     void balance(ZooKeeper zooKeeper, String serviceName, List<String> znodes, ZnodeType type);
 
     /**
-     * 负载均衡选择服务中已有的连接之一
+     * 负载均衡选择服务中已选中的IP之一
      * @param serviceName
      * @return
      */
-    ChannelHandlerContext chooseChannel(String serviceName);
+    String chooseIP(String serviceName);
 }

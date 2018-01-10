@@ -10,15 +10,11 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
-import org.apache.zookeeper.ZooKeeper;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.zksupport.LoadBalance.LoadBalance;
-import org.meizhuo.rpc.zksupport.LoadBalance.Polling;
-import org.meizhuo.rpc.zksupport.ZKConnect;
+import org.meizhuo.rpc.zksupport.LoadBalance.MinConnectRandom;
 import org.meizhuo.rpc.zksupport.service.ServiceInfo;
-import org.meizhuo.rpc.zksupport.service.ZKClientService;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Condition;
@@ -45,7 +41,7 @@ public class RPCRequestNet {
 
     private RPCRequestNet() {
         //TODO 后续改为根据配置选择负载均衡策略
-        loadBalance=new Polling();
+        loadBalance=new MinConnectRandom();
     }
 
     //负载均衡获取对应IP 端口后发起连接

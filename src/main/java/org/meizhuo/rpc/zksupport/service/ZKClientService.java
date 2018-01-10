@@ -11,8 +11,8 @@ import org.meizhuo.rpc.zksupport.watcher.ConsumerWatcher;
 import org.meizhuo.rpc.zksupport.watcher.IPWatcher;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -83,38 +83,127 @@ public class ZKClientService {
 
     /**
      * 增加服务端某个服务IP的连接数
-     * 能增加返回true 不能返回false
      * 检测到zk异常 例如版本乐观锁报错时 循环尝试
-     * 直到数量正确或者无法继续添加
+     * 成功选出连接数最小的一个 并将连接数+1
+     * 直到set大小满足新连接数时退出
+     * 只要watcher机制正常 通知到的最后一次平衡操作一定得到正确的连接
      * @param serviceName
-     * @param IP
      * @param newNum 新的需要满足的连接数
-     * @return
+     * @return 返回新加入了连接成功的IP集合
      * @throws InterruptedException
      * @throws UnsupportedEncodingException
      */
-    public boolean addServiceServerConnectNum(String serviceName,String IP,int newNum) throws InterruptedException, UnsupportedEncodingException {
-        String path=ZKConst.rootPath+ZKConst.balancePath+"/"+serviceName+"/"+IP;
+    public Set<String> addServiceServerConnectNum(String serviceName,Set<String> oldIPSet,int newNum) throws InterruptedException, UnsupportedEncodingException, KeeperException {
+        Set<String> newIPSet=oldIPSet;
+        String path=ZKConst.rootPath+ZKConst.balancePath+"/"+serviceName;
         ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
+        //不做监听 用乐观锁
+        List<String> allIP=zkTempZnodes.getPathChildren(path,null);
+        allIP.removeAll(oldIPSet);//已有的不再重复再连接
+        //重复循环 给乐观锁重试的机会
         while (true){
-            try {
-                Stat stat=zkTempZnodes.exists(path);
-                if (stat!=null){
-                    int version=stat.getVersion();
-                    String data = new String(zkTempZnodes.getData(path),
-                            "UTF-8");
-                    int oldData=Integer.valueOf(data);
-                    if (oldData<newNum){
-                        int newData=oldData+1;
-                        zkTempZnodes.setData(path,(newData+"").getBytes(),version);
-                        return true;
-                    }
-                    return false;
-                }else {
-                    zkTempZnodes.createTempSeqZnode(path, "1");
-                    return true;
+            if (allIP.size()==0){
+                //没有可用的服务端节点了则退出
+                return newIPSet;
+            }
+            if (newIPSet.size()==newNum){
+                //够数了就返回
+                return newIPSet;
+            }
+            //选出最小的一个连接数及其ip
+            int minConnectNum=0;
+            String minIP="";
+            int minVersion=0;//zk的数据版本是从0开始计数的
+            int minIndex=0;
+            for (int i = 0; i <allIP.size() ; i++) {
+                String ip=allIP.get(i);
+                String ipPath=path+"/"+ip;
+                Stat stat=zkTempZnodes.exists(ipPath);
+                String data = new String(zkTempZnodes.getData(ipPath),
+                        "UTF-8");
+                Integer oldConnectNum=Integer.valueOf(data);
+                if ((oldConnectNum<minConnectNum)||i==0){
+                    //比对 筛选出最小连接的节点  第一个尝试的IP当做最小的
+                    minConnectNum=oldConnectNum;
+                    minIP=ip;
+                    minVersion=stat.getVersion();
+                    minIndex=i;
                 }
-            } catch (KeeperException e) {
+            }
+            try {
+                String minPath=path+"/"+minIP;
+                int newData=minConnectNum+1;
+                zkTempZnodes.setData(minPath,(newData+"").getBytes(),minVersion);
+                //设置成功后在连接成功集合中添加 并在待选的ip中去除
+                newIPSet.add(minIP);
+                //增加服务引用次数
+                RPCRequestNet.getInstance().IPChannelMap.get(minIP).incrementServiceQuoteNum();
+                allIP.remove(minIndex);
+            } catch (KeeperException.BadVersionException e) {
+                //乐观锁报错 重新循环尝试
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 减少服务端某个服务IP的连接数
+     * 检测到zk异常 例如版本乐观锁报错时 循环尝试
+     * 成功选出连接数最大的一个 并将连接数-1
+     * 直到set大小满足新连接数时退出
+     * 只要watcher机制正常 通知到的最后一次平衡操作一定得到正确的连接
+     * @param serviceName
+     * @param newNum 新的需要满足的连接数
+     * @return 返回减持连接的IP集合
+     * @throws InterruptedException
+     * @throws UnsupportedEncodingException
+     */
+    public Set<String> reduceServiceServerConnectNum(String serviceName,Set<String> oldIPSet,int newNum) throws KeeperException, InterruptedException, UnsupportedEncodingException {
+        Set<String> newIPSet=oldIPSet;
+        List<String> availList=new ArrayList<>();
+        availList.addAll(oldIPSet);//当前可选择的IP(已连接过,本次平衡未减连接的)
+        String path=ZKConst.rootPath+ZKConst.balancePath+"/"+serviceName;
+        ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
+        //乐观锁给重试机会
+        while (true){
+            if (newIPSet.size()==newNum){
+                return newIPSet;
+            }
+            int maxConnectNum=1;//至少连接了一个
+            String maxIP="";
+            int maxVersion=0;
+            int maxIndex=0;
+            for (int i = 0; i <availList.size() ; i++) {
+                String ipPath=path+"/"+availList.get(i);
+                Stat stat=zkTempZnodes.exists(ipPath);
+                if (stat!=null){
+                    String data = new String(zkTempZnodes.getData(ipPath),
+                            "UTF-8");
+                    Integer oldConnectNum=Integer.valueOf(data);
+                    if ((oldConnectNum>maxConnectNum)||i==0){
+                        maxConnectNum=oldConnectNum;
+                        maxIP=availList.get(i);
+                        maxVersion=stat.getVersion();
+                        maxIndex=i;
+                    }
+                }else {
+                    //说明节点不存在 直接去除
+                    availList.remove(i);
+                    //减少服务引用次数
+                    int remain=RPCRequestNet.getInstance().IPChannelMap.get(availList.get(i)).decrementServiceQuoteNum();
+                    newIPSet.remove(availList.get(i));
+                }
+            }
+            try {
+                String maxPath = path + "/" + maxIP;
+                int newData = maxConnectNum - 1;
+                zkTempZnodes.setData(maxPath, (newData + "").getBytes(), maxVersion);
+                newIPSet.remove(maxIP);
+                //减少服务引用次数 TODO 剩余引用为0时加入线程池 等待超时时间后 再判断一次 若仍无引用 关闭此通道释放网络连接
+                int remain=RPCRequestNet.getInstance().IPChannelMap.get(maxIP).decrementServiceQuoteNum();
+                availList.remove(maxIndex);
+            } catch (KeeperException.BadVersionException e) {
+                //乐观锁报错 重新循环尝试
                 e.printStackTrace();
             }
         }

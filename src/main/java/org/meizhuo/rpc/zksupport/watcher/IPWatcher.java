@@ -40,9 +40,9 @@ public class IPWatcher implements Watcher{
         }
         //判断是提供者数量变了还是调用者数量变了
         if (path.contains(ZKConst.providersPath)){
-//            Polling.getInstance().setServerCount(children.size());
+//            MinConnectRandom.getInstance().setServerCount(children.size());
         }else if (path.contains(ZKConst.consumersPath)){
-//            Polling.getInstance().setClientCount(children.size());
+//            MinConnectRandom.getInstance().setClientCount(children.size());
         }
 
     }
