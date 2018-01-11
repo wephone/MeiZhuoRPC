@@ -29,9 +29,9 @@ public class ZKServerService {
         String ip=RPC.getServerConfig().getServerHost();
         for (Map.Entry<String,String> entry:serviceMap.entrySet()){
             //获取配置中设置的IP设置为IP顺序节点的值 默认127.0.0.1:8888
-            zkTempZnodes.createTempSeqZnode(ZKConst.rootPath+ZKConst.servicePath+"/"+entry.getKey()+ZKConst.providersPath+"/"+ip,null);
+            zkTempZnodes.createTempZnode(ZKConst.rootPath+ZKConst.servicePath+"/"+entry.getKey()+ZKConst.providersPath+"/"+ip,null);
             //创建连接数节点 首次增加时连接数为0
-            zkTempZnodes.createTempSeqZnode(ZKConst.rootPath+ZKConst.balancePath+"/"+entry.getKey()+"/"+ip,0+"");
+            zkTempZnodes.createTempZnode(ZKConst.rootPath+ZKConst.balancePath+"/"+entry.getKey()+"/"+ip,0+"");
         }
     }
 

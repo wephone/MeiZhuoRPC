@@ -19,7 +19,7 @@ public class IPChannelInfo {
     private EventLoopGroup group;
     private Channel channel;
     //保证多线程修改时引用计数正确
-    private AtomicInteger serviceQuoteNum;
+    private AtomicInteger serviceQuoteNum=new AtomicInteger(0);//原子变量要赋初值
 
     public EventLoopGroup getGroup() {
         return group;

@@ -17,10 +17,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ServiceInfo {
 
     //这个服务的提供者和调用者的数量
-    private AtomicInteger clientCount;
-    private AtomicInteger serverCount;
+    private AtomicInteger clientCount=new AtomicInteger(0);//原子变量都要赋初值
+    private AtomicInteger serverCount=new AtomicInteger(0);
     //这个服务所连接的提供者IP Set 只能由负载均衡类操作 ConcurrentSkipListSet线程安全的有序集合
-    private ConcurrentSkipListSet<String> serviceIPSet;
+    private ConcurrentSkipListSet<String> serviceIPSet=new ConcurrentSkipListSet<>();
 
     public int getClientCount() {
         return clientCount.get();

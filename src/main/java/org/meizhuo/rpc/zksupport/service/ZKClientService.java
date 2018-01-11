@@ -3,6 +3,7 @@ package org.meizhuo.rpc.zksupport.service;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
+import org.meizhuo.rpc.client.IPChannelInfo;
 import org.meizhuo.rpc.client.RPCRequest;
 import org.meizhuo.rpc.client.RPCRequestNet;
 import org.meizhuo.rpc.core.RPC;
@@ -96,7 +97,7 @@ public class ZKClientService {
         Set<String> set=RPC.getClientConfig().getServiceInterface();
         for (String service:set){
             zkTempZnodes.createSimpleZnode(path+"/"+service,null);
-            zkTempZnodes.createSimpleZnode(path+"/"+service+"/"+ZKConst.consumersPath,null);
+            zkTempZnodes.createSimpleZnode(path+"/"+service+ZKConst.consumersPath,null);
         }
     }
 
@@ -155,6 +156,8 @@ public class ZKClientService {
                 zkTempZnodes.setData(minPath,(newData+"").getBytes(),minVersion);
                 //设置成功后在连接成功集合中添加 并在待选的ip中去除
                 newIPSet.add(minIP);
+                //不存在则赋初值
+                RPCRequestNet.getInstance().IPChannelMap.putIfAbsent(minIP,new IPChannelInfo());
                 //增加服务引用次数
                 RPCRequestNet.getInstance().IPChannelMap.get(minIP).incrementServiceQuoteNum();
                 allIP.remove(minIndex);

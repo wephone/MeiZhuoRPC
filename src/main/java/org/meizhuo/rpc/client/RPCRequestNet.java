@@ -34,9 +34,9 @@ public class RPCRequestNet {
     //每个IP对应一个锁 防止重复连接一个IP多次
     public Map<String,Lock> connectlock=new ConcurrentHashMap<String,Lock>();
     //服务名称 映射 服务信息类
-    public ConcurrentHashMap<String,ServiceInfo> serviceNameInfoMap;
+    public Map<String,ServiceInfo> serviceNameInfoMap=new ConcurrentHashMap<>();
     //IP地址 映射 对应的NIO Channel及其引用次数
-    public ConcurrentHashMap<String,IPChannelInfo> IPChannelMap;
+    public Map<String,IPChannelInfo> IPChannelMap=new ConcurrentHashMap<>();
     private LoadBalance loadBalance;
     private static RPCRequestNet instance;
 

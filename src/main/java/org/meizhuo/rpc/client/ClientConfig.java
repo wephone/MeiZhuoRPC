@@ -34,7 +34,7 @@ public class ClientConfig implements ApplicationContextAware {
     }
 
     public void setZooKeeperHost(String zooKeeperHost) {
-        zooKeeperHost = zooKeeperHost;
+        this.zooKeeperHost = zooKeeperHost;
     }
 
     public long getOvertime() {

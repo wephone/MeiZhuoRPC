@@ -39,6 +39,15 @@ public class ZKTempZnodes {
         zooKeeper.create(path,bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
     }
 
+    //创建临时普通节点
+    public void createTempZnode(String path,String data) throws KeeperException, InterruptedException {
+        byte[] bytes=null;
+        if (data!=null){
+            bytes=data.getBytes();
+        }
+        zooKeeper.create(path,bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+    }
+
     //创建普通持久节点 已存在则不创建
     public void createSimpleZnode(String path,String data) throws KeeperException, InterruptedException {
         Stat stat=exists(path);

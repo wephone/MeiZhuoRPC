@@ -19,7 +19,8 @@ public class BalanceThreadPool {
 
     public static ThreadPoolExecutor getThreadPool(){
         if (executor==null){
-            synchronized (executor){
+//            synchronized (executor){空对象不可作为对象锁
+            synchronized (BalanceThreadPool.class){
                 if (executor==null){
                     int cpuCoreNum=Runtime.getRuntime().availableProcessors();
                     executor=new ThreadPoolExecutor(cpuCoreNum,15,15, TimeUnit.SECONDS,

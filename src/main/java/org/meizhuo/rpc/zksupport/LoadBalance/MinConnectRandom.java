@@ -56,6 +56,8 @@ public class MinConnectRandom implements LoadBalance{
                 BalanceThreadPool.serviceLockMap.putIfAbsent(service,readWriteLock);
                 //上写锁
                 BalanceThreadPool.serviceLockMap.get(service).writeLock().lock();
+                //原先不存在则新建一个
+                RPCRequestNet.getInstance().serviceNameInfoMap.putIfAbsent(service,new ServiceInfo());
                 ServiceInfo serviceInfo=RPCRequestNet.getInstance().serviceNameInfoMap.get(service);
                 int oldConnectNum=serviceInfo.getConnectIPSetCount();
                 if (type==ZnodeType.consumer){
@@ -86,6 +88,7 @@ public class MinConnectRandom implements LoadBalance{
                 RPCRequestNet.getInstance().serviceNameInfoMap.put(service,serviceInfo);
                 //释放写锁
                 BalanceThreadPool.serviceLockMap.get(service).writeLock().unlock();
+                System.out.println(serviceName+"平衡结束 持有连接数:"+serviceInfo.getConnectIPSetCount());
             }
         };
         BalanceThreadPool.execute(runnable);
