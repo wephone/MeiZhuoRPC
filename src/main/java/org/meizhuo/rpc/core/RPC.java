@@ -50,6 +50,7 @@ public class RPC {
         ZooKeeper zooKeeper= new ZKConnect().serverConnect();
         ZKServerService zkServerService=new ZKServerService(zooKeeper);
         try {
+            zkServerService.initZnode();
             //创建所有提供者服务的znode
             zkServerService.createServerService();
         } catch (KeeperException e) {

@@ -41,6 +41,24 @@ public class ZKServerService {
         IPWatcher ipWatcher=new IPWatcher(zooKeeper);
         return zkTempZnodes.getPathChildren(ZKConst.rootPath+ZKConst.servicePath+"/"+serviceName+ZKConst.providersPath,ipWatcher);
     }
+
+    //初始化根节点及服务提供者节点 均为持久节点
+    public void initZnode() throws KeeperException, InterruptedException {
+        ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
+        String path=ZKConst.rootPath;
+        String balancePath=ZKConst.rootPath;
+        zkTempZnodes.createSimpleZnode(path,null);
+        balancePath=balancePath+ZKConst.balancePath;
+        zkTempZnodes.createSimpleZnode(balancePath,null);
+        path=path+ZKConst.servicePath;
+        zkTempZnodes.createSimpleZnode(path,null);
+        Map<String,String> serverImplMap=RPC.getServerConfig().getServerImplMap();
+        for (Map.Entry<String,String> entry:serverImplMap.entrySet()){
+            zkTempZnodes.createSimpleZnode(balancePath+"/"+entry.getKey(),null);
+            zkTempZnodes.createSimpleZnode(path+"/"+entry.getKey(),null);
+            zkTempZnodes.createSimpleZnode(path+"/"+entry.getKey()+ZKConst.providersPath,null);
+        }
+    }
 //
 //    //设置提供者数量并监听
 //    public void watchAllServerService() throws KeeperException, InterruptedException {

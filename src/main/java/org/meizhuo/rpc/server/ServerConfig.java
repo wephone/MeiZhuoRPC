@@ -38,11 +38,12 @@ public class ServerConfig implements ApplicationContextAware{
     }
 
     public void setZooKeeperHost(String zooKeeperHost) {
-        zooKeeperHost = zooKeeperHost;
+        this.zooKeeperHost = zooKeeperHost;
     }
 
     public String getServerHost() {
-        return serverHost;
+        //获取时带上端口
+        return serverHost+":"+port;
     }
 
     public void setServerHost(String serverHost) {

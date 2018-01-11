@@ -32,9 +32,25 @@ public class ZKTempZnodes {
 
     //创建临时顺序节点
     public void createTempSeqZnode(String path,String data) throws KeeperException, InterruptedException {
-        byte[] bytes=data.getBytes();
+        byte[] bytes=null;
+        if (data!=null){
+            bytes=data.getBytes();
+        }
         zooKeeper.create(path,bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
     }
+
+    //创建普通持久节点 已存在则不创建
+    public void createSimpleZnode(String path,String data) throws KeeperException, InterruptedException {
+        Stat stat=exists(path);
+        if (stat==null) {
+            byte[] bytes = null;
+            if (data != null) {
+                bytes = data.getBytes();
+            }
+            zooKeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        }
+    }
+
     //获得某一服务的所有提供者ip
     public List<String> getPathChildren(String path, Watcher watcher) throws KeeperException, InterruptedException {
         List<String> children= zooKeeper.getChildren(path,watcher);

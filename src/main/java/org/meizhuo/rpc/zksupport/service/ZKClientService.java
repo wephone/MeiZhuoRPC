@@ -16,6 +16,7 @@ import org.meizhuo.rpc.zksupport.watcher.IPWatcher;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -84,6 +85,20 @@ public class ZKClientService {
 //
 //        }
 //    }
+
+    //初始化根节点及服务消费者者节点 均为持久节点
+    public void initZnode() throws KeeperException, InterruptedException {
+        ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
+        String path=ZKConst.rootPath;
+        zkTempZnodes.createSimpleZnode(path,null);
+        path=path+ZKConst.servicePath;
+        zkTempZnodes.createSimpleZnode(path,null);
+        Set<String> set=RPC.getClientConfig().getServiceInterface();
+        for (String service:set){
+            zkTempZnodes.createSimpleZnode(path+"/"+service,null);
+            zkTempZnodes.createSimpleZnode(path+"/"+service+"/"+ZKConst.consumersPath,null);
+        }
+    }
 
     /**
      * 增加服务端某个服务IP的连接数

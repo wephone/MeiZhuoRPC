@@ -75,6 +75,7 @@ public class ClientConfig implements ApplicationContextAware {
         try {
             ZooKeeper zooKeeper= new ZKConnect().clientConnect();
             ZKClientService zkClientService=new ZKClientService(zooKeeper);
+            zkClientService.initZnode();
             zkClientService.createClientService();
             //获取提供者调用者ip及数量 并监听 即对所有服务开启平衡
             //负载均衡类设置prototype作用域
