@@ -43,6 +43,8 @@ public class MinConnectRandom implements LoadBalance{
                 List<String> serverZnodes = zkServerService.getAllServiceIP(service);
                 RPCRequestNet.getInstance().serviceNameInfoMap.putIfAbsent(service,new ServiceInfo());
                 ServiceInfo serviceInfo=RPCRequestNet.getInstance().serviceNameInfoMap.get(service);
+                serviceInfo.setClientCount(clientZnodes.size());
+                serviceInfo.setServerCount(serverZnodes.size());
                 int newConnectNum=getConnectNum(clientZnodes.size(),serverZnodes.size());
                 Set<String> newIPSet= new HashSet<>();
                 //启动时增加连接服务端

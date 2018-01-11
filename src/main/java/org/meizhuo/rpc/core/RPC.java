@@ -44,9 +44,7 @@ public class RPC {
      * 实现端启动RPC服务
      */
     public static void start() throws InterruptedException, IOException {
-        CountDownLatch countDownLatch=new CountDownLatch(1);
         System.out.println("welcome to use MeiZhuoRPC");
-        RPCResponseNet.connect();
         ZooKeeper zooKeeper= new ZKConnect().serverConnect();
         ZKServerService zkServerService=new ZKServerService(zooKeeper);
         try {
@@ -57,7 +55,7 @@ public class RPC {
             e.printStackTrace();
         }
         //阻塞服务端不会退出
-        countDownLatch.await();
+        RPCResponseNet.connect();
     }
 
     public static String requestEncode(RPCRequest request) throws JsonProcessingException {

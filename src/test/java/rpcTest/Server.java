@@ -13,15 +13,24 @@ import java.io.IOException;
 /**
  * Created by wephone on 17-12-30.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"file:src/test/java/rpcTest/ServerContext.xml"})
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@ContextConfiguration(locations={"file:src/test/java/rpcTest/ServerContext.xml"})
 public class Server {
 
     @Test
     public void start() throws InterruptedException, IOException {
-//        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-//                new String[] { "ServerContext.xml" });
-//        context.start();
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+                new String[] { "file:src/test/java/rpcTest/ServerContext.xml" });
+        context.start();
+        //启动spring后才可启动 防止容器尚未加载完毕
+        RPC.start();
+    }
+
+    @Test
+    public void start1() throws InterruptedException, IOException {
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+                new String[] { "file:src/test/java/rpcTest/ServerContext1.xml" });
+        context.start();
         //启动spring后才可启动 防止容器尚未加载完毕
         RPC.start();
     }

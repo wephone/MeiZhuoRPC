@@ -210,14 +210,15 @@ public class ZKClientService {
                     }
                 }else {
                     //说明节点不存在 直接去除
+                    String abandonIP=availList.get(i);
                     availList.remove(i);
                     //减少服务引用次数
-                    int remain=RPCRequestNet.getInstance().IPChannelMap.get(availList.get(i)).decrementServiceQuoteNum();
+                    int remain=RPCRequestNet.getInstance().IPChannelMap.get(abandonIP).decrementServiceQuoteNum();
                     if (remain==0){
                         //加入线程池中 释放资源 关闭通道
                         BalanceThreadPool.execute(new ReleaseChannelRunnable(maxIP));
                     }
-                    newIPSet.remove(availList.get(i));
+                    newIPSet.remove(abandonIP);
                 }
             }
             try {

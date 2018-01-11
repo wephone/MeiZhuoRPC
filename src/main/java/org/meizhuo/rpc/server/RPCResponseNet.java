@@ -42,7 +42,7 @@ public class RPCResponseNet {
             ChannelFuture future=b.bind(RPC.getServerConfig().getPort()).sync();
             System.out.println("service start on port:"+RPC.getServerConfig().getPort());
             //同步等待服务端监听端口关闭 后面改用闭锁来阻塞提供者端
-//            future.channel().closeFuture().sync();
+            future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {

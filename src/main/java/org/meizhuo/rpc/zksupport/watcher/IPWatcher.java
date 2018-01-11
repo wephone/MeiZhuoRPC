@@ -32,7 +32,7 @@ public class IPWatcher implements Watcher{
          */
         String path=watchedEvent.getPath();
         String[] pathArr=path.split("/");
-        String serviceName=pathArr[2];//第三个部分则为服务名
+        String serviceName=pathArr[3];//第四个部分则为服务名
         try {
             List<String> children=zooKeeper.getChildren(path,this);
             LoadBalance loadBalance= RPC.getClientConfig().getLoadBalance();

@@ -25,7 +25,7 @@ public class ConsumerWatcher implements Watcher {
     public void process(WatchedEvent watchedEvent) {
         String path=watchedEvent.getPath();
         String[] pathArr=path.split("/");
-        String serviceName=pathArr[2];//第三个部分则为服务名
+        String serviceName=pathArr[3];//第4个部分则为服务名 首位为空白字符串
         try {
             List<String> children=zooKeeper.getChildren(path,this);
             LoadBalance loadBalance= RPC.getClientConfig().getLoadBalance();
