@@ -10,6 +10,7 @@ import org.meizhuo.rpc.zksupport.service.ZKServerService;
 import org.meizhuo.rpc.zksupport.service.ZnodeType;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -32,11 +33,32 @@ public class MinConnectRandom implements LoadBalance{
         ZKServerService zkServerService=new ZKServerService(zookeeper);
         try {
             for (String service : allServices) {
+                ReadWriteLock readWriteLock=new ReentrantReadWriteLock();
+                //不存在则新建一个锁键值对 存在则不操作
+                BalanceThreadPool.serviceLockMap.putIfAbsent(service,readWriteLock);
+                //上写锁
+                System.out.println(service+"正在平衡...已加写锁");
+                BalanceThreadPool.serviceLockMap.get(service).writeLock().lock();
                 List<String> clientZnodes = zkClientService.getServiceClients(service);
-                balance(zookeeper, service, clientZnodes, ZnodeType.consumer);
                 List<String> serverZnodes = zkServerService.getAllServiceIP(service);
-                balance(zookeeper, service, serverZnodes, ZnodeType.provider);
+                RPCRequestNet.getInstance().serviceNameInfoMap.putIfAbsent(service,new ServiceInfo());
+                ServiceInfo serviceInfo=RPCRequestNet.getInstance().serviceNameInfoMap.get(service);
+                int newConnectNum=getConnectNum(clientZnodes.size(),serverZnodes.size());
+                Set<String> newIPSet= new HashSet<>();
+                //启动时增加连接服务端
+                try {
+                    newIPSet = zkClientService.addServiceServerConnectNum(service,serviceInfo.getConnectIPSet(),newConnectNum);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                serviceInfo.setServiceIPSet(newIPSet);
+                //写入新serviceInfo
+                RPCRequestNet.getInstance().serviceNameInfoMap.put(service,serviceInfo);
+                //释放写锁
+                BalanceThreadPool.serviceLockMap.get(service).writeLock().unlock();
+                System.out.println(service+"已平衡 释放写锁,持有连接:"+serviceInfo.getConnectIPSetCount());
             }
+            //下面这句出现了好像死锁
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (KeeperException e) {
@@ -50,12 +72,12 @@ public class MinConnectRandom implements LoadBalance{
         Runnable runnable=new Runnable() {
             @Override
             public void run() {
-                ReadWriteLock readWriteLock=new ReentrantReadWriteLock();
-                System.out.println(serviceName+"正在平衡...已加写锁");
-                //不存在则新建一个锁键值对 存在则不操作
-                BalanceThreadPool.serviceLockMap.putIfAbsent(service,readWriteLock);
+//                ReadWriteLock readWriteLock=new ReentrantReadWriteLock();
+                //不存在则新建一个锁键值对 存在则不操作 第一次平衡全部时已赋值锁
+//                BalanceThreadPool.serviceLockMap.putIfAbsent(service,readWriteLock);
                 //上写锁
                 BalanceThreadPool.serviceLockMap.get(service).writeLock().lock();
+                System.out.println(serviceName+"正在平衡...已加写锁");
                 //原先不存在则新建一个
                 RPCRequestNet.getInstance().serviceNameInfoMap.putIfAbsent(service,new ServiceInfo());
                 ServiceInfo serviceInfo=RPCRequestNet.getInstance().serviceNameInfoMap.get(service);
@@ -103,6 +125,7 @@ public class MinConnectRandom implements LoadBalance{
                 .getConnectIPSet();
         //释放读锁
         BalanceThreadPool.serviceLockMap.get(serviceName).readLock().unlock();
+        System.out.println(serviceName+"选择IP完毕 释放读锁");
         int num=IPSet.size();
         //随机返回一个
         Random random=new Random();
@@ -121,7 +144,7 @@ public class MinConnectRandom implements LoadBalance{
 
     private int getConnectNum(int clientNum,int serverNum){
         int connectNum=0;
-        if (serverNum>=clientNum){
+        if (serverNum<=clientNum){
             connectNum=1;
         }else {
             connectNum=serverNum/clientNum;

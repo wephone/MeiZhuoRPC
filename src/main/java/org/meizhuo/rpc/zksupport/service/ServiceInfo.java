@@ -3,6 +3,7 @@ package org.meizhuo.rpc.zksupport.service;
 import org.meizhuo.rpc.client.IPChannelInfo;
 import org.meizhuo.rpc.client.RPCRequestNet;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -42,9 +43,12 @@ public class ServiceInfo {
         return serviceIPSet;
     }
 
-    public void setServiceIPSet(Set<String> serviceIPSet) {
+//    public void setServiceIPSet(Set<String> serviceIPSet) {
+    public void setServiceIPSet(Set<String> newIPSet) {
+        Set<String> set=new HashSet<>();
+        set.addAll(newIPSet);
         this.serviceIPSet.clear();
-        this.serviceIPSet.addAll(serviceIPSet);
+        this.serviceIPSet.addAll(set);
     }
 
     public int getConnectIPSetCount(){

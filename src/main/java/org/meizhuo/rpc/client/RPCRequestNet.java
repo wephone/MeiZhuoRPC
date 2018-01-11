@@ -11,12 +11,14 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import org.meizhuo.rpc.core.RPC;
+import org.meizhuo.rpc.zksupport.LoadBalance.BalanceThreadPool;
 import org.meizhuo.rpc.zksupport.LoadBalance.LoadBalance;
 import org.meizhuo.rpc.zksupport.LoadBalance.MinConnectRandom;
 import org.meizhuo.rpc.zksupport.service.ServiceInfo;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -37,6 +39,7 @@ public class RPCRequestNet {
     public Map<String,ServiceInfo> serviceNameInfoMap=new ConcurrentHashMap<>();
     //IP地址 映射 对应的NIO Channel及其引用次数
     public Map<String,IPChannelInfo> IPChannelMap=new ConcurrentHashMap<>();
+//    public CountDownLatch countDownLatch=new CountDownLatch(1);
     private LoadBalance loadBalance;
     private static RPCRequestNet instance;
 
