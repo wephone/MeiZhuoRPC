@@ -3,8 +3,11 @@ package org.meizhuo.rpc.zksupport.service;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
+import org.meizhuo.rpc.client.RPCRequest;
 import org.meizhuo.rpc.client.RPCRequestNet;
 import org.meizhuo.rpc.core.RPC;
+import org.meizhuo.rpc.zksupport.LoadBalance.BalanceThreadPool;
+import org.meizhuo.rpc.zksupport.LoadBalance.ReleaseChannelRunnable;
 import org.meizhuo.rpc.zksupport.ZKConst;
 import org.meizhuo.rpc.zksupport.ZKTempZnodes;
 import org.meizhuo.rpc.zksupport.watcher.ConsumerWatcher;
@@ -192,6 +195,10 @@ public class ZKClientService {
                     availList.remove(i);
                     //减少服务引用次数
                     int remain=RPCRequestNet.getInstance().IPChannelMap.get(availList.get(i)).decrementServiceQuoteNum();
+                    if (remain==0){
+                        //加入线程池中 释放资源 关闭通道
+                        BalanceThreadPool.execute(new ReleaseChannelRunnable(maxIP));
+                    }
                     newIPSet.remove(availList.get(i));
                 }
             }
@@ -202,6 +209,10 @@ public class ZKClientService {
                 newIPSet.remove(maxIP);
                 //减少服务引用次数 TODO 剩余引用为0时加入线程池 等待超时时间后 再判断一次 若仍无引用 关闭此通道释放网络连接
                 int remain=RPCRequestNet.getInstance().IPChannelMap.get(maxIP).decrementServiceQuoteNum();
+                if (remain==0){
+                    //加入线程池中 释放资源 关闭通道
+                    BalanceThreadPool.execute(new ReleaseChannelRunnable(maxIP));
+                }
                 availList.remove(maxIndex);
             } catch (KeeperException.BadVersionException e) {
                 //乐观锁报错 重新循环尝试

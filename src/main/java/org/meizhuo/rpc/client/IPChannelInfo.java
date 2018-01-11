@@ -1,7 +1,10 @@
 package org.meizhuo.rpc.client;
 
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.EventLoop;
+import io.netty.channel.EventLoopGroup;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -13,9 +16,18 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class IPChannelInfo {
 
+    private EventLoopGroup group;
     private Channel channel;
     //保证多线程修改时引用计数正确
     private AtomicInteger serviceQuoteNum;
+
+    public EventLoopGroup getGroup() {
+        return group;
+    }
+
+    public void setGroup(EventLoopGroup group) {
+        this.group = group;
+    }
 
     public Channel getChannel() {
         return channel;

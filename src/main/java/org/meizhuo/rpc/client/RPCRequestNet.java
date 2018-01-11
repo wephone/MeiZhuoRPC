@@ -78,6 +78,7 @@ public class RPCRequestNet {
                     channel=f.channel();
                     //将连接成功的通道放入Map
                     IPChannelMap.get(ip).setChannel(channel);
+                    IPChannelMap.get(ip).setGroup(group);
 //            f.addListener(new ChannelFutureListener() {
 //                @Override
 //                public void operationComplete(ChannelFuture channelFuture) throws Exception {
