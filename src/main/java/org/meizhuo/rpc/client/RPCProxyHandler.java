@@ -40,11 +40,11 @@ public class RPCProxyHandler  implements InvocationHandler {
 //        Lock lock = new ReentrantLock();
 //        Condition condition=lock.newCondition();
 //        System.out.println("Invoke Method Thread:"+Thread.currentThread().getName());
-        RPCRequestNet.requestLockMap.put(request.getRequestID(),request);
+        RPCRequestNet.getInstance().requestLockMap.put(request.getRequestID(),request);
 //        lock.lock();//获取锁
-        RPCRequestNet.connect().send(request);
+        RPCRequestNet.getInstance().send(request);
         //调用用结束后移除对应的condition映射关系
-        RPCRequestNet.requestLockMap.remove(request.getRequestID());
+        RPCRequestNet.getInstance().requestLockMap.remove(request.getRequestID());
 //        lock.unlock();
         return request.getResult();//目标方法的返回结果
     }

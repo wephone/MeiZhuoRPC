@@ -31,16 +31,17 @@ public class ZKClientService {
         ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
         Set<String> services= RPC.getClientConfig().getServiceInterface();
         for (String serviceName:services){
-            //创建消费者服务节点 单纯放个1作为数据就行了
-            zkTempZnodes.createTempSeqZnode(ZKConst.rootPath+ZKConst.servicePath+"/"+serviceName+ZKConst.consumersPath+ZKConst.consumerSeqNodePath,"1");
+            //创建消费者服务节点 不放数据
+            zkTempZnodes.createTempSeqZnode(ZKConst.rootPath+ZKConst.servicePath+"/"+serviceName+ZKConst.consumersPath+ZKConst.consumerSeqNodePath,null);
         }
     }
 
-    public int getClientServiceNum(String serviceName) throws KeeperException, InterruptedException {
+    //获得这个服务所有的客户端 包含监听的注册
+    public List<String> getServiceClients(String serviceName) throws KeeperException, InterruptedException {
         ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
-        IPWatcher ipWatcher=new IPWatcher(zooKeeper);
-        List<String> children=zkTempZnodes.getPathChildren(ZKConst.rootPath+ZKConst.servicePath+"/"+serviceName+ZKConst.consumersPath,ipWatcher);
-        return children.size();
+        ConsumerWatcher consumerWatcher=new ConsumerWatcher(zooKeeper);
+        List<String> children=zkTempZnodes.getPathChildren(ZKConst.rootPath+ZKConst.servicePath+"/"+serviceName+ZKConst.consumersPath,consumerWatcher);
+        return children;
     }
 
 //    private List<String> getAllClients(String serviceName) throws KeeperException, InterruptedException {
@@ -61,25 +62,25 @@ public class ZKClientService {
 //    }
 
     //获得并监听所有服务的信息 包括调用者和提供者
-    public void getWatchAllServiceInfo() throws KeeperException, InterruptedException {
-        Set<String> serviceSet=RPC.getClientConfig().getServiceInterface();
-        for (String serviceName:serviceSet){
-            System.out.println("MeiZhuoRPC get service:"+serviceName);
-            ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
-            IPWatcher providerWatcher=new IPWatcher(zooKeeper);
-            List<String> providerIP=zkTempZnodes.getPathChildren(
-                    ZKConst.rootPath+ZKConst.servicePath+"/"+serviceName+ZKConst.providersPath,
-                    providerWatcher);
-            ConsumerWatcher consumerWatcher=new ConsumerWatcher();
-            List<String> consumerNodes=zkTempZnodes.getPathChildren(
-                    ZKConst.rootPath+ZKConst.servicePath+"/"+serviceName+ZKConst.consumersPath,
-                    consumerWatcher);
-            ServiceInfo serviceInfo=new ServiceInfo();
-            serviceInfo.setClientCount(providerIP.size());
-            serviceInfo.setServerCount(consumerNodes.size());
-
-        }
-    }
+//    public void getWatchAllServiceInfo() throws KeeperException, InterruptedException {
+//        Set<String> serviceSet=RPC.getClientConfig().getServiceInterface();
+//        for (String serviceName:serviceSet){
+//            System.out.println("MeiZhuoRPC get service:"+serviceName);
+//            ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
+//            IPWatcher providerWatcher=new IPWatcher(zooKeeper);
+//            List<String> providerIP=zkTempZnodes.getPathChildren(
+//                    ZKConst.rootPath+ZKConst.servicePath+"/"+serviceName+ZKConst.providersPath,
+//                    providerWatcher);
+//            ConsumerWatcher consumerWatcher=new ConsumerWatcher();
+//            List<String> consumerNodes=zkTempZnodes.getPathChildren(
+//                    ZKConst.rootPath+ZKConst.servicePath+"/"+serviceName+ZKConst.consumersPath,
+//                    consumerWatcher);
+//            ServiceInfo serviceInfo=new ServiceInfo();
+//            serviceInfo.setClientCount(providerIP.size());
+//            serviceInfo.setServerCount(consumerNodes.size());
+//
+//        }
+//    }
 
     /**
      * 增加服务端某个服务IP的连接数

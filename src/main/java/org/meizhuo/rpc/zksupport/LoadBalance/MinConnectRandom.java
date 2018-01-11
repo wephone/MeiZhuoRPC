@@ -1,12 +1,9 @@
 package org.meizhuo.rpc.zksupport.LoadBalance;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
-import org.meizhuo.rpc.client.IPChannelInfo;
-import org.meizhuo.rpc.client.RPCRequest;
 import org.meizhuo.rpc.client.RPCRequestNet;
-import org.meizhuo.rpc.zksupport.ZKTempZnodes;
+import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.zksupport.service.ServiceInfo;
 import org.meizhuo.rpc.zksupport.service.ZKClientService;
 import org.meizhuo.rpc.zksupport.service.ZKServerService;
@@ -29,12 +26,32 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class MinConnectRandom implements LoadBalance{
 
     @Override
+    public void balanceAll(ZooKeeper zookeeper) {
+        Set<String> allServices= RPC.getClientConfig().getServiceInterface();
+        ZKClientService zkClientService=new ZKClientService(zookeeper);
+        ZKServerService zkServerService=new ZKServerService(zookeeper);
+        try {
+            for (String service : allServices) {
+                List<String> clientZnodes = zkClientService.getServiceClients(service);
+                balance(zookeeper, service, clientZnodes, ZnodeType.consumer);
+                List<String> serverZnodes = zkServerService.getAllServiceIP(service);
+                balance(zookeeper, service, serverZnodes, ZnodeType.provider);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (KeeperException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void balance(ZooKeeper zooKeeper, String serviceName, List<String> znodes, ZnodeType type) {
         final String service=serviceName;
         Runnable runnable=new Runnable() {
             @Override
             public void run() {
                 ReadWriteLock readWriteLock=new ReentrantReadWriteLock();
+                System.out.println(serviceName+"正在平衡...已加写锁");
                 //不存在则新建一个锁键值对 存在则不操作
                 BalanceThreadPool.serviceLockMap.putIfAbsent(service,readWriteLock);
                 //上写锁
@@ -78,6 +95,7 @@ public class MinConnectRandom implements LoadBalance{
     public String chooseIP(String serviceName) {
         //获取serviceInfo上读锁
         BalanceThreadPool.serviceLockMap.get(serviceName).readLock().lock();
+        System.out.println(serviceName+"正在选择IP...已加读锁");
         ConcurrentSkipListSet<String> IPSet=RPCRequestNet.getInstance().serviceNameInfoMap.get(serviceName)
                 .getConnectIPSet();
         //释放读锁

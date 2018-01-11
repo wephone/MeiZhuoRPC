@@ -3,6 +3,8 @@ package org.meizhuo.rpc.client;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 import org.meizhuo.rpc.core.RPC;
+import org.meizhuo.rpc.zksupport.LoadBalance.LoadBalance;
+import org.meizhuo.rpc.zksupport.LoadBalance.MinConnectRandom;
 import org.meizhuo.rpc.zksupport.ZKConnect;
 import org.meizhuo.rpc.zksupport.service.ZKClientService;
 import org.springframework.beans.BeansException;
@@ -25,6 +27,7 @@ public class ClientConfig implements ApplicationContextAware {
     private long overtime;
     //远程调用接口全类名集合 用于启动时向zookeeper注册提供者服务
     private Set<String> serviceInterface;
+    private LoadBalance loadBalance;
 
     public String getZooKeeperHost() {
         return zooKeeperHost;
@@ -50,6 +53,14 @@ public class ClientConfig implements ApplicationContextAware {
         this.serviceInterface = serviceInterface;
     }
 
+    public LoadBalance getLoadBalance() {
+        return loadBalance;
+    }
+
+    public void setLoadBalance(LoadBalance loadBalance) {
+        this.loadBalance = loadBalance;
+    }
+
     /**
      * 加载Spring配置文件时，如果Spring配置文件中所定义的Bean类
      * 如果该类实现了ApplicationContextAware接口
@@ -65,7 +76,10 @@ public class ClientConfig implements ApplicationContextAware {
             ZooKeeper zooKeeper= new ZKConnect().clientConnect();
             ZKClientService zkClientService=new ZKClientService(zooKeeper);
             zkClientService.createClientService();
-            //TODO 获取提供者调用者ip及数量 并监听 即对所有服务开启平衡
+            //获取提供者调用者ip及数量 并监听 即对所有服务开启平衡
+            //负载均衡类设置prototype作用域
+            LoadBalance loadBalance=RPC.getClientConfig().getLoadBalance();
+            loadBalance.balanceAll(zooKeeper);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {

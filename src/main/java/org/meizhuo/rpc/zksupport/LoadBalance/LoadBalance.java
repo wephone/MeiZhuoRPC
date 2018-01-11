@@ -13,8 +13,8 @@ import java.util.List;
  */
 public interface LoadBalance {
 
-//    //平衡连接消费者端的所有服务 仅在启动时使用
-//    void balanceAll();
+    //平衡连接消费者端的所有服务 仅在启动时使用
+    void balanceAll(ZooKeeper zooKeeper);
 
     /**
      * 负载均衡的连接平衡操作

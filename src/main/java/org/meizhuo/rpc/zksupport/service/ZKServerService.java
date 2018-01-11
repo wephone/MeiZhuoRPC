@@ -29,15 +29,18 @@ public class ZKServerService {
         String ip=RPC.getServerConfig().getServerHost();
         for (Map.Entry<String,String> entry:serviceMap.entrySet()){
             //获取配置中设置的IP设置为IP顺序节点的值 默认127.0.0.1:8888
-            zkTempZnodes.createTempSeqZnode(ZKConst.rootPath+ZKConst.servicePath+"/"+entry.getKey()+ZKConst.providersPath+ZKConst.ipSeqPath,ip);
+            zkTempZnodes.createTempSeqZnode(ZKConst.rootPath+ZKConst.servicePath+"/"+entry.getKey()+ZKConst.providersPath+"/"+ip,null);
+            //创建连接数节点 首次增加时连接数为0
+            zkTempZnodes.createTempSeqZnode(ZKConst.rootPath+ZKConst.balancePath+"/"+entry.getKey()+"/"+ip,0+"");
         }
     }
 
-//    private List<String> getAllServiceIP(String serviceName) throws KeeperException, InterruptedException {
-//        ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
-//        IPWatcher ipWatcher=new IPWatcher(zooKeeper);
-//        return zkTempZnodes.getPathChildren(ZKConst.rootPath+ZKConst.servicePath+"/"+serviceName+ZKConst.providersPath,ipWatcher);
-//    }
+    //获得这个服务所有的提供者 包含监听注册
+    public List<String> getAllServiceIP(String serviceName) throws KeeperException, InterruptedException {
+        ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
+        IPWatcher ipWatcher=new IPWatcher(zooKeeper);
+        return zkTempZnodes.getPathChildren(ZKConst.rootPath+ZKConst.servicePath+"/"+serviceName+ZKConst.providersPath,ipWatcher);
+    }
 //
 //    //设置提供者数量并监听
 //    public void watchAllServerService() throws KeeperException, InterruptedException {
@@ -51,9 +54,4 @@ public class ZKServerService {
 //        }
 //    }
 
-    public List<String> getServiceServerIP(String service) throws KeeperException, InterruptedException {
-        String path=ZKConst.rootPath+ZKConst.servicePath+"/"+service;
-        ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
-        return zkTempZnodes.getPathChildren(path,new IPWatcher(zooKeeper));
-    }
 }

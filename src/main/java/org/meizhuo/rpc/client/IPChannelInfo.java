@@ -1,5 +1,6 @@
 package org.meizhuo.rpc.client;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,16 +13,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class IPChannelInfo {
 
-    private ChannelHandlerContext channelHandlerContext;
+    private Channel channel;
     //保证多线程修改时引用计数正确
     private AtomicInteger serviceQuoteNum;
 
-    public ChannelHandlerContext getChannelHandlerContext() {
-        return channelHandlerContext;
+    public Channel getChannel() {
+        return channel;
     }
 
-    public void setChannelHandlerContext(ChannelHandlerContext channelHandlerContext) {
-        this.channelHandlerContext = channelHandlerContext;
+    public void setChannel(Channel channel) {
+        this.channel = channel;
     }
 
     public Integer getServiceQuoteNum() {

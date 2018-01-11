@@ -4,7 +4,10 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
+import org.meizhuo.rpc.core.RPC;
+import org.meizhuo.rpc.zksupport.LoadBalance.LoadBalance;
 import org.meizhuo.rpc.zksupport.ZKConst;
+import org.meizhuo.rpc.zksupport.service.ZnodeType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,26 +27,20 @@ public class IPWatcher implements Watcher{
     @Override
     public void process(WatchedEvent watchedEvent) {
         /**
-         * 获取所有可用服务提供或者消费者子节点
-         * 计算数量
-         * 平衡消费者持有的长连接
-         * 完成操作后再次注册
+         * 监听到节点提供者IP节点变化时被调用
+         * 调用后进行平衡操作
          */
         String path=watchedEvent.getPath();
-        List<String> children=new ArrayList<>();
+        String[] pathArr=path.split("/");
+        String serviceName=pathArr[2];//第三个部分则为服务名
         try {
-            children=zooKeeper.getChildren(path,this);
+            List<String> children=zooKeeper.getChildren(path,this);
+            LoadBalance loadBalance= RPC.getClientConfig().getLoadBalance();
+            loadBalance.balance(zooKeeper,serviceName,children, ZnodeType.provider);
         } catch (KeeperException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        //判断是提供者数量变了还是调用者数量变了
-        if (path.contains(ZKConst.providersPath)){
-//            MinConnectRandom.getInstance().setServerCount(children.size());
-        }else if (path.contains(ZKConst.consumersPath)){
-//            MinConnectRandom.getInstance().setClientCount(children.size());
-        }
-
     }
 }
