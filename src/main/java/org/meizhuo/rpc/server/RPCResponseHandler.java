@@ -21,7 +21,7 @@ public class RPCResponseHandler extends ChannelHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws IOException {
         String requestJson= (String) msg;
-        System.out.println("receive request:"+requestJson);
+//        System.out.println("receive request:"+requestJson);
         RPCRequest request= RPC.requestDeocde(requestJson);
         Object result=InvokeServiceUtil.invoke(request);
         //netty的write方法并没有直接写入通道(为避免多次唤醒多路复用选择器)

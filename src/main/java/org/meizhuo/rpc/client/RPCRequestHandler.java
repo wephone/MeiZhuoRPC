@@ -28,6 +28,7 @@ public class RPCRequestHandler extends ChannelHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         String responseJson= (String) msg;
         RPCResponse response= (RPCResponse) RPC.responseDecode(responseJson);
+        //TODO 最好用多线程去释放锁
         synchronized (RPCRequestNet.getInstance().requestLockMap.get(response.getRequestID())) {
             //唤醒在该对象锁上wait的线程
             RPCRequest request= (RPCRequest) RPCRequestNet.getInstance().requestLockMap.get(response.getRequestID());

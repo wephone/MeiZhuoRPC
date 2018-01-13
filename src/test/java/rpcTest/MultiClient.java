@@ -80,4 +80,35 @@ public class MultiClient {
             }).start();
         }
     }
+
+    @Test
+    public void millionThread(){
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+                new String[] { "file:src/test/java/rpcTest/MultiServiceClientContext.xml" });
+        context.start();
+        CountDownLatch countDownLatch=new CountDownLatch(1);
+//        Service1 service1= (Service1) RPC.call(Service1.class);
+//        Service2 service2= (Service2) RPC.call(Service2.class);
+        ExecutorService executorService= Executors.newFixedThreadPool(32);
+        for (int i = 0; i <1000000 ; i++) {
+            int finalI = i+1;
+            Runnable run=new Runnable() {
+                @Override
+                public void run() {
+                    Service1 service1= (Service1) RPC.call(Service1.class);
+                    Service2 service2= (Service2) RPC.call(Service2.class);
+                    System.out.println("第"+ finalI +"次发出请求");
+                    service1.count();
+                    service2.count();
+                }
+            };
+            executorService.execute(run);
+//            new Thread(run).start();
+        }
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }
