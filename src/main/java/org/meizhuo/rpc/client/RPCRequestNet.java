@@ -99,6 +99,8 @@ public class RPCRequestNet {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+            }else {
+                channel=IPChannelMap.get(ip).getChannel();
             }
             connectlock.get(ip).unlock();
         }

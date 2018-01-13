@@ -5,4 +5,5 @@ package rpcTest;
  */
 public interface Service2 {
     String testString(Double a);
+    Integer count();
 }
