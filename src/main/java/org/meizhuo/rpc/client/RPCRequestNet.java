@@ -135,13 +135,13 @@ public class RPCRequestNet {
             }
             ByteBuf requestBuf= Unpooled.copiedBuffer(requestJson.getBytes());
             channel.writeAndFlush(requestBuf);
-            System.out.println("调用"+request.getRequestID()+"已发送");
+//            System.out.println("调用"+request.getRequestID()+"已发送");
             //挂起等待实现端处理完毕返回 TODO 后续配置超时时间
             synchronized (request) {
                 //放弃对象锁 并阻塞等待notify
                 request.wait();
             }
-            System.out.println("调用"+request.getRequestID()+"接收完毕");
+//            System.out.println("调用"+request.getRequestID()+"接收完毕");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

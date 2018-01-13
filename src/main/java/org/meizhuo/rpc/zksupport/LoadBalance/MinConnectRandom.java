@@ -128,12 +128,12 @@ public class MinConnectRandom implements LoadBalance{
         }
         //获取serviceInfo上读锁
         BalanceThreadPool.serviceLockMap.get(serviceName).readLock().lock();
-        System.out.println(serviceName+"正在选择IP...已加读锁");
+//        System.out.println(serviceName+"正在选择IP...已加读锁");
         ConcurrentSkipListSet<String> IPSet=RPCRequestNet.getInstance().serviceNameInfoMap.get(serviceName)
                 .getConnectIPSet();
         //释放读锁
         BalanceThreadPool.serviceLockMap.get(serviceName).readLock().unlock();
-        System.out.println(serviceName+"选择IP完毕 释放读锁");
+//        System.out.println(serviceName+"选择IP完毕 释放读锁");
         int num=IPSet.size();
         if (num==0){
             throw new ProvidersNoFoundException();
