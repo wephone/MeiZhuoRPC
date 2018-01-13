@@ -181,11 +181,17 @@ public class ZKClientService {
      * @throws UnsupportedEncodingException
      */
     public Set<String> reduceServiceServerConnectNum(String serviceName,Set<String> oldIPSet,int newNum) throws KeeperException, InterruptedException, UnsupportedEncodingException {
+        String path=ZKConst.rootPath+ZKConst.balancePath+"/"+serviceName;
+        ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
+        for (String oldIP:oldIPSet){
+            if (zkTempZnodes.exists(path+"/"+oldIP)==null){
+                //该IP已经不存在 则不应该将他加入计算最小连接数 直接去除
+                oldIPSet.remove(oldIP);
+            }
+        }
         Set<String> newIPSet=oldIPSet;
         List<String> availList=new ArrayList<>();
         availList.addAll(oldIPSet);//当前可选择的IP(已连接过,本次平衡未减连接的)
-        String path=ZKConst.rootPath+ZKConst.balancePath+"/"+serviceName;
-        ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
         //乐观锁给重试机会
         while (true){
             if (newIPSet.size()==newNum){
@@ -222,6 +228,7 @@ public class ZKClientService {
                 }
             }
             try {
+
                 String maxPath = path + "/" + maxIP;
                 int newData = maxConnectNum - 1;
                 zkTempZnodes.setData(maxPath, (newData + "").getBytes(), maxVersion);
