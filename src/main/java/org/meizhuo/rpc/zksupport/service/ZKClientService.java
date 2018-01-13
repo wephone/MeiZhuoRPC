@@ -17,10 +17,7 @@ import org.meizhuo.rpc.zksupport.watcher.IPWatcher;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.file.ProviderNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by wephone on 18-1-8.
@@ -230,7 +227,7 @@ public class ZKClientService {
                 }
             }
             try {
-                //这里对没有可用提供者不做处理 等待选择IP时抛出异常
+                //这里对没有可用提供者不抛出异常 直接返回一个空set 等待选择IP时抛出异常
                 if (!maxIP.equals("")){
                     String maxPath = path + "/" + maxIP;
                     int newData = maxConnectNum - 1;
@@ -243,6 +240,10 @@ public class ZKClientService {
                         BalanceThreadPool.execute(new ReleaseChannelRunnable(maxIP));
                     }
                     availList.remove(maxIndex);
+                }else {
+                    //TODO 输出warn日志
+                    System.out.println(serviceName+"服务已无可用提供者");
+                    return new HashSet<>();
                 }
             } catch (KeeperException.BadVersionException e) {
                 //乐观锁报错 重新循环尝试
