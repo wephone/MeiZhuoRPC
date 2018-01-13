@@ -20,8 +20,10 @@ public class MultiClient {
         Service1 service1= (Service1) RPC.call(Service1.class);
         Service2 service2= (Service2) RPC.call(Service2.class);
         service1.testVoid();
+        service1.testVoid("void args");
         service1.testStringVoid("发送");
-        service2.testString(2.3);
+        String res=service2.testString(2.3);
+        System.out.println(res);
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {

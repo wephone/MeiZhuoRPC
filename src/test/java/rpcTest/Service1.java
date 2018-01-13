@@ -5,5 +5,6 @@ package rpcTest;
  */
 public interface Service1 {
     void testVoid();
+    void testVoid(String voidarg);
     void testStringVoid(String a);
 }

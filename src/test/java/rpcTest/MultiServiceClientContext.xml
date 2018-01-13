@@ -6,7 +6,8 @@
         <property name="zooKeeperHost" value="127.0.0.1:2181"></property>
         <property name="serviceInterface">
             <set>
-                <value>rpcTest.Service</value>
+                <value>rpcTest.Service1</value>
+                <value>rpcTest.Service2</value>
             </set>
         </property>
         <property name="loadBalance" ref="minConnectRandom"></property>

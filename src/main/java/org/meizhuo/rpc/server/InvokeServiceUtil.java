@@ -23,14 +23,21 @@ public class InvokeServiceUtil {
         try {
             Class implClass=Class.forName(implClassName);
             Object[] parameters=request.getParameters();
-            int parameterNums=request.getParameters().length;
-            Class[] parameterTypes=new Class[parameterNums];
-            for (int i = 0; i <parameterNums ; i++) {
-                parameterTypes[i]=parameters[i].getClass();
+            if (parameters==null){
+                //无参方法
+                Method method=implClass.getDeclaredMethod(request.getMethodName());
+                Object implObj=implClass.newInstance();
+                result=method.invoke(implObj);
+            }else {
+                int parameterNums=request.getParameters().length;
+                Class[] parameterTypes=new Class[parameterNums];
+                for (int i = 0; i <parameterNums ; i++) {
+                    parameterTypes[i]=parameters[i].getClass();
+                }
+                Method method=implClass.getDeclaredMethod(request.getMethodName(),parameterTypes);
+                Object implObj=implClass.newInstance();
+                result=method.invoke(implObj,parameters);
             }
-            Method method=implClass.getDeclaredMethod(request.getMethodName(),parameterTypes);
-            Object implObj=implClass.newInstance();
-            result=method.invoke(implObj,parameters);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (NoSuchMethodException e) {

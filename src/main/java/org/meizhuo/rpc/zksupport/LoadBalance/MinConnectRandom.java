@@ -122,6 +122,10 @@ public class MinConnectRandom implements LoadBalance{
 
     @Override
     public String chooseIP(String serviceName) throws ProvidersNoFoundException {
+        if (BalanceThreadPool.serviceLockMap.get(serviceName)==null){
+            System.out.println(serviceName+"服务未初始化");
+            throw new ProvidersNoFoundException();
+        }
         //获取serviceInfo上读锁
         BalanceThreadPool.serviceLockMap.get(serviceName).readLock().lock();
         System.out.println(serviceName+"正在选择IP...已加读锁");
