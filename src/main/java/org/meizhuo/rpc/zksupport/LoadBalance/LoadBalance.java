@@ -2,6 +2,7 @@ package org.meizhuo.rpc.zksupport.LoadBalance;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.zookeeper.ZooKeeper;
+import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
 import org.meizhuo.rpc.zksupport.service.ZnodeType;
 
 import java.util.List;
@@ -27,5 +28,5 @@ public interface LoadBalance {
      * @param serviceName
      * @return
      */
-    String chooseIP(String serviceName);
+    String chooseIP(String serviceName) throws ProvidersNoFoundException;
 }

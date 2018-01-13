@@ -2,6 +2,7 @@ package org.meizhuo.rpc.zksupport.LoadBalance;
 
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
+import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
 import org.meizhuo.rpc.client.RPCRequestNet;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.zksupport.service.ServiceInfo;
@@ -10,6 +11,7 @@ import org.meizhuo.rpc.zksupport.service.ZKServerService;
 import org.meizhuo.rpc.zksupport.service.ZnodeType;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.file.ProviderNotFoundException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -119,7 +121,7 @@ public class MinConnectRandom implements LoadBalance{
     }
 
     @Override
-    public String chooseIP(String serviceName) {
+    public String chooseIP(String serviceName) throws ProvidersNoFoundException {
         //获取serviceInfo上读锁
         BalanceThreadPool.serviceLockMap.get(serviceName).readLock().lock();
         System.out.println(serviceName+"正在选择IP...已加读锁");
@@ -129,19 +131,23 @@ public class MinConnectRandom implements LoadBalance{
         BalanceThreadPool.serviceLockMap.get(serviceName).readLock().unlock();
         System.out.println(serviceName+"选择IP完毕 释放读锁");
         int num=IPSet.size();
-        //随机返回一个
-        Random random=new Random();
-        //生成[0,num)区间的整数：
-        int index=random.nextInt(num);
-        int count=0;
-        for (String ip:IPSet){
-            if (count==index){
-                //返回随机生成的索引位置ip
-                return ip;
+        if (num==0){
+            throw new ProvidersNoFoundException();
+        }else {
+            //随机返回一个
+            Random random = new Random();
+            //生成[0,num)区间的整数：
+            int index = random.nextInt(num);
+            int count = 0;
+            for (String ip : IPSet) {
+                if (count == index) {
+                    //返回随机生成的索引位置ip
+                    return ip;
+                }
+                count++;
             }
-            count++;
+            return IPSet.first();
         }
-        return IPSet.first();
     }
 
     private int getConnectNum(int clientNum,int serverNum){

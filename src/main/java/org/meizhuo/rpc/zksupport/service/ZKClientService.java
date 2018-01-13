@@ -3,6 +3,7 @@ package org.meizhuo.rpc.zksupport.service;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
+import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
 import org.meizhuo.rpc.client.IPChannelInfo;
 import org.meizhuo.rpc.client.RPCRequest;
 import org.meizhuo.rpc.client.RPCRequestNet;
@@ -15,6 +16,7 @@ import org.meizhuo.rpc.zksupport.watcher.ConsumerWatcher;
 import org.meizhuo.rpc.zksupport.watcher.IPWatcher;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.file.ProviderNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -228,18 +230,20 @@ public class ZKClientService {
                 }
             }
             try {
-
-                String maxPath = path + "/" + maxIP;
-                int newData = maxConnectNum - 1;
-                zkTempZnodes.setData(maxPath, (newData + "").getBytes(), maxVersion);
-                newIPSet.remove(maxIP);
-                //减少服务引用次数 TODO 剩余引用为0时加入线程池 等待超时时间后 再判断一次 若仍无引用 关闭此通道释放网络连接
-                int remain=RPCRequestNet.getInstance().IPChannelMap.get(maxIP).decrementServiceQuoteNum();
-                if (remain==0){
-                    //加入线程池中 释放资源 关闭通道
-                    BalanceThreadPool.execute(new ReleaseChannelRunnable(maxIP));
+                //这里对没有可用提供者不做处理 等待选择IP时抛出异常
+                if (!maxIP.equals("")){
+                    String maxPath = path + "/" + maxIP;
+                    int newData = maxConnectNum - 1;
+                    zkTempZnodes.setData(maxPath, (newData + "").getBytes(), maxVersion);
+                    newIPSet.remove(maxIP);
+                    //减少服务引用次数 TODO 剩余引用为0时加入线程池 等待超时时间后 再判断一次 若仍无引用 关闭此通道释放网络连接
+                    int remain = RPCRequestNet.getInstance().IPChannelMap.get(maxIP).decrementServiceQuoteNum();
+                    if (remain == 0) {
+                        //加入线程池中 释放资源 关闭通道
+                        BalanceThreadPool.execute(new ReleaseChannelRunnable(maxIP));
+                    }
+                    availList.remove(maxIndex);
                 }
-                availList.remove(maxIndex);
             } catch (KeeperException.BadVersionException e) {
                 //乐观锁报错 重新循环尝试
                 e.printStackTrace();

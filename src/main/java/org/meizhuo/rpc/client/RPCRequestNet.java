@@ -10,6 +10,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
+import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.zksupport.LoadBalance.BalanceThreadPool;
 import org.meizhuo.rpc.zksupport.LoadBalance.LoadBalance;
@@ -117,7 +118,7 @@ public class RPCRequestNet {
     }
 
     //向实现端发送请求
-    public void send(RPCRequest request){
+    public void send(RPCRequest request) throws ProvidersNoFoundException {
         String serviceName=request.getClassName();
         String ip=loadBalance.chooseIP(serviceName);
         Channel channel=connect(ip);
