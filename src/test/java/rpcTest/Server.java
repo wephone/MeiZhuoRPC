@@ -35,4 +35,22 @@ public class Server {
         RPC.start();
     }
 
+    @Test
+    public void multi1and2() throws InterruptedException, IOException {
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+                new String[] { "file:src/test/java/rpcTest/MultiServer1and2Context.xml" });
+        context.start();
+        //启动spring后才可启动 防止容器尚未加载完毕
+        RPC.start();
+    }
+
+    @Test
+    public void multi2() throws InterruptedException, IOException {
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+                new String[] { "file:src/test/java/rpcTest/MultiServer2Context.xml" });
+        context.start();
+        //启动spring后才可启动 防止容器尚未加载完毕
+        RPC.start();
+    }
+
 }

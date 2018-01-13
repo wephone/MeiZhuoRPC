@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean class="org.meizhuo.rpc.client.ClientConfig">
+        <property name="zooKeeperHost" value="127.0.0.1:2181"></property>
+        <property name="serviceInterface">
+            <set>
+                <value>rpcTest.Service</value>
+            </set>
+        </property>
+        <property name="loadBalance" ref="minConnectRandom"></property>
+    </bean>
+    <bean scope="prototype" class="org.meizhuo.rpc.zksupport.LoadBalance.MinConnectRandom" id="minConnectRandom">
+    </bean>
+</beans>
