@@ -12,7 +12,7 @@ public class ZKConst {
     public static final String consumersPath="/consumers";
     public static final String balancePath="/balance";
     public static final String servicePath="/service";
-    public static final String ipSeqPath="/ip";
+//    public static final String ipSeqPath="/ip";
     public static final String consumerSeqNodePath="/node";
 
 }
