@@ -4,6 +4,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
+import org.meizhuo.rpc.client.IPChannelInfo;
 import org.meizhuo.rpc.client.RPCRequestNet;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.zksupport.LoadBalance.BalanceThreadPool;
@@ -40,6 +41,9 @@ public class IPWatcher implements Watcher{
         RPCRequestNet.getInstance().serviceLockMap.get(serviceName).writeLock().lock();
         try {
             List<String> children=zooKeeper.getChildren(path,this);
+            for (String ip:children){
+                RPCRequestNet.getInstance().IPChannelMap.putIfAbsent(ip,new IPChannelInfo());
+            }
             RPCRequestNet.getInstance().serviceNameInfoMap.get(serviceName).setServiceIPSet(children);
         } catch (KeeperException e) {
             e.printStackTrace();
