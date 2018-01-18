@@ -42,21 +42,21 @@ public class MinConnectRandom{
                 //上写锁
                 System.out.println(service+"正在平衡...已加写锁");
                 BalanceThreadPool.serviceLockMap.get(service).writeLock().lock();
-                List<String> clientZnodes = zkClientService.getServiceClients(service);
+//                List<String> clientZnodes = zkClientService.getServiceClients(service);
                 List<String> serverZnodes = zkServerService.getAllServiceIP(service);
                 RPCRequestNet.getInstance().serviceNameInfoMap.putIfAbsent(service,new ServiceInfo());
                 ServiceInfo serviceInfo=RPCRequestNet.getInstance().serviceNameInfoMap.get(service);
-                serviceInfo.setClientCount(clientZnodes.size());
-                serviceInfo.setServerCount(serverZnodes.size());
-                int newConnectNum=getConnectNum(clientZnodes.size(),serverZnodes.size());
+//                serviceInfo.setClientCount(clientZnodes.size());
+//                serviceInfo.setServerCount(serverZnodes.size());
+//                int newConnectNum=getConnectNum(clientZnodes.size(),serverZnodes.size());
                 Set<String> newIPSet= new HashSet<>();
                 //启动时增加连接服务端
-                try {
-                    newIPSet = zkClientService.addServiceServerConnectNum(service,serviceInfo.getConnectIPSet(),newConnectNum);
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                serviceInfo.setServiceIPSet(newIPSet);
+//                try {
+//                    newIPSet = zkClientService.addServiceServerConnectNum(service,serviceInfo.getConnectIPSet(),newConnectNum);
+//                } catch (UnsupportedEncodingException e) {
+//                    e.printStackTrace();
+//                }
+//                serviceInfo.setServiceIPSet(newIPSet);
                 //写入新serviceInfo
                 RPCRequestNet.getInstance().serviceNameInfoMap.put(service,serviceInfo);
                 //释放写锁
@@ -88,29 +88,29 @@ public class MinConnectRandom{
                 ServiceInfo serviceInfo=RPCRequestNet.getInstance().serviceNameInfoMap.get(service);
                 int oldConnectNum=serviceInfo.getConnectIPSetCount();
                 if (type==ZnodeType.consumer){
-                    serviceInfo.setClientCount(znodes.size());
+//                    serviceInfo.setClientCount(znodes.size());
                 }else {
-                    serviceInfo.setServerCount(znodes.size());
+//                    serviceInfo.setServerCount(znodes.size());
                 }
-                int newConnectNum=getConnectNum(serviceInfo.getClientCount(),serviceInfo.getServerCount());
+//                int newConnectNum=getConnectNum(serviceInfo.getClientCount(),serviceInfo.getServerCount());
                 ZKClientService zkClientService=new ZKClientService(zooKeeper);
-                try {
+//                try {
                     //需要新增连接时采用最小连接数策略 连接该服务连接数最少的一个节点
-                    if (newConnectNum>oldConnectNum){
-                        Set<String> newIPSet=zkClientService.addServiceServerConnectNum(serviceName,serviceInfo.getConnectIPSet(),newConnectNum);
-                        serviceInfo.setServiceIPSet(newIPSet);
-                    }else {
-                        //否则减少对服务端的连接
-                        Set<String> newIPSet=zkClientService.reduceServiceServerConnectNum(serviceName,serviceInfo.getConnectIPSet(),newConnectNum);
-                        serviceInfo.setServiceIPSet(newIPSet);
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                } catch (KeeperException e) {
-                    e.printStackTrace();
-                }
+//                    if (newConnectNum>oldConnectNum){
+//                        Set<String> newIPSet=zkClientService.addServiceServerConnectNum(serviceName,serviceInfo.getConnectIPSet(),newConnectNum);
+//                        serviceInfo.setServiceIPSet(newIPSet);
+//                    }else {
+//                        //否则减少对服务端的连接
+//                        Set<String> newIPSet=zkClientService.reduceServiceServerConnectNum(serviceName,serviceInfo.getConnectIPSet(),newConnectNum);
+//                        serviceInfo.setServiceIPSet(newIPSet);
+//                    }
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                } catch (UnsupportedEncodingException e) {
+//                    e.printStackTrace();
+//                } catch (KeeperException e) {
+//                    e.printStackTrace();
+//                }
                 //写入新serviceInfo
                 RPCRequestNet.getInstance().serviceNameInfoMap.put(service,serviceInfo);
                 //释放写锁
@@ -130,29 +130,30 @@ public class MinConnectRandom{
         //获取serviceInfo上读锁
         BalanceThreadPool.serviceLockMap.get(serviceName).readLock().lock();
 //        System.out.println(serviceName+"正在选择IP...已加读锁");
-        ConcurrentSkipListSet<String> IPSet=RPCRequestNet.getInstance().serviceNameInfoMap.get(serviceName)
-                .getConnectIPSet();
+//        ConcurrentSkipListSet<String> IPSet=RPCRequestNet.getInstance().serviceNameInfoMap.get(serviceName)
+//                .getConnectIPSet();
         //释放读锁
         BalanceThreadPool.serviceLockMap.get(serviceName).readLock().unlock();
 //        System.out.println(serviceName+"选择IP完毕 释放读锁");
-        int num=IPSet.size();
-        if (num==0){
-            throw new ProvidersNoFoundException();
-        }else {
-            //随机返回一个
-            Random random = new Random();
-            //生成[0,num)区间的整数：
-            int index = random.nextInt(num);
-            int count = 0;
-            for (String ip : IPSet) {
-                if (count == index) {
-                    //返回随机生成的索引位置ip
-                    return ip;
-                }
-                count++;
-            }
-            return IPSet.first();
-        }
+//        int num=IPSet.size();
+//        if (num==0){
+//            throw new ProvidersNoFoundException();
+//        }else {
+//            //随机返回一个
+//            Random random = new Random();
+//            //生成[0,num)区间的整数：
+//            int index = random.nextInt(num);
+//            int count = 0;
+//            for (String ip : IPSet) {
+//                if (count == index) {
+//                    //返回随机生成的索引位置ip
+//                    return ip;
+//                }
+//                count++;
+//            }
+//            return IPSet.first();
+//        }
+        return null;
     }
 
     private int getConnectNum(int clientNum,int serverNum){

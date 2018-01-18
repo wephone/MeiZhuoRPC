@@ -4,15 +4,19 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.zksupport.LoadBalance.LoadBalance;
-import org.meizhuo.rpc.zksupport.LoadBalance.MinConnectRandom;
 import org.meizhuo.rpc.zksupport.ZKConnect;
-import org.meizhuo.rpc.zksupport.service.ZKClientService;
+import org.meizhuo.rpc.zksupport.service.ServiceInfo;
+import org.meizhuo.rpc.zksupport.service.ZKServerService;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by wephone on 17-12-26.
@@ -74,13 +78,17 @@ public class ClientConfig implements ApplicationContextAware {
         //获得IOC容器后 读取配置中的服务 向zookeeper注册znode
         try {
             ZooKeeper zooKeeper= new ZKConnect().clientConnect();
-            ZKClientService zkClientService=new ZKClientService(zooKeeper);
-            zkClientService.initZnode();
-            zkClientService.createClientService();
-            //获取提供者调用者ip及数量 并监听 即对所有服务开启平衡
-            //负载均衡类设置prototype作用域
-            LoadBalance loadBalance=RPC.getClientConfig().getLoadBalance();
-            loadBalance.balanceAll(zooKeeper);
+            ZKServerService zkServerService=new ZKServerService(zooKeeper);
+            Set<String> services=RPC.getClientConfig().getServiceInterface();
+            //初始化所有可用IP 初始化读写锁
+            for (String service:services){
+                List<String> ips=zkServerService.getAllServiceIP(service);
+                ServiceInfo serviceInfo=new ServiceInfo();
+                serviceInfo.setServiceIPSet(ips);
+                ReadWriteLock readWriteLock=new ReentrantReadWriteLock();
+                RPCRequestNet.getInstance().serviceLockMap.putIfAbsent(service,readWriteLock);
+                RPCRequestNet.getInstance().serviceNameInfoMap.putIfAbsent(service,serviceInfo);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {

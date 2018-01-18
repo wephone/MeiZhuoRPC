@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 
 
@@ -40,6 +41,8 @@ public class RPCRequestNet {
     public Map<String,ServiceInfo> serviceNameInfoMap=new ConcurrentHashMap<>();
     //IP地址 映射 对应的NIO Channel及其引用次数
     public Map<String,IPChannelInfo> IPChannelMap=new ConcurrentHashMap<>();
+    //全局读写锁 平衡连接时为写操作 负载均衡选中IP为读操作
+    public ConcurrentHashMap<String,ReadWriteLock> serviceLockMap=new ConcurrentHashMap<>();
 //    public CountDownLatch countDownLatch=new CountDownLatch(1);
     private LoadBalance loadBalance;
     private static RPCRequestNet instance;

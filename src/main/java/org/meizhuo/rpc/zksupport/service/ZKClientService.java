@@ -3,20 +3,15 @@ package org.meizhuo.rpc.zksupport.service;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
-import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
 import org.meizhuo.rpc.client.IPChannelInfo;
-import org.meizhuo.rpc.client.RPCRequest;
 import org.meizhuo.rpc.client.RPCRequestNet;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.zksupport.LoadBalance.BalanceThreadPool;
 import org.meizhuo.rpc.zksupport.LoadBalance.ReleaseChannelRunnable;
 import org.meizhuo.rpc.zksupport.ZKConst;
 import org.meizhuo.rpc.zksupport.ZKTempZnodes;
-import org.meizhuo.rpc.zksupport.watcher.ConsumerWatcher;
-import org.meizhuo.rpc.zksupport.watcher.IPWatcher;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.file.ProviderNotFoundException;
 import java.util.*;
 
 /**
@@ -30,6 +25,7 @@ public class ZKClientService {
         this.zooKeeper = zooKeeper;
     }
 
+    @Deprecated
     //注册消费者需要的服务znode
     public void createClientService() throws KeeperException, InterruptedException {
         ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
@@ -40,13 +36,14 @@ public class ZKClientService {
         }
     }
 
-    //获得这个服务所有的客户端 包含监听的注册
-    public List<String> getServiceClients(String serviceName) throws KeeperException, InterruptedException {
-        ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
-        ConsumerWatcher consumerWatcher=new ConsumerWatcher(zooKeeper);
-        List<String> children=zkTempZnodes.getPathChildren(ZKConst.rootPath+ZKConst.servicePath+"/"+serviceName+ZKConst.consumersPath,consumerWatcher);
-        return children;
-    }
+//    @Deprecated
+//    //获得这个服务所有的客户端 包含监听的注册
+//    public List<String> getServiceClients(String serviceName) throws KeeperException, InterruptedException {
+//        ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
+//        ConsumerWatcher consumerWatcher=new ConsumerWatcher(zooKeeper);
+//        List<String> children=zkTempZnodes.getPathChildren(ZKConst.rootPath+ZKConst.servicePath+"/"+serviceName+ZKConst.consumersPath,consumerWatcher);
+//        return children;
+//    }
 
 //    private List<String> getAllClients(String serviceName) throws KeeperException, InterruptedException {
 //        ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
@@ -96,7 +93,6 @@ public class ZKClientService {
         Set<String> set=RPC.getClientConfig().getServiceInterface();
         for (String service:set){
             zkTempZnodes.createSimpleZnode(path+"/"+service,null);
-            zkTempZnodes.createSimpleZnode(path+"/"+service+ZKConst.consumersPath,null);
         }
     }
 
@@ -112,6 +108,7 @@ public class ZKClientService {
      * @throws InterruptedException
      * @throws UnsupportedEncodingException
      */
+    @Deprecated
     public Set<String> addServiceServerConnectNum(String serviceName,Set<String> oldIPSet,int newNum) throws InterruptedException, UnsupportedEncodingException, KeeperException {
         Set<String> newIPSet=oldIPSet;
         String path=ZKConst.rootPath+ZKConst.balancePath+"/"+serviceName;
@@ -179,6 +176,7 @@ public class ZKClientService {
      * @throws InterruptedException
      * @throws UnsupportedEncodingException
      */
+    @Deprecated
     public Set<String> reduceServiceServerConnectNum(String serviceName,Set<String> oldIPSet,int newNum) throws KeeperException, InterruptedException, UnsupportedEncodingException {
         String path=ZKConst.rootPath+ZKConst.balancePath+"/"+serviceName;
         ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);

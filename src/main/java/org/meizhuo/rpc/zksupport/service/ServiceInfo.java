@@ -17,38 +17,22 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ServiceInfo {
 
-    //这个服务的提供者和调用者的数量
-    private AtomicInteger clientCount=new AtomicInteger(0);//原子变量都要赋初值
-    private AtomicInteger serverCount=new AtomicInteger(0);
-    //这个服务所连接的提供者IP Set 只能由负载均衡类操作 ConcurrentSkipListSet线程安全的有序集合
-    private ConcurrentSkipListSet<String> serviceIPSet=new ConcurrentSkipListSet<>();
+    //用于轮询负载均衡策略
+    private AtomicInteger index=new AtomicInteger(0);
+    //这个服务所连接的提供者IP Set 只能由负载均衡类操作
+    private Set<String> serviceIPSet=new HashSet<>();
 
-    public int getClientCount() {
-        return clientCount.get();
-    }
-
-    public void setClientCount(int clientCount) {
-        this.clientCount.set(clientCount);
-    }
-
-    public int getServerCount() {
-        return serverCount.get();
-    }
-
-    public void setServerCount(int serverCount) {
-        this.serverCount.set(serverCount);
-    }
-
-    public ConcurrentSkipListSet<String> getConnectIPSet() {
-        return serviceIPSet;
-    }
 
 //    public void setServiceIPSet(Set<String> serviceIPSet) {
-    public void setServiceIPSet(Set<String> newIPSet) {
+    public void setServiceIPSet(List<String> newIPSet) {
         Set<String> set=new HashSet<>();
         set.addAll(newIPSet);
         this.serviceIPSet.clear();
         this.serviceIPSet.addAll(set);
+    }
+
+    public Set<String> getServiceIPSet() {
+        return serviceIPSet;
     }
 
     public int getConnectIPSetCount(){
