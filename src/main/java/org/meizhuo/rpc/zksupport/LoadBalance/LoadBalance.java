@@ -15,13 +15,13 @@ import java.util.List;
 public interface LoadBalance {
 
     //平衡连接消费者端的所有服务 仅在启动时使用
-    void balanceAll(ZooKeeper zooKeeper);
+//    void balanceAll(ZooKeeper zooKeeper);
 
     /**
      * 负载均衡的连接平衡操作
      * @param serviceName
      */
-    void balance(ZooKeeper zooKeeper, String serviceName, List<String> znodes, ZnodeType type);
+    void balance(ZooKeeper zooKeeper, String serviceName);
 
     /**
      * 负载均衡选择服务中已选中的IP之一

@@ -26,9 +26,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * 负载均衡类非单例
  * 采用最小连接数平衡连接 再随机选择每个服务已分配的IP
  */
-public class MinConnectRandom implements LoadBalance{
+@Deprecated
+public class MinConnectRandom{
 
-    @Override
+//    @Override
     public void balanceAll(ZooKeeper zookeeper) {
         Set<String> allServices= RPC.getClientConfig().getServiceInterface();
         ZKClientService zkClientService=new ZKClientService(zookeeper);
@@ -70,7 +71,7 @@ public class MinConnectRandom implements LoadBalance{
         }
     }
 
-    @Override
+//    @Override
     public void balance(ZooKeeper zooKeeper, String serviceName, List<String> znodes, ZnodeType type) {
         final String service=serviceName;
         Runnable runnable=new Runnable() {
@@ -120,7 +121,7 @@ public class MinConnectRandom implements LoadBalance{
         BalanceThreadPool.execute(runnable);
     }
 
-    @Override
+//    @Override
     public String chooseIP(String serviceName) throws ProvidersNoFoundException {
         if (BalanceThreadPool.serviceLockMap.get(serviceName)==null){
             System.out.println(serviceName+"服务未初始化");
