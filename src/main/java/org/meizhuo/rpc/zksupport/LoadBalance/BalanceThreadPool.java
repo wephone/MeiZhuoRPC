@@ -5,15 +5,10 @@ import java.util.concurrent.locks.ReadWriteLock;
 
 /**
  * Created by wephone on 18-1-9.
- * 平衡连接线程池 无论哪种平衡策略 都需要线程池和读写锁
- * 因为每个服务的提供者调用者互不关联 所以每个服务单独一个线程进行平衡操作
- * 即多线程处理多个服务的平衡 单线程处理各个单独服务
- * 每个服务内部用读写锁保证线程安全
  */
+@Deprecated
 public class BalanceThreadPool {
 
-    //全局读写锁 平衡连接时为写操作 负载均衡选中IP为读操作
-    public static ConcurrentHashMap<String,ReadWriteLock> serviceLockMap=new ConcurrentHashMap<>();
     //静态线程池
     private static ThreadPoolExecutor executor;
 

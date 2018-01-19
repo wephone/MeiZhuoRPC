@@ -2,7 +2,6 @@ package org.meizhuo.rpc.zksupport.service;
 
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
-import org.meizhuo.rpc.client.RPCRequestNet;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.zksupport.ZKConst;
 import org.meizhuo.rpc.zksupport.ZKTempZnodes;
@@ -31,7 +30,7 @@ public class ZKServerService {
             //获取配置中设置的IP设置为IP顺序节点的值 默认127.0.0.1:8888
             zkTempZnodes.createTempZnode(ZKConst.rootPath+ZKConst.servicePath+"/"+entry.getKey()+ZKConst.providersPath+"/"+ip,null);
             //创建连接数节点 首次增加时连接数为0
-            zkTempZnodes.createTempZnode(ZKConst.rootPath+ZKConst.balancePath+"/"+entry.getKey()+"/"+ip,0+"");
+//            zkTempZnodes.createTempZnode(ZKConst.rootPath+ZKConst.balancePath+"/"+entry.getKey()+"/"+ip,0+"");
         }
     }
 
@@ -46,15 +45,15 @@ public class ZKServerService {
     public void initZnode() throws KeeperException, InterruptedException {
         ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
         String path=ZKConst.rootPath;
-        String balancePath=ZKConst.rootPath;
+//        String balancePath=ZKConst.rootPath;
         zkTempZnodes.createSimpleZnode(path,null);
-        balancePath=balancePath+ZKConst.balancePath;
-        zkTempZnodes.createSimpleZnode(balancePath,null);
+//        balancePath=balancePath+ZKConst.balancePath;
+//        zkTempZnodes.createSimpleZnode(balancePath,null);
         path=path+ZKConst.servicePath;
         zkTempZnodes.createSimpleZnode(path,null);
         Map<String,String> serverImplMap=RPC.getServerConfig().getServerImplMap();
         for (Map.Entry<String,String> entry:serverImplMap.entrySet()){
-            zkTempZnodes.createSimpleZnode(balancePath+"/"+entry.getKey(),null);
+//            zkTempZnodes.createSimpleZnode(balancePath+"/"+entry.getKey(),null);
             zkTempZnodes.createSimpleZnode(path+"/"+entry.getKey(),null);
             zkTempZnodes.createSimpleZnode(path+"/"+entry.getKey()+ZKConst.providersPath,null);
         }

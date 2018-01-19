@@ -75,7 +75,7 @@ public class ClientConfig implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         RPC.clientContext=applicationContext;
-        //获得IOC容器后 读取配置中的服务 向zookeeper注册znode
+        //获得IOC容器后 读取配置中的服务
         try {
             ZooKeeper zooKeeper= new ZKConnect().clientConnect();
             ZKServerService zkServerService=new ZKServerService(zooKeeper);

@@ -18,8 +18,8 @@ public class IPChannelInfo {
 
     private EventLoopGroup group;
     private Channel channel;
-    //保证多线程修改时引用计数正确
-    private AtomicInteger serviceQuoteNum=new AtomicInteger(0);//原子变量要赋初值
+//    //保证多线程修改时引用计数正确
+//    private AtomicInteger serviceQuoteNum=new AtomicInteger(0);//原子变量要赋初值
 
     public EventLoopGroup getGroup() {
         return group;
@@ -37,16 +37,4 @@ public class IPChannelInfo {
         this.channel = channel;
     }
 
-    public Integer getServiceQuoteNum() {
-        return serviceQuoteNum.get();
-    }
-
-    public int incrementServiceQuoteNum() {
-        return serviceQuoteNum.incrementAndGet();
-    }
-
-    //服务不使用后 需要减去对channel的引用数量
-    public int decrementServiceQuoteNum(){
-        return serviceQuoteNum.decrementAndGet();
-    }
 }

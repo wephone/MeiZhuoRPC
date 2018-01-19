@@ -14,6 +14,7 @@ import org.meizhuo.rpc.zksupport.service.ZnodeType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -39,6 +40,7 @@ public class IPWatcher implements Watcher{
         String[] pathArr=path.split("/");
         String serviceName=pathArr[3];//第四个部分则为服务名
         RPCRequestNet.getInstance().serviceLockMap.get(serviceName).writeLock().lock();
+        System.out.println("providers changed...");
         try {
             List<String> children=zooKeeper.getChildren(path,this);
             for (String ip:children){
@@ -50,6 +52,6 @@ public class IPWatcher implements Watcher{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        BalanceThreadPool.serviceLockMap.get(serviceName).writeLock().unlock();
+        RPCRequestNet.getInstance().serviceLockMap.get(serviceName).writeLock().unlock();
     }
 }

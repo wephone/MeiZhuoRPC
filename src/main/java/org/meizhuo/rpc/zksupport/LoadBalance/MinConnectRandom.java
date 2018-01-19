@@ -38,10 +38,10 @@ public class MinConnectRandom{
             for (String service : allServices) {
                 ReadWriteLock readWriteLock=new ReentrantReadWriteLock();
                 //不存在则新建一个锁键值对 存在则不操作
-                BalanceThreadPool.serviceLockMap.putIfAbsent(service,readWriteLock);
-                //上写锁
-                System.out.println(service+"正在平衡...已加写锁");
-                BalanceThreadPool.serviceLockMap.get(service).writeLock().lock();
+//                BalanceThreadPool.serviceLockMap.putIfAbsent(service,readWriteLock);
+//                //上写锁
+//                System.out.println(service+"正在平衡...已加写锁");
+//                BalanceThreadPool.serviceLockMap.get(service).writeLock().lock();
 //                List<String> clientZnodes = zkClientService.getServiceClients(service);
                 List<String> serverZnodes = zkServerService.getAllServiceIP(service);
                 RPCRequestNet.getInstance().serviceNameInfoMap.putIfAbsent(service,new ServiceInfo());
@@ -60,7 +60,7 @@ public class MinConnectRandom{
                 //写入新serviceInfo
                 RPCRequestNet.getInstance().serviceNameInfoMap.put(service,serviceInfo);
                 //释放写锁
-                BalanceThreadPool.serviceLockMap.get(service).writeLock().unlock();
+//                BalanceThreadPool.serviceLockMap.get(service).writeLock().unlock();
                 System.out.println(service+"已平衡 释放写锁,持有连接:"+serviceInfo.getConnectIPSetCount());
             }
             //下面这句出现了好像死锁
@@ -81,7 +81,7 @@ public class MinConnectRandom{
                 //不存在则新建一个锁键值对 存在则不操作 第一次平衡全部时已赋值锁
 //                BalanceThreadPool.serviceLockMap.putIfAbsent(service,readWriteLock);
                 //上写锁
-                BalanceThreadPool.serviceLockMap.get(service).writeLock().lock();
+//                BalanceThreadPool.serviceLockMap.get(service).writeLock().lock();
                 System.out.println(serviceName+"正在平衡...已加写锁");
                 //原先不存在则新建一个
                 RPCRequestNet.getInstance().serviceNameInfoMap.putIfAbsent(service,new ServiceInfo());
@@ -114,7 +114,7 @@ public class MinConnectRandom{
                 //写入新serviceInfo
                 RPCRequestNet.getInstance().serviceNameInfoMap.put(service,serviceInfo);
                 //释放写锁
-                BalanceThreadPool.serviceLockMap.get(service).writeLock().unlock();
+//                BalanceThreadPool.serviceLockMap.get(service).writeLock().unlock();
                 System.out.println(serviceName+"平衡结束 持有连接数:"+serviceInfo.getConnectIPSetCount());
             }
         };
@@ -123,17 +123,17 @@ public class MinConnectRandom{
 
 //    @Override
     public String chooseIP(String serviceName) throws ProvidersNoFoundException {
-        if (BalanceThreadPool.serviceLockMap.get(serviceName)==null){
-            System.out.println(serviceName+"服务未初始化");
-            throw new ProvidersNoFoundException();
-        }
-        //获取serviceInfo上读锁
-        BalanceThreadPool.serviceLockMap.get(serviceName).readLock().lock();
+//        if (BalanceThreadPool.serviceLockMap.get(serviceName)==null){
+//            System.out.println(serviceName+"服务未初始化");
+//            throw new ProvidersNoFoundException();
+//        }
+//        //获取serviceInfo上读锁
+//        BalanceThreadPool.serviceLockMap.get(serviceName).readLock().lock();
 //        System.out.println(serviceName+"正在选择IP...已加读锁");
 //        ConcurrentSkipListSet<String> IPSet=RPCRequestNet.getInstance().serviceNameInfoMap.get(serviceName)
 //                .getConnectIPSet();
         //释放读锁
-        BalanceThreadPool.serviceLockMap.get(serviceName).readLock().unlock();
+//        BalanceThreadPool.serviceLockMap.get(serviceName).readLock().unlock();
 //        System.out.println(serviceName+"选择IP完毕 释放读锁");
 //        int num=IPSet.size();
 //        if (num==0){

@@ -3,11 +3,7 @@ package org.meizhuo.rpc.zksupport.service;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
-import org.meizhuo.rpc.client.IPChannelInfo;
-import org.meizhuo.rpc.client.RPCRequestNet;
 import org.meizhuo.rpc.core.RPC;
-import org.meizhuo.rpc.zksupport.LoadBalance.BalanceThreadPool;
-import org.meizhuo.rpc.zksupport.LoadBalance.ReleaseChannelRunnable;
 import org.meizhuo.rpc.zksupport.ZKConst;
 import org.meizhuo.rpc.zksupport.ZKTempZnodes;
 
@@ -17,6 +13,7 @@ import java.util.*;
 /**
  * Created by wephone on 18-1-8.
  */
+@Deprecated
 public class ZKClientService {
 
     private ZooKeeper zooKeeper;
@@ -28,12 +25,12 @@ public class ZKClientService {
     @Deprecated
     //注册消费者需要的服务znode
     public void createClientService() throws KeeperException, InterruptedException {
-        ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
-        Set<String> services= RPC.getClientConfig().getServiceInterface();
-        for (String serviceName:services){
-            //创建消费者服务节点 不放数据
-            zkTempZnodes.createTempSeqZnode(ZKConst.rootPath+ZKConst.servicePath+"/"+serviceName+ZKConst.consumersPath+ZKConst.consumerSeqNodePath,null);
-        }
+//        ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
+//        Set<String> services= RPC.getClientConfig().getServiceInterface();
+//        for (String serviceName:services){
+//            //创建消费者服务节点 不放数据
+//            zkTempZnodes.createTempSeqZnode(ZKConst.rootPath+ZKConst.servicePath+"/"+serviceName+ZKConst.consumersPath+ZKConst.consumerSeqNodePath,null);
+//        }
     }
 
 //    @Deprecated
@@ -111,7 +108,8 @@ public class ZKClientService {
     @Deprecated
     public Set<String> addServiceServerConnectNum(String serviceName,Set<String> oldIPSet,int newNum) throws InterruptedException, UnsupportedEncodingException, KeeperException {
         Set<String> newIPSet=oldIPSet;
-        String path=ZKConst.rootPath+ZKConst.balancePath+"/"+serviceName;
+//        String path=ZKConst.rootPath+ZKConst.balancePath+"/"+serviceName;
+        String path="";
         ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
         //不做监听 用乐观锁
         List<String> allIP=zkTempZnodes.getPathChildren(path,null);
@@ -153,9 +151,9 @@ public class ZKClientService {
                 //设置成功后在连接成功集合中添加 并在待选的ip中去除
                 newIPSet.add(minIP);
                 //不存在则赋初值
-                RPCRequestNet.getInstance().IPChannelMap.putIfAbsent(minIP,new IPChannelInfo());
-                //增加服务引用次数
-                RPCRequestNet.getInstance().IPChannelMap.get(minIP).incrementServiceQuoteNum();
+//                RPCRequestNet.getInstance().IPChannelMap.putIfAbsent(minIP,new IPChannelInfo());
+//                //增加服务引用次数
+//                RPCRequestNet.getInstance().IPChannelMap.get(minIP).incrementServiceQuoteNum();
                 allIP.remove(minIndex);
             } catch (KeeperException.BadVersionException e) {
                 //乐观锁报错 重新循环尝试
@@ -178,7 +176,8 @@ public class ZKClientService {
      */
     @Deprecated
     public Set<String> reduceServiceServerConnectNum(String serviceName,Set<String> oldIPSet,int newNum) throws KeeperException, InterruptedException, UnsupportedEncodingException {
-        String path=ZKConst.rootPath+ZKConst.balancePath+"/"+serviceName;
+//        String path=ZKConst.rootPath+ZKConst.balancePath+"/"+serviceName;
+        String path="";
         ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
         for (String oldIP:oldIPSet){
             if (zkTempZnodes.exists(path+"/"+oldIP)==null){
@@ -216,11 +215,11 @@ public class ZKClientService {
                     String abandonIP=availList.get(i);
                     availList.remove(i);
                     //减少服务引用次数
-                    int remain=RPCRequestNet.getInstance().IPChannelMap.get(abandonIP).decrementServiceQuoteNum();
-                    if (remain==0){
-                        //加入线程池中 释放资源 关闭通道
-                        BalanceThreadPool.execute(new ReleaseChannelRunnable(maxIP));
-                    }
+//                    int remain=RPCRequestNet.getInstance().IPChannelMap.get(abandonIP).decrementServiceQuoteNum();
+//                    if (remain==0){
+//                        //加入线程池中 释放资源 关闭通道
+//                        BalanceThreadPool.execute(new ReleaseChannelRunnable(maxIP));
+//                    }
                     newIPSet.remove(abandonIP);
                 }
             }
@@ -232,11 +231,11 @@ public class ZKClientService {
                     zkTempZnodes.setData(maxPath, (newData + "").getBytes(), maxVersion);
                     newIPSet.remove(maxIP);
                     //减少服务引用次数 TODO 剩余引用为0时加入线程池 等待超时时间后 再判断一次 若仍无引用 关闭此通道释放网络连接
-                    int remain = RPCRequestNet.getInstance().IPChannelMap.get(maxIP).decrementServiceQuoteNum();
-                    if (remain == 0) {
-                        //加入线程池中 释放资源 关闭通道
-                        BalanceThreadPool.execute(new ReleaseChannelRunnable(maxIP));
-                    }
+//                    int remain = RPCRequestNet.getInstance().IPChannelMap.get(maxIP).decrementServiceQuoteNum();
+//                    if (remain == 0) {
+//                        //加入线程池中 释放资源 关闭通道
+//                        BalanceThreadPool.execute(new ReleaseChannelRunnable(maxIP));
+//                    }
                     availList.remove(maxIndex);
                 }else {
                     //TODO 输出warn日志
