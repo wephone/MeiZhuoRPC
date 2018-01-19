@@ -6,7 +6,6 @@ import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
 import org.meizhuo.rpc.client.RPCRequestNet;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.zksupport.service.ServiceInfo;
-import org.meizhuo.rpc.zksupport.service.ZKClientService;
 import org.meizhuo.rpc.zksupport.service.ZKServerService;
 import org.meizhuo.rpc.zksupport.service.ZnodeType;
 
@@ -32,7 +31,7 @@ public class MinConnectRandom{
 //    @Override
     public void balanceAll(ZooKeeper zookeeper) {
         Set<String> allServices= RPC.getClientConfig().getServiceInterface();
-        ZKClientService zkClientService=new ZKClientService(zookeeper);
+//        ZKClientService zkClientService=new ZKClientService(zookeeper);
         ZKServerService zkServerService=new ZKServerService(zookeeper);
         try {
             for (String service : allServices) {
@@ -93,7 +92,7 @@ public class MinConnectRandom{
 //                    serviceInfo.setServerCount(znodes.size());
                 }
 //                int newConnectNum=getConnectNum(serviceInfo.getClientCount(),serviceInfo.getServerCount());
-                ZKClientService zkClientService=new ZKClientService(zooKeeper);
+//                ZKClientService zkClientService=new ZKClientService(zooKeeper);
 //                try {
                     //需要新增连接时采用最小连接数策略 连接该服务连接数最少的一个节点
 //                    if (newConnectNum>oldConnectNum){
