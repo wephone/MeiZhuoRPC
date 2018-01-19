@@ -7,7 +7,6 @@ import org.meizhuo.rpc.client.RPCRequestNet;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.zksupport.service.ServiceInfo;
 import org.meizhuo.rpc.zksupport.service.ZKServerService;
-import org.meizhuo.rpc.zksupport.service.ZnodeType;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.file.ProviderNotFoundException;
@@ -71,7 +70,7 @@ public class MinConnectRandom{
     }
 
 //    @Override
-    public void balance(ZooKeeper zooKeeper, String serviceName, List<String> znodes, ZnodeType type) {
+    public void balance(ZooKeeper zooKeeper, String serviceName, List<String> znodes) {
         final String service=serviceName;
         Runnable runnable=new Runnable() {
             @Override
@@ -86,11 +85,11 @@ public class MinConnectRandom{
                 RPCRequestNet.getInstance().serviceNameInfoMap.putIfAbsent(service,new ServiceInfo());
                 ServiceInfo serviceInfo=RPCRequestNet.getInstance().serviceNameInfoMap.get(service);
                 int oldConnectNum=serviceInfo.getConnectIPSetCount();
-                if (type==ZnodeType.consumer){
+//                if (type==ZnodeType.consumer){
 //                    serviceInfo.setClientCount(znodes.size());
-                }else {
+//                }else {
 //                    serviceInfo.setServerCount(znodes.size());
-                }
+//                }
 //                int newConnectNum=getConnectNum(serviceInfo.getClientCount(),serviceInfo.getServerCount());
 //                ZKClientService zkClientService=new ZKClientService(zooKeeper);
 //                try {

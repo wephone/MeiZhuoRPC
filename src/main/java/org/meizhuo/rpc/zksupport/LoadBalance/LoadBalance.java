@@ -1,11 +1,6 @@
 package org.meizhuo.rpc.zksupport.LoadBalance;
 
-import io.netty.channel.ChannelHandlerContext;
-import org.apache.zookeeper.ZooKeeper;
 import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
-import org.meizhuo.rpc.zksupport.service.ZnodeType;
-
-import java.util.List;
 
 /**
  * Created by wephone on 18-1-8.

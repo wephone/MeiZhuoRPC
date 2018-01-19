@@ -9,6 +9,7 @@ import org.meizhuo.rpc.core.RPC;
  * Created by wephone on 18-1-11.
  * 释放资源 关闭通道
  */
+@Deprecated
 public class ReleaseChannelRunnable implements Runnable{
 
     String ip;
