@@ -44,31 +44,24 @@ public class ZKServerService {
     //初始化根节点及服务提供者节点 均为持久节点
     public void initZnode() throws KeeperException, InterruptedException {
         ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
-        String path=ZKConst.rootPath;
+        StringBuilder pathBuilder=new StringBuilder(ZKConst.rootPath);
 //        String balancePath=ZKConst.rootPath;
-        zkTempZnodes.createSimpleZnode(path,null);
+        zkTempZnodes.createSimpleZnode(pathBuilder.toString(),null);
 //        balancePath=balancePath+ZKConst.balancePath;
 //        zkTempZnodes.createSimpleZnode(balancePath,null);
-        path=path+ZKConst.servicePath;
-        zkTempZnodes.createSimpleZnode(path,null);
+        pathBuilder.append(ZKConst.servicePath);
+        zkTempZnodes.createSimpleZnode(pathBuilder.toString(),null);
         Map<String,String> serverImplMap=RPC.getServerConfig().getServerImplMap();
         for (Map.Entry<String,String> entry:serverImplMap.entrySet()){
 //            zkTempZnodes.createSimpleZnode(balancePath+"/"+entry.getKey(),null);
-            zkTempZnodes.createSimpleZnode(path+"/"+entry.getKey(),null);
-            zkTempZnodes.createSimpleZnode(path+"/"+entry.getKey()+ZKConst.providersPath,null);
+            StringBuilder serviceBuilder=new StringBuilder(pathBuilder.toString());
+            serviceBuilder.append("/");
+            serviceBuilder.append(entry.getKey());
+            zkTempZnodes.createSimpleZnode(serviceBuilder.toString(),null);
+            serviceBuilder.append(ZKConst.providersPath);
+            zkTempZnodes.createSimpleZnode(serviceBuilder.toString(),null);
         }
     }
-//
-//    //设置提供者数量并监听
-//    public void watchAllServerService() throws KeeperException, InterruptedException {
-//        Map<String,String> serviceMap=RPC.getServerConfig().getServerImplMap();
-//        for (Map.Entry<String,String> entry:serviceMap.entrySet()){
-//            String serviceName=entry.getKey();
-//            List<String> ipList=getAllServiceIP(serviceName);
-//            ServiceInfo serviceInfo=new ServiceInfo();
-//            serviceInfo.setServerCount(ipList.size());
-//            RPCRequestNet.getInstance().serviceNameInfoMap.putIfAbsent(serviceName,serviceInfo);
-//        }
-//    }
+
 
 }

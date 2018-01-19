@@ -21,11 +21,12 @@ public class RandomBalance implements LoadBalance {
     @Override
     public String chooseIP(String serviceName) throws ProvidersNoFoundException {
         RPCRequestNet.getInstance().serviceLockMap.get(serviceName).readLock().lock();
-        int ipNum=RPCRequestNet.getInstance().serviceNameInfoMap.get(serviceName).getConnectIPSetCount();
+        Set<String> ipSet=RPCRequestNet.getInstance().serviceNameInfoMap.get(serviceName).getServiceIPSet();
+        int ipNum=ipSet.size();
         if (ipNum==0){
             throw new ProvidersNoFoundException();
         }
-        Set<String> ipSet=RPCRequestNet.getInstance().serviceNameInfoMap.get(serviceName).getServiceIPSet();
+        RPCRequestNet.getInstance().serviceLockMap.get(serviceName).readLock().unlock();
         Random random = new Random();
         //生成[0,num)区间的整数：
         int index = random.nextInt(ipNum);
@@ -37,7 +38,6 @@ public class RandomBalance implements LoadBalance {
             }
             count++;
         }
-        RPCRequestNet.getInstance().serviceLockMap.get(serviceName).readLock().unlock();
         return null;
     }
 }

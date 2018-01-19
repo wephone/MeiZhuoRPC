@@ -6,17 +6,7 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.meizhuo.rpc.client.IPChannelInfo;
 import org.meizhuo.rpc.client.RPCRequestNet;
-import org.meizhuo.rpc.core.RPC;
-import org.meizhuo.rpc.zksupport.LoadBalance.BalanceThreadPool;
-import org.meizhuo.rpc.zksupport.LoadBalance.LoadBalance;
-import org.meizhuo.rpc.zksupport.ZKConst;
-import org.meizhuo.rpc.zksupport.service.ZnodeType;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by wephone on 18-1-7.
@@ -40,7 +30,7 @@ public class IPWatcher implements Watcher{
         String[] pathArr=path.split("/");
         String serviceName=pathArr[3];//第四个部分则为服务名
         RPCRequestNet.getInstance().serviceLockMap.get(serviceName).writeLock().lock();
-        System.out.println("providers changed...");
+        System.out.println("providers changed...Lock write Lock");
         try {
             List<String> children=zooKeeper.getChildren(path,this);
             for (String ip:children){
