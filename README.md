@@ -51,9 +51,9 @@
             </set>
         </property>
         <!--负载均衡策略-->
-        <property name="loadBalance" ref="minConnectRandom"></property>
+        <property name="loadBalance" ref="Random"></property>
     </bean>
-    <bean scope="prototype" class="org.meizhuo.rpc.zksupport.LoadBalance.MinConnectRandom" id="minConnectRandom">
+    <bean scope="prototype" class="org.meizhuo.rpc.zksupport.LoadBalance.RandomBalance" id="Random">
     </bean>
 </beans>
 ```
