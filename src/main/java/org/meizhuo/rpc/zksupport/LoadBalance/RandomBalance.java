@@ -1,17 +1,13 @@
 package org.meizhuo.rpc.zksupport.LoadBalance;
 
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.ZooKeeper;
 import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
 import org.meizhuo.rpc.client.RPCRequestNet;
-import org.meizhuo.rpc.zksupport.service.ZKClientService;
-import org.meizhuo.rpc.zksupport.service.ZKServerService;
+
+
 
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by wephone on 18-1-18.
@@ -39,5 +35,10 @@ public class RandomBalance implements LoadBalance {
             count++;
         }
         return null;
+    }
+
+    @Override
+    public void changeIP(String serviceName, List<String> newIP) {
+        RPCRequestNet.getInstance().serviceNameInfoMap.get(serviceName).setServiceIPSet(newIP);
     }
 }

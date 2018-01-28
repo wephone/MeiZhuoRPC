@@ -6,6 +6,8 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.meizhuo.rpc.client.IPChannelInfo;
 import org.meizhuo.rpc.client.RPCRequestNet;
+import org.meizhuo.rpc.core.RPC;
+
 import java.util.List;
 
 /**
@@ -36,7 +38,7 @@ public class IPWatcher implements Watcher{
             for (String ip:children){
                 RPCRequestNet.getInstance().IPChannelMap.putIfAbsent(ip,new IPChannelInfo());
             }
-            RPCRequestNet.getInstance().serviceNameInfoMap.get(serviceName).setServiceIPSet(children);
+            RPC.getClientConfig().getLoadBalance().changeIP(serviceName,children);
         } catch (KeeperException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {

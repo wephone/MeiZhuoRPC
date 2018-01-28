@@ -1,10 +1,10 @@
 package org.meizhuo.rpc.zksupport.LoadBalance;
 
 import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
+import org.meizhuo.rpc.client.RPCRequestNet;
+import org.meizhuo.rpc.core.RPC;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedMap;
+import java.util.*;
 
 /**
  * Created by wephone on 18-1-28.
@@ -39,6 +39,38 @@ public class ConsistentHashing implements LoadBalance{
         return hash;
     }
 
+    //初始化每个服务对应的红黑树
+    private void initRBtree() throws ProvidersNoFoundException {
+        Set<String> services=RPC.getClientConfig().getServiceInterface();
+        for (String service:services){
+            SortedMap<Integer,String> RBTree=new TreeMap<>();
+            Set<String> ipSet=RPCRequestNet.getInstance().serviceNameInfoMap.get(service).getServiceIPSet();
+            if (ipSet.isEmpty()){
+                throw new ProvidersNoFoundException();
+            }
+            for (String ip:ipSet){
+                putVirutalNode(ip,RBTree);
+            }
+            sortedServersMap.put(service,RBTree);
+        }
+    }
+
+    private void putVirutalNode(String ip,SortedMap RBTree){
+        if (RBTree.get(getHash(ip+"-"+0))==null) {
+            for (int i = 0; i < virtualNodeNums; i++) {
+                String virtualIP = ip + "-" + i;
+                RBTree.put(getHash(virtualIP), virtualIP);
+            }
+        }
+    }
+
+    private void removeVirutalNode(String oldIP,String serviceName){
+        for (int i = 0; i <virtualNodeNums ; i++) {
+            String virtualIP=oldIP+"-"+i;
+            sortedServersMap.get(serviceName).remove(getHash(virtualIP));
+        }
+    }
+
     public void setVirtualNodeNums(Integer virtualNodeNums) {
         this.virtualNodeNums = virtualNodeNums;
     }
@@ -49,6 +81,9 @@ public class ConsistentHashing implements LoadBalance{
 
     @Override
     public String chooseIP(String serviceName) throws ProvidersNoFoundException {
+        if (sortedServersMap.isEmpty()){
+            initRBtree();
+        }
         SortedMap<Integer,String> serverRBTree=sortedServersMap.get(serviceName);
         Integer consumerHash=getHash(consumerIP);
         Integer key=consumerHash;
@@ -66,5 +101,21 @@ public class ConsistentHashing implements LoadBalance{
         String ipNode=serverRBTree.get(key);
         String[] realIP=ipNode.split("-");
         return realIP[0];
+    }
+
+    @Override
+    public void changeIP(String serviceName,List<String> newIP){
+        Set<String> oldIPSet=RPCRequestNet.getInstance().serviceNameInfoMap.get(serviceName).getServiceIPSet();
+        //差集选出已作废的ip节点
+        oldIPSet.removeAll(newIP);
+        //重建二叉树
+        for (String oldIP:oldIPSet) {
+            removeVirutalNode(oldIP,serviceName);
+        }
+        //加入新的节点IP
+        for (String ip:newIP) {
+            putVirutalNode(ip, sortedServersMap.get(serviceName));
+        }
+        RPCRequestNet.getInstance().serviceNameInfoMap.get(serviceName).setServiceIPSet(newIP);
     }
 }
