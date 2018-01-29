@@ -27,8 +27,8 @@ public class ClientConfig implements ApplicationContextAware {
 //    private int port;
     //zookeeper集群地址 逗号隔开
     private String zooKeeperHost;
-    //调用超时时间
-    private long overtime;
+    //调用超时时间 默认3秒
+    private long overtime=3000;
     //远程调用接口全类名集合 用于启动时向zookeeper注册提供者服务
     private Set<String> serviceInterface;
     private LoadBalance loadBalance;

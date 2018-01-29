@@ -63,6 +63,30 @@ public class MultiClient {
     }
 
     @Test
+    public void timer(){
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+                new String[] { "file:src/test/java/rpcTest/MultiServiceClientContext.xml" });
+        context.start();
+        CountDownLatch countDownLatch=new CountDownLatch(1);
+        Service1 service1= (Service1) RPC.call(Service1.class);
+        Service2 service2= (Service2) RPC.call(Service2.class);
+        for (int i = 0; i <100 ; i++) {
+            try {
+                service1.count();
+                service2.count();
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void service2Thread(){
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
                 new String[] { "file:src/test/java/rpcTest/MultiServiceClientContext.xml" });
