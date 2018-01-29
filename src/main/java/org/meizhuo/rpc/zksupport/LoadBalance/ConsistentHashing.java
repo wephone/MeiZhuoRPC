@@ -59,7 +59,9 @@ public class ConsistentHashing implements LoadBalance{
         if (RBTree.get(getHash(ip+"-"+0))==null) {
             for (int i = 0; i < virtualNodeNums; i++) {
                 String virtualIP = ip + "-" + i;
-                RBTree.put(getHash(virtualIP), virtualIP);
+                Integer hash=getHash(virtualIP);
+//                System.out.println("虚拟节点"+virtualIP+"已添加,hash值为:"+hash);
+                RBTree.put(hash, virtualIP);
             }
         }
     }
