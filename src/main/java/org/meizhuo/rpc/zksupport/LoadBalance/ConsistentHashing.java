@@ -113,6 +113,9 @@ public class ConsistentHashing implements LoadBalance{
         //重建二叉树
         for (String oldIP:oldIPSet) {
             removeVirutalNode(oldIP,serviceName);
+            //去掉宕机作废无用的IP
+            RPCRequestNet.getInstance().IPChannelMap.get(oldIP).getGroup().shutdownGracefully();
+            RPCRequestNet.getInstance().IPChannelMap.remove(oldIP);
         }
         //加入新的节点IP
         for (String ip:newIP) {
