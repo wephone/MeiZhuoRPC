@@ -39,6 +39,13 @@ public class RandomBalance implements LoadBalance {
 
     @Override
     public void changeIP(String serviceName, List<String> newIP) {
+        Set<String> oldIP=RPCRequestNet.getInstance().serviceNameInfoMap.get(serviceName).getServiceIPSet();
+        oldIP.removeAll(newIP);
+        for (String abandonIP:oldIP){
+            //去掉宕机作废无用的IP
+            RPCRequestNet.getInstance().IPChannelMap.get(abandonIP).getGroup().shutdownGracefully();
+            RPCRequestNet.getInstance().IPChannelMap.remove(abandonIP);
+        }
         RPCRequestNet.getInstance().serviceNameInfoMap.get(serviceName).setServiceIPSet(newIP);
     }
 }
