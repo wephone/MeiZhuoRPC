@@ -92,6 +92,14 @@
     </bean>
 </beans>
 ```
+
+#### 负载均衡策略
+配置在ClientConfig的loadBalance属性
+config loadBalance attribute in ClientConfig
+- 随机 RandomBalance
+- 轮询 PollingBalance(尚未实现)
+- 一致性hash ConsistentHashing(适用于调用者数量远大于提供者数量时，以减少开启不必要的长连接)
+
 #### 抽象及其实现 Service and implementation
 ```
 /**
