@@ -1,7 +1,7 @@
 package org.meizhuo.rpc.promise;
 
-public interface SucessCallBack {
+public interface SucessCallBack<T> {
 
-    void done();
+    void done(T result);
 
 }

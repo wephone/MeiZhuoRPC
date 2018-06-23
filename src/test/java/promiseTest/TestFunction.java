@@ -1,11 +1,13 @@
 package promiseTest;
 
 import org.meizhuo.rpc.promise.Promise;
+import org.meizhuo.rpc.promise.ReturnType;
 
 public interface TestFunction {
 
-    Promise rpcCall();
-
-    Promise anotherRpcCall();
+    @ReturnType(Integer.class)
+    Promise remoteInteger();
+    @ReturnType(String.class)
+    Promise remoteString();
 
 }

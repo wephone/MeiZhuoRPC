@@ -1,7 +1,7 @@
 package org.meizhuo.rpc.promise;
 
-public interface ThenCallBack {
+public interface ThenCallBack<T> {
 
-    Promise done();
+    Promise done(T data);
 
 }

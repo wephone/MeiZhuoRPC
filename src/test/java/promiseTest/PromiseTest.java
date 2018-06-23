@@ -3,7 +3,7 @@ package promiseTest;
 import org.junit.Test;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.promise.Promise;
-import org.meizhuo.rpc.promise.PromiseImpl;
+import org.meizhuo.rpc.promise.Deferred;
 import org.meizhuo.rpc.promise.SucessCallBack;
 import org.meizhuo.rpc.promise.ThenCallBack;
 
@@ -11,22 +11,26 @@ public class PromiseTest {
 
     @Test
     public void test(){
-        PromiseImpl promiseImpl=new PromiseImpl();
-        Promise promise=promiseImpl;
+        Deferred deferred =new Deferred();
+        Promise promise= deferred.promise();
         TestFunction testFunction= (TestFunction) RPC.AsyncCall(TestFunction.class,promise);
-        testFunction.rpcCall().then(new ThenCallBack() {
+        testFunction.remoteInteger().then(new ThenCallBack<Integer>() {
                     @Override
-                    public Promise done() {
-                        return testFunction.anotherRpcCall();
+                    public Promise done(Integer data) {
+                        System.out.println(data);
+                        return testFunction.remoteString();
                     }
                 })
-                .then(() -> testFunction.rpcCall())
-                .success(new SucessCallBack() {
-            @Override
-            public void done() {
-                System.out.println("done callback");
-            }
-        });
+                .then((ThenCallBack<String>) data -> {
+                    System.out.println(data);
+                    return testFunction.remoteInteger();
+                })
+                .success(new SucessCallBack<Integer>() {
+                    @Override
+                    public void done(Integer res) {
+                        System.out.println("done callback");
+                    }
+                });
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -36,7 +40,7 @@ public class PromiseTest {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                promiseImpl.resolve();
+                deferred.resolve(2);
                 System.out.println("task finish 2 second");
             }
         }).start();
