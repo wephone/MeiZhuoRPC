@@ -12,6 +12,7 @@ import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
 import org.meizhuo.rpc.core.RPC;
+import org.meizhuo.rpc.promise.Deferred;
 import org.meizhuo.rpc.zksupport.LoadBalance.LoadBalance;
 import org.meizhuo.rpc.zksupport.service.ServiceInfo;
 
@@ -33,6 +34,8 @@ public class RPCRequestNet {
 
     //全局map 每个请求对应的锁 用于同步等待每个异步的RPC请求
     public Map requestLockMap=new ConcurrentHashMap<String,RPCRequest>();
+    //异步RPC的凭据对象Map
+    public Map<String,Deferred> promiseMap=new ConcurrentHashMap<String,Deferred>();
     //每个IP对应一个锁 防止重复连接一个IP多次
     public Map<String,Lock> connectlock=new ConcurrentHashMap<String,Lock>();
     //服务名称 映射 服务信息类
@@ -147,5 +150,19 @@ public class RPCRequestNet {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public void asyncSend(RPCRequest request) throws ProvidersNoFoundException {
+        String serviceName=request.getClassName();
+        String ip=loadBalance.chooseIP(serviceName);
+        Channel channel=connect(ip);
+        String requestJson= null;
+        try {
+            requestJson = RPC.requestEncode(request);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        ByteBuf requestBuf= Unpooled.copiedBuffer(requestJson.getBytes());
+        channel.writeAndFlush(requestBuf);
     }
 }

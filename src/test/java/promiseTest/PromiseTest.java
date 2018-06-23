@@ -12,8 +12,8 @@ public class PromiseTest {
     @Test
     public void test(){
         Deferred deferred =new Deferred();
-        Promise promise= deferred.promise();
-        TestFunction testFunction= (TestFunction) RPC.AsyncCall(TestFunction.class,promise);
+//        Promise promise= deferred.promise();
+        TestFunction testFunction= (TestFunction) RPC.AsyncCall(TestFunction.class,deferred);
         testFunction.remoteInteger().then(new ThenCallBack<Integer>() {
                     @Override
                     public Promise done(Integer data) {

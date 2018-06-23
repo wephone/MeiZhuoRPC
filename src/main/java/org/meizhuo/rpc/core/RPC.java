@@ -9,7 +9,7 @@ import org.meizhuo.rpc.client.ClientConfig;
 import org.meizhuo.rpc.client.RPCProxyAsyncHandler;
 import org.meizhuo.rpc.client.RPCProxyHandler;
 import org.meizhuo.rpc.client.RPCRequest;
-import org.meizhuo.rpc.promise.Promise;
+import org.meizhuo.rpc.promise.Deferred;
 import org.meizhuo.rpc.server.RPCResponse;
 import org.meizhuo.rpc.server.RPCResponseNet;
 import org.meizhuo.rpc.server.ServerConfig;
@@ -42,7 +42,7 @@ public class RPC {
         return proxyObj;
     }
 
-    public static Object AsyncCall(Class cls,Promise promise){
+    public static Object AsyncCall(Class cls,Deferred promise){
         RPCProxyAsyncHandler handler=new RPCProxyAsyncHandler(promise);
         Object proxyObj=Proxy.newProxyInstance(cls.getClassLoader(),new Class<?>[]{cls},handler);
         return proxyObj;

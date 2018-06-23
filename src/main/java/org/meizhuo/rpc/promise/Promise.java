@@ -6,4 +6,6 @@ public interface Promise {
 
     Promise success(SucessCallBack sucessCallBack);
 
+    Promise fail(FailCallback failCallback);
+
 }

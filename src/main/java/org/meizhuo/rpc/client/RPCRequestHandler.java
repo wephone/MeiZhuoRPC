@@ -3,6 +3,7 @@ package org.meizhuo.rpc.client;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import org.meizhuo.rpc.core.RPC;
+import org.meizhuo.rpc.promise.Deferred;
 import org.meizhuo.rpc.server.RPCResponse;
 
 import java.util.concurrent.locks.Condition;
@@ -28,12 +29,18 @@ public class RPCRequestHandler extends ChannelHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         String responseJson= (String) msg;
         RPCResponse response= (RPCResponse) RPC.responseDecode(responseJson);
-        //TODO 最好用多线程去释放锁
-        synchronized (RPCRequestNet.getInstance().requestLockMap.get(response.getRequestID())) {
-            //唤醒在该对象锁上wait的线程
-            RPCRequest request= (RPCRequest) RPCRequestNet.getInstance().requestLockMap.get(response.getRequestID());
-            request.setResult(response.getResult());
-            request.notifyAll();
+        Object objectLock=RPCRequestNet.getInstance().requestLockMap.get(response.getRequestID());
+        if (objectLock!=null) {
+            //TODO 最好用多线程去释放锁
+            synchronized (objectLock) {
+                //唤醒在该对象锁上wait的线程
+                RPCRequest request = (RPCRequest) RPCRequestNet.getInstance().requestLockMap.get(response.getRequestID());
+                request.setResult(response.getResult());
+                request.notifyAll();
+            }
+        }else {
+            Deferred deferred=RPCRequestNet.getInstance().promiseMap.get(response.getRequestID());
+            deferred.resolve(response.getResult());
         }
     }
 }
