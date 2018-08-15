@@ -84,7 +84,6 @@ public class RPCRequestNet {
         String ip=loadBalance.chooseIP(serviceName);
 //        System.out.println("Send RPC Thread:"+Thread.currentThread().getName());
         try {
-            Channel channel=connect(ip);
             //编解码对象为json 发送请求
             String requestJson= null;
             try {
@@ -93,6 +92,7 @@ public class RPCRequestNet {
                 e.printStackTrace();
             }
             ByteBuf requestBuf= Unpooled.copiedBuffer(requestJson.getBytes());
+            Channel channel=connect(ip);
             channel.writeAndFlush(requestBuf);
             connectionPoolMap.get(ip).releaseChannel(channel);
 //            System.out.println("调用"+request.getRequestID()+"已发送");
@@ -114,10 +114,10 @@ public class RPCRequestNet {
         String serviceName=request.getClassName();
         String ip=loadBalance.chooseIP(serviceName);
         try {
-            Channel channel=connect(ip);
             String requestJson= null;
             requestJson = RPC.requestEncode(request);
             ByteBuf requestBuf= Unpooled.copiedBuffer(requestJson.getBytes());
+            Channel channel=connect(ip);
             channel.writeAndFlush(requestBuf);
             connectionPoolMap.get(ip).releaseChannel(channel);
         } catch (JsonProcessingException e) {
