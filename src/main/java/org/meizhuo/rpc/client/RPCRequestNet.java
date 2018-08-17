@@ -36,8 +36,6 @@ public class RPCRequestNet {
     public Map requestLockMap=new ConcurrentHashMap<String,RPCRequest>();
     //异步RPC的凭据对象Map
     public Map<String,Deferred> promiseMap=new ConcurrentHashMap<String,Deferred>();
-    //每个IP对应一个锁 防止重复连接一个IP多次
-    public Map<String,Lock> connectlock=new ConcurrentHashMap<String,Lock>();
     //每个ip对应一个连接池
     public Map<String,ConnectionPool> connectionPoolMap=new ConcurrentHashMap<String,ConnectionPool>();
     //服务名称 映射 服务信息类
