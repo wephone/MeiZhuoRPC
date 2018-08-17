@@ -1,6 +1,7 @@
 package org.meizhuo.rpc.zksupport.LoadBalance;
 
 import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
+import org.meizhuo.rpc.client.ConnectionPool;
 import org.meizhuo.rpc.client.RPCRequestNet;
 import org.meizhuo.rpc.core.RPC;
 
@@ -117,7 +118,10 @@ public class ConsistentHashing implements LoadBalance{
 //            RPCRequestNet.getInstance().IPChannelMap.get(oldIP).getGroup().shutdownGracefully();
 //            RPCRequestNet.getInstance().IPChannelMap.remove(oldIP);
             //释放对应连接池
-            RPCRequestNet.getInstance().connectionPoolMap.get(oldIP).destroyChannel();
+            ConnectionPool connectionPool=RPCRequestNet.getInstance().connectionPoolMap.get(oldIP);
+            if (connectionPool!=null) {
+                connectionPool.destroyChannel();
+            }
         }
         //加入新的节点IP
         for (String ip:newIP) {
