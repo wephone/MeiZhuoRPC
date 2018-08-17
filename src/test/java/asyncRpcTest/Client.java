@@ -22,7 +22,6 @@ public class Client {
         CountDownLatch countDownLatch=new CountDownLatch(1);
         Deferred deferred =new Deferred();
         Function function= (Function) RPC.AsyncCall(Function.class,deferred);
-        //TODO 第一次rpc方法中扔包含阻塞的连接zk，创建channel的操作 需要全部改为异步 不然这个过程报错时 then等不会执行
         function.getInteger("first args")
                 .then(new ThenCallBack<Integer>(){
                     @Override
@@ -43,6 +42,7 @@ public class Client {
                 }).fail(new FailCallback() {
                     @Override
                     public void done(Exception e) {
+                        System.out.println("rpc fail!");
                         e.printStackTrace();
                     }
                 });
