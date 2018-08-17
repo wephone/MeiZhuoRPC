@@ -32,6 +32,8 @@ public class ClientConfig implements ApplicationContextAware {
     //远程调用接口全类名集合 用于启动时向zookeeper注册提供者服务
     private Set<String> serviceInterface;
     private LoadBalance loadBalance;
+    private Integer poolMaxIdle=2;
+    private Integer poolMaxTotal=4;
 
     public String getZooKeeperHost() {
         return zooKeeperHost;
@@ -63,6 +65,22 @@ public class ClientConfig implements ApplicationContextAware {
 
     public void setLoadBalance(LoadBalance loadBalance) {
         this.loadBalance = loadBalance;
+    }
+
+    public Integer getPoolMaxIdle() {
+        return poolMaxIdle;
+    }
+
+    public void setPoolMaxIdle(Integer poolMaxIdle) {
+        this.poolMaxIdle = poolMaxIdle;
+    }
+
+    public Integer getPoolMaxTotal() {
+        return poolMaxTotal;
+    }
+
+    public void setPoolMaxTotal(Integer poolMaxTotal) {
+        this.poolMaxTotal = poolMaxTotal;
     }
 
     /**

@@ -3,6 +3,7 @@ package org.meizhuo.rpc.client;
 import io.netty.channel.Channel;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.meizhuo.rpc.core.RPC;
 
 public class ConnectionPool {
 
@@ -12,9 +13,9 @@ public class ConnectionPool {
         ConnectFactory connectFactory=new ConnectFactory(ip, port);
         GenericObjectPoolConfig config = new GenericObjectPoolConfig();
         //最大空闲连接数
-        config.setMaxIdle(2);
+        config.setMaxIdle(RPC.getClientConfig().getPoolMaxIdle());
         //最大连接数
-        config.setMaxTotal(4);
+        config.setMaxTotal(RPC.getClientConfig().getPoolMaxTotal());
         pool=new GenericObjectPool(connectFactory,config);
     }
 
