@@ -40,8 +40,6 @@ public class RPCRequestNet {
     public Map<String,ConnectionPool> connectionPoolMap=new ConcurrentHashMap<String,ConnectionPool>();
     //服务名称 映射 服务信息类
     public Map<String,ServiceInfo> serviceNameInfoMap=new ConcurrentHashMap<>();
-    //IP地址 映射 对应的NIO Channel及其引用次数
-    public Map<String,IPChannelInfo> IPChannelMap=new ConcurrentHashMap<>();
     //全局读写锁 更新ip时为写操作 负载均衡选中IP为读操作
     public ConcurrentHashMap<String,ReadWriteLock> serviceLockMap=new ConcurrentHashMap<>();
 //    public CountDownLatch countDownLatch=new CountDownLatch(1);

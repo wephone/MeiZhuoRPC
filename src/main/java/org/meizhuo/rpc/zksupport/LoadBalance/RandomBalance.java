@@ -1,8 +1,9 @@
 package org.meizhuo.rpc.zksupport.LoadBalance;
 
 import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
+import org.meizhuo.rpc.client.RPCRequest;
 import org.meizhuo.rpc.client.RPCRequestNet;
-
+import org.meizhuo.rpc.core.RPC;
 
 
 import java.util.List;
@@ -43,8 +44,11 @@ public class RandomBalance implements LoadBalance {
         oldIP.removeAll(newIP);
         for (String abandonIP:oldIP){
             //去掉宕机作废无用的IP
-            RPCRequestNet.getInstance().IPChannelMap.get(abandonIP).getGroup().shutdownGracefully();
-            RPCRequestNet.getInstance().IPChannelMap.remove(abandonIP);
+//            RPCRequestNet.getInstance().IPChannelMap.get(abandonIP).getGroup().shutdownGracefully();
+//            RPCRequestNet.getInstance().IPChannelMap.remove(abandonIP);
+            //释放对应连接池
+            //TODO 需要根据还有几个服务引用来确定是否关闭IP连接通道 不然一个服务重启会导致这个IP上所有连接都被关闭
+            RPCRequestNet.getInstance().connectionPoolMap.get(abandonIP).destroyChannel();
         }
         RPCRequestNet.getInstance().serviceNameInfoMap.get(serviceName).setServiceIPSet(newIP);
     }

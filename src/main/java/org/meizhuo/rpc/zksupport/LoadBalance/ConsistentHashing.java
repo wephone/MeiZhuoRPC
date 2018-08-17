@@ -114,8 +114,10 @@ public class ConsistentHashing implements LoadBalance{
         for (String oldIP:oldIPSet) {
             removeVirutalNode(oldIP,serviceName);
             //去掉宕机作废无用的IP
-            RPCRequestNet.getInstance().IPChannelMap.get(oldIP).getGroup().shutdownGracefully();
-            RPCRequestNet.getInstance().IPChannelMap.remove(oldIP);
+//            RPCRequestNet.getInstance().IPChannelMap.get(oldIP).getGroup().shutdownGracefully();
+//            RPCRequestNet.getInstance().IPChannelMap.remove(oldIP);
+            //释放对应连接池
+            RPCRequestNet.getInstance().connectionPoolMap.get(oldIP).destroyChannel();
         }
         //加入新的节点IP
         for (String ip:newIP) {

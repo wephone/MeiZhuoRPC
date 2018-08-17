@@ -101,9 +101,9 @@ public class ClientConfig implements ApplicationContextAware {
             //初始化所有可用IP 初始化读写锁
             for (String service:services){
                 List<String> ips=zkServerService.getAllServiceIP(service);
-                for (String ip:ips){
-                    RPCRequestNet.getInstance().IPChannelMap.putIfAbsent(ip,new IPChannelInfo());
-                }
+//                for (String ip:ips){
+//                    RPCRequestNet.getInstance().IPChannelMap.putIfAbsent(ip,new IPChannelInfo());
+//                }
                 ServiceInfo serviceInfo=new ServiceInfo();
                 serviceInfo.setServiceIPSet(ips);
                 ReadWriteLock readWriteLock=new ReentrantReadWriteLock();

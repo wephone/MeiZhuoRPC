@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * IP对应的channel类 用于一个IP映射的Map IPChannelMap
  * 存放一个IP对应的channel
  */
+@Deprecated
 public class IPChannelInfo {
 
     private EventLoopGroup group;

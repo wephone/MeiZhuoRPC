@@ -18,6 +18,8 @@ public class ConnectFactory extends BasePooledObjectFactory<Channel> {
 
     private String ip;
     private Integer port;
+    //netty线程组 同一个服务的连接池内各个连接共用
+    private EventLoopGroup group=new NioEventLoopGroup();
 //    private Logger logger=LoggerFactory.getLogger(ConnectFactory.class);
 
     public ConnectFactory(String ip, Integer port) {
@@ -25,10 +27,12 @@ public class ConnectFactory extends BasePooledObjectFactory<Channel> {
         this.port = port;
     }
 
+    public EventLoopGroup getGroup() {
+        return group;
+    }
+
     @Override
     public Channel create() throws Exception {
-        //netty线程组
-        EventLoopGroup group=new NioEventLoopGroup();
         //启动辅助类 用于配置各种参数
         Bootstrap b=new Bootstrap();
         b.group(group)
@@ -66,6 +70,15 @@ public class ConnectFactory extends BasePooledObjectFactory<Channel> {
     @Override
     public PooledObject<Channel> wrap(Channel channel) {
         return new DefaultPooledObject<Channel>(channel);
+    }
+
+    @Override
+    public void destroyObject(PooledObject<Channel> p) throws Exception {
+        System.out.println("destroy channel "+ip+":"+port);
+        //销毁channel时释放资源 http://www.infoq.com/cn/articles/netty-elegant-exit-mechanism-and-principles
+        p.getObject().close();
+        //关闭链路 而不是关闭所有EventLoop线程和注册在该线程持有的多路复用器上所有的Channel
+//        p.getObject().eventLoop().shutdownGracefully();
     }
 
 }

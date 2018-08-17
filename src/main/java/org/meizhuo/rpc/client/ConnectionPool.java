@@ -27,7 +27,9 @@ public class ConnectionPool {
         pool.returnObject(channel);
     }
 
-    public void destoryChannel(){
+    public void destroyChannel(){
+        //关闭Netty线程资源及其注册的连接
+        ((ConnectFactory)pool.getFactory()).getGroup().shutdownGracefully();
         pool.close();
     }
 

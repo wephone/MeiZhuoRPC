@@ -35,9 +35,9 @@ public class IPWatcher implements Watcher{
         System.out.println("providers changed...Lock write Lock");
         try {
             List<String> children=zooKeeper.getChildren(path,this);
-            for (String ip:children){
-                RPCRequestNet.getInstance().IPChannelMap.putIfAbsent(ip,new IPChannelInfo());
-            }
+//            for (String ip:children){
+//                RPCRequestNet.getInstance().IPChannelMap.putIfAbsent(ip,new IPChannelInfo());
+//            }
             RPC.getClientConfig().getLoadBalance().changeIP(serviceName,children);
         } catch (KeeperException e) {
             e.printStackTrace();
