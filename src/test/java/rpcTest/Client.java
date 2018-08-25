@@ -25,12 +25,12 @@ public class Client {
          * 所以远程调用方法传参必须为包装类 int等基本类型在json转换之后再反序列化回来都会变成Integer等包装类 导致实现端找不到对应的方法 因为参数类型不匹配
          * java.lang.NoSuchMethodException: rpcTest.ServiceImpl.intMethodTest(java.lang.Integer)
          */
-        try {
-            System.out.println("测试int类型传参与返回:"+service.intMethodTest(666));
-        }catch (NullPointerException e){
-            System.out.println("远程调用方法传参必须为包装类");
-        }
-        System.out.println("测试Integer类型传参与int返回:"+service.intMethodIntegerArgsTest(777));
+//        try {
+//            System.out.println("测试int类型传参与返回:"+service.intMethodTest(666));
+//        }catch (NullPointerException e){
+//            System.out.println("远程调用方法传参必须为包装类");
+//        }
+//        System.out.println("测试Integer类型传参与int返回:"+service.intMethodIntegerArgsTest(777));
         System.out.println("测试Integer类型传参与返回:"+service.IntegerMethodTest(233));
         System.out.println("测试Integer,Double类型传参与返回String对象:"+service.stringMethodIntegerArgsTest(233,666.66));
         try {

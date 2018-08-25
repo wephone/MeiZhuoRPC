@@ -63,16 +63,19 @@ public class JavaRPCDecoder extends LengthFieldBasedFrameDecoder {
             JavaBody.Arg[] args = new JavaBody.Arg[argNum];
             for (int i = 0; i < argNum; i++) {
                 int argNameLength = byteBuf.readInt();
-                args[i].setArgNameLength(argNameLength);
+                JavaBody.Arg arg=body.new Arg();
+                arg.setArgNameLength(argNameLength);
                 byte[] argNameBytes = new byte[argNameLength];
                 byteBuf.readBytes(argNameBytes);
-                args[i].setArgName(new String(argNameBytes));
+                arg.setArgName(new String(argNameBytes));
                 int contentLength = byteBuf.readInt();
-                args[i].setContentLength(contentLength);
+                arg.setContentLength(contentLength);
                 byte[] contentBytes = new byte[contentLength];
                 byteBuf.readBytes(contentBytes);
-                args[i].setContent(contentBytes);
+                arg.setContent(contentBytes);
+                args[i]=arg;
             }
+            body.setArgs(args);
         }else {
             int resultNameLength=byteBuf.readInt();
             body.setResultNameLength(resultNameLength);
@@ -80,6 +83,7 @@ public class JavaRPCDecoder extends LengthFieldBasedFrameDecoder {
             byteBuf.readBytes(resultNameBytes);
             body.setResultName(new String(resultNameBytes));
             int resultLength=byteBuf.readInt();
+            body.setResultLength(resultLength);
             byte[] result=new byte[resultLength];
             byteBuf.readBytes(result);
             body.setResult(result);

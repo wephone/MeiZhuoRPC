@@ -22,4 +22,9 @@ public class MZProtocol implements RPCProtocol{
     public RPCRequest buildRequestByProtocol() {
         return null;
     }
+
+    @Override
+    public RPCResponse buildResponseByProtocol() {
+        return null;
+    }
 }

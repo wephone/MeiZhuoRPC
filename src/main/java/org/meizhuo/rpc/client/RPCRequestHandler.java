@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.promise.Deferred;
+import org.meizhuo.rpc.protocol.RPCProtocol;
 import org.meizhuo.rpc.server.RPCResponse;
 
 import java.util.concurrent.locks.Condition;
@@ -27,8 +28,8 @@ public class RPCRequestHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        String responseJson= (String) msg;
-        RPCResponse response= (RPCResponse) RPC.responseDecode(responseJson);
+        RPCProtocol rpcResponseProtocol= (RPCProtocol) msg;
+        RPCResponse response= rpcResponseProtocol.buildResponseByProtocol();
         Object objectLock=RPCRequestNet.getInstance().requestLockMap.get(response.getRequestID());
         if (objectLock!=null) {
             //TODO 最好用多线程去释放锁

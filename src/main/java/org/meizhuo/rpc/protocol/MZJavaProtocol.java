@@ -134,4 +134,12 @@ public class MZJavaProtocol implements RPCProtocol{
         rpcRequest.setParameters(parameters);
         return rpcRequest;
     }
+
+    @Override
+    public RPCResponse buildResponseByProtocol() {
+        RPCResponse response=new RPCResponse();
+        response.setRequestID(header.getRequestId());
+        response.setResult(ObjToBytesUtils.bytesToObject(javaBody.getResult()));
+        return response;
+    }
 }

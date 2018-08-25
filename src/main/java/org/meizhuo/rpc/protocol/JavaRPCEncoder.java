@@ -42,5 +42,7 @@ public class JavaRPCEncoder extends MessageToMessageEncoder<MZJavaProtocol> {
             byteBuf.writeInt(protocol.getJavaBody().getResultLength());
             byteBuf.writeBytes(protocol.getJavaBody().getResult());
         }
+        //list用于保存解码了的数据 如果这个List不为空,其内容传递给下一个handler 一定要记得add不然发不出数据
+        list.add(byteBuf);
     }
 }

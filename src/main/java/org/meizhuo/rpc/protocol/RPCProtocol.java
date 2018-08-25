@@ -11,4 +11,6 @@ public interface RPCProtocol {
 
     RPCRequest buildRequestByProtocol();
 
+    RPCResponse buildResponseByProtocol();
+
 }
