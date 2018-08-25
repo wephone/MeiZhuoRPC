@@ -113,14 +113,14 @@ public class RPCRequestNet {
         String serviceName=request.getClassName();
         String ip=loadBalance.chooseIP(serviceName);
         try {
-            String requestJson= null;
-            requestJson = RPC.requestEncode(request);
-            ByteBuf requestBuf= Unpooled.copiedBuffer(requestJson.getBytes());
+//            String requestJson= null;
+//            requestJson = RPC.requestEncode(request);
+//            ByteBuf requestBuf= Unpooled.copiedBuffer(requestJson.getBytes());
             Channel channel=connect(ip);
-            channel.writeAndFlush(requestBuf);
+            RPCProtocol rpcProtocol=RPC.getClientConfig().getRPCProtocol();
+            rpcProtocol.buildRequestProtocol(request);
+            channel.writeAndFlush(rpcProtocol);
             connectionPoolMap.get(ip).releaseChannel(channel);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }

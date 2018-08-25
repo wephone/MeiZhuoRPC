@@ -59,7 +59,10 @@ public class MZJavaProtocol implements RPCProtocol{
         javaBody.setMethod(rpcRequest.getMethodName());
         length=length+4;
         length=length+rpcRequest.getMethodName().length();
-        Integer argNum=rpcRequest.getParameters().length;
+        Integer argNum=0;
+        if (rpcRequest.getParameters()!=null){
+            argNum=rpcRequest.getParameters().length;
+        }
         javaBody.setArgsNum(argNum);
         length=length+4;
         JavaBody.Arg[] args=new JavaBody.Arg[argNum];
@@ -78,7 +81,9 @@ public class MZJavaProtocol implements RPCProtocol{
             length=length+content.length;
             args[i]=arg;
         }
-        javaBody.setArgs(args);
+        if (argNum>0) {
+            javaBody.setArgs(args);
+        }
         header.setLength(length);
     }
 
