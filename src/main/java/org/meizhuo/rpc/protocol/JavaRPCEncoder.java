@@ -15,7 +15,10 @@ public class JavaRPCEncoder extends MessageToMessageEncoder<MZJavaProtocol> {
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, MZJavaProtocol protocol, List<Object> list) throws Exception {
         ByteBuf byteBuf=Unpooled.buffer();
-        byteBuf.writeLong(protocol.getHeader().getTraceId());
+        byteBuf.writeInt(protocol.getHeader().getTraceIdLength());
+        byteBuf.writeBytes(protocol.getHeader().getTraceId().getBytes());
+        byteBuf.writeInt(protocol.getHeader().getSpanIdLength());
+        byteBuf.writeBytes(protocol.getHeader().getSpanId().getBytes());
         byteBuf.writeLong(protocol.getHeader().getRequestId());
         byteBuf.writeByte(protocol.getHeader().getType());
         byteBuf.writeInt(protocol.getJavaBody().getServiceLength());

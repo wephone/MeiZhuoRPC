@@ -21,8 +21,17 @@ public class JavaRPCDecoder extends LineBasedFrameDecoder {
         MZJavaProtocol protocol=new MZJavaProtocol();
         Header header=new Header();
         JavaBody body=new JavaBody();
-        //取出前8字节 以此类推
-        header.setTraceId(byteBuf.readLong());
+        //取出前4字节 以此类推
+        Integer traceLength=byteBuf.readInt();
+        header.setTraceIdLength(traceLength);
+        byte[] traceBytes=new byte[traceLength];
+        byteBuf.readBytes(traceBytes);
+        header.setTraceId(new String(traceBytes));
+        Integer spanLength=byteBuf.readInt();
+        header.setSpanIdLength(spanLength);
+        byte[] spanBytes=new byte[traceLength];
+        byteBuf.readBytes(spanBytes);
+        header.setSpanId(new String(spanBytes));
         header.setRequestId(byteBuf.readLong());
         header.setType(byteBuf.readByte());
         //先读出对应字符串的长度 开辟一个改长度的字节数组 再读取这么多长度的内容到这个字节数组里 最后转换为需要的类型

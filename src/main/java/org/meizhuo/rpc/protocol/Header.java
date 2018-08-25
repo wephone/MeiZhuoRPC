@@ -5,7 +5,13 @@ public class Header {
     /**
      * 预留用于链路追踪
      */
-    private Long traceId;
+    private Integer traceIdLength;
+    private String traceId;
+    /**
+     * 预留用于链路追踪
+     */
+    private Integer spanIdLength;
+    private String spanId;
     /**
      * 每次RPC调用对应一个requestId
      */
@@ -19,12 +25,36 @@ public class Header {
     public final static Byte T_RESP=2;
     public final static Byte T_EX_RESP=3;
 
-    public Long getTraceId() {
+    public Integer getTraceIdLength() {
+        return traceIdLength;
+    }
+
+    public void setTraceIdLength(Integer traceIdLength) {
+        this.traceIdLength = traceIdLength;
+    }
+
+    public String getTraceId() {
         return traceId;
     }
 
-    public void setTraceId(Long traceId) {
+    public void setTraceId(String traceId) {
         this.traceId = traceId;
+    }
+
+    public Integer getSpanIdLength() {
+        return spanIdLength;
+    }
+
+    public void setSpanIdLength(Integer spanIdLength) {
+        this.spanIdLength = spanIdLength;
+    }
+
+    public String getSpanId() {
+        return spanId;
+    }
+
+    public void setSpanId(String spanId) {
+        this.spanId = spanId;
     }
 
     public Long getRequestId() {
