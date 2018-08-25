@@ -13,6 +13,7 @@ import io.netty.handler.codec.string.StringDecoder;
 import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.promise.Deferred;
+import org.meizhuo.rpc.protocol.RPCProtocol;
 import org.meizhuo.rpc.zksupport.LoadBalance.LoadBalance;
 import org.meizhuo.rpc.zksupport.service.ServiceInfo;
 
@@ -81,15 +82,17 @@ public class RPCRequestNet {
 //        System.out.println("Send RPC Thread:"+Thread.currentThread().getName());
         try {
             //编解码对象为json 发送请求
-            String requestJson= null;
-            try {
-                requestJson = RPC.requestEncode(request);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            ByteBuf requestBuf= Unpooled.copiedBuffer(requestJson.getBytes());
+//            String requestJson= null;
+//            try {
+//                requestJson = RPC.requestEncode(request);
+//            } catch (JsonProcessingException e) {
+//                e.printStackTrace();
+//            }
+            RPCProtocol rpcProtocol=RPC.getClientConfig().getRPCProtocol();
+            rpcProtocol.buildRequestProtocol(request);
+//            ByteBuf requestBuf= Unpooled.copiedBuffer(requestJson.getBytes());
             Channel channel=connect(ip);
-            channel.writeAndFlush(requestBuf);
+            channel.writeAndFlush(rpcProtocol);
             connectionPoolMap.get(ip).releaseChannel(channel);
 //            System.out.println("调用"+request.getRequestID()+"已发送");
             //挂起等待实现端处理完毕返回

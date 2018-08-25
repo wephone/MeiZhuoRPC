@@ -1,6 +1,13 @@
 package org.meizhuo.rpc.server;
 
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.codec.LineBasedFrameDecoder;
+import io.netty.handler.codec.MessageToMessageEncoder;
 import org.meizhuo.rpc.core.RPC;
+import org.meizhuo.rpc.protocol.JavaRPCDecoder;
+import org.meizhuo.rpc.protocol.JavaRPCEncoder;
+import org.meizhuo.rpc.protocol.MZJavaProtocol;
+import org.meizhuo.rpc.protocol.RPCProtocol;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -19,6 +26,20 @@ public class ServerConfig implements ApplicationContextAware{
     private String serverHost="127.0.0.1";
 
     private Map<String,String> serverImplMap;
+
+    public LengthFieldBasedFrameDecoder getDecoder(){
+        //TODO 后续根据配置换协议
+        //最大包长1024平方 长度位置偏移0字节 大小一个int
+        return new JavaRPCDecoder(1024*1024,0,4);
+    }
+
+    public MessageToMessageEncoder getEncoder(){
+        return new JavaRPCEncoder();
+    }
+
+    public RPCProtocol getRPCProtocol(){
+        return new MZJavaProtocol();
+    }
 
     public int getPort() {
         return port;

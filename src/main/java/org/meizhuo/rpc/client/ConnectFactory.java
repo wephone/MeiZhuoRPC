@@ -10,6 +10,7 @@ import io.netty.handler.codec.string.StringDecoder;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
+import org.meizhuo.rpc.core.RPC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,8 +42,8 @@ public class ConnectFactory extends BasePooledObjectFactory<Channel> {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        socketChannel.pipeline().addLast(new LineBasedFrameDecoder(2048));//以换行符分包 防止粘包半包 2048为最大长度 到达最大长度没出现换行符则抛出异常
-                        socketChannel.pipeline().addLast(new StringDecoder());//将接收到的对象转为字符串
+                        socketChannel.pipeline().addLast(RPC.getClientConfig().getDecoder());//自定义协议编码器解码器
+                        socketChannel.pipeline().addLast(RPC.getClientConfig().getEncoder());
                         //添加相应回调处理和编解码器
                         socketChannel.pipeline().addLast(new RPCRequestHandler());
                     }

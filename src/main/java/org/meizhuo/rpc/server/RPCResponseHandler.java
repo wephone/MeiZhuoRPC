@@ -8,6 +8,7 @@ import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import org.meizhuo.rpc.client.RPCRequest;
 import org.meizhuo.rpc.core.RPC;
+import org.meizhuo.rpc.protocol.RPCProtocol;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -19,21 +20,25 @@ import java.util.Date;
 public class RPCResponseHandler extends ChannelHandlerAdapter {
 
     @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("Client Connect:"+ctx.channel().remoteAddress().toString());
+    }
+
+    @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws IOException {
-        String requestJson= (String) msg;
+//        String requestJson= (String) msg;
+        RPCProtocol requestProtocol= (RPCProtocol) msg;
 //        System.out.println("receive request:"+requestJson);
-        RPCRequest request= RPC.requestDeocde(requestJson);
+        RPCRequest request= requestProtocol.buildRequestByProtocol();
         Object result=InvokeServiceUtil.invoke(request);
-        //netty的write方法并没有直接写入通道(为避免多次唤醒多路复用选择器)
-        //而是把待发送的消息放到缓冲数组中，flush方法再全部写到通道中
-//        ctx.write(resp);
-        //记得加分隔符 不然客户端一直不会处理
         RPCResponse response=new RPCResponse();
         response.setRequestID(request.getRequestID());
         response.setResult(result);
         String respStr=RPC.responseEncode(response);
-        ByteBuf responseBuf= Unpooled.copiedBuffer(respStr.getBytes());
-        ctx.writeAndFlush(responseBuf);
+//        ByteBuf responseBuf= Unpooled.copiedBuffer(respStr.getBytes());
+        RPCProtocol rpcProtocol=RPC.getServerConfig().getRPCProtocol();
+        rpcProtocol.buildResponseProtocol(response);
+        ctx.writeAndFlush(rpcProtocol);
     }
 
     @Override

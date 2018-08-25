@@ -33,8 +33,8 @@ public class RPCResponseNet {
 
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            socketChannel.pipeline().addLast(new LineBasedFrameDecoder(2048));//以换行符分包 防止念包半包 2048为最大长度 到达最大长度没出现换行符则抛出异常
-                            socketChannel.pipeline().addLast(new StringDecoder());//将接收到的对象转为字符串
+                            socketChannel.pipeline().addLast(RPC.getServerConfig().getDecoder());//自定义协议编码器解码器
+                            socketChannel.pipeline().addLast(RPC.getServerConfig().getEncoder());
                             socketChannel.pipeline().addLast(new RPCResponseHandler());
                         }
                     });//绑定IO事件处理类

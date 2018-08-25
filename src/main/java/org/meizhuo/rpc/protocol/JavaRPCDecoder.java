@@ -2,13 +2,20 @@ package org.meizhuo.rpc.protocol;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.LineBasedFrameDecoder;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
-public class JavaRPCDecoder extends LineBasedFrameDecoder {
+public class JavaRPCDecoder extends LengthFieldBasedFrameDecoder {
 
 
-    public JavaRPCDecoder(int maxLength) {
-        super(maxLength);
+    /**
+     * 使用标识TCP包长度的解码器作为超类
+     * LineBasedFrameDecoder要要配合StringDecoder使用 不适合这里
+     * @param maxFrameLength TCP包最大长度
+     * @param lengthFieldOffset 标识TCP包长度字段偏移量
+     * @param lengthFieldLength 标识TCP包长度字段长度
+     */
+    public JavaRPCDecoder(int maxFrameLength, int lengthFieldOffset, int lengthFieldLength) {
+        super(maxFrameLength, lengthFieldOffset, lengthFieldLength);
     }
 
     @Override
@@ -22,6 +29,8 @@ public class JavaRPCDecoder extends LineBasedFrameDecoder {
         Header header=new Header();
         JavaBody body=new JavaBody();
         //取出前4字节 以此类推
+        Integer length=byteBuf.readInt();
+        header.setLength(length);
         Integer traceLength=byteBuf.readInt();
         header.setTraceIdLength(traceLength);
         byte[] traceBytes=new byte[traceLength];
@@ -32,34 +41,39 @@ public class JavaRPCDecoder extends LineBasedFrameDecoder {
         byte[] spanBytes=new byte[traceLength];
         byteBuf.readBytes(spanBytes);
         header.setSpanId(new String(spanBytes));
-        header.setRequestId(byteBuf.readLong());
+        Integer requestIdLength=byteBuf.readInt();
+        header.setRequestIdLength(requestIdLength);
+        byte[] requestIdBytes=new byte[requestIdLength];
+        byteBuf.readBytes(requestIdBytes);
+        header.setRequestId(new String(requestIdBytes));
         header.setType(byteBuf.readByte());
-        //先读出对应字符串的长度 开辟一个改长度的字节数组 再读取这么多长度的内容到这个字节数组里 最后转换为需要的类型
-        int serviceLength=byteBuf.readInt();
-        body.setServiceLength(serviceLength);
-        byte[] serviceBytes=new byte[serviceLength];
-        byteBuf.readBytes(serviceBytes);
-        body.setService(new String(serviceBytes));
-        int methodLength=byteBuf.readInt();
-        byte[] methodBytes=new byte[methodLength];
-        byteBuf.readBytes(methodBytes);
-        body.setMethod(new String(methodBytes));
-        int argNum=byteBuf.readInt();
-        body.setArgsNum(argNum);
-        JavaBody.Arg[] args=new JavaBody.Arg[argNum];
-        for (int i = 0; i <argNum ; i++) {
-            int argNameLength=byteBuf.readInt();
-            args[i].setArgNameLength(argNameLength);
-            byte[] argNameBytes=new byte[argNameLength];
-            byteBuf.readBytes(argNameBytes);
-            args[i].setArgName(new String(argNameBytes));
-            int contentLength=byteBuf.readInt();
-            args[i].setContentLength(contentLength);
-            byte[] contentBytes=new byte[contentLength];
-            byteBuf.readBytes(contentBytes);
-            args[i].setContent(contentBytes);
-        }
-        if (!header.getType().equals(Header.T_REQ)){
+        if (header.getType().equals(Header.T_REQ)) {
+            //先读出对应字符串的长度 开辟一个改长度的字节数组 再读取这么多长度的内容到这个字节数组里 最后转换为需要的类型
+            int serviceLength = byteBuf.readInt();
+            body.setServiceLength(serviceLength);
+            byte[] serviceBytes = new byte[serviceLength];
+            byteBuf.readBytes(serviceBytes);
+            body.setService(new String(serviceBytes));
+            int methodLength = byteBuf.readInt();
+            byte[] methodBytes = new byte[methodLength];
+            byteBuf.readBytes(methodBytes);
+            body.setMethod(new String(methodBytes));
+            int argNum = byteBuf.readInt();
+            body.setArgsNum(argNum);
+            JavaBody.Arg[] args = new JavaBody.Arg[argNum];
+            for (int i = 0; i < argNum; i++) {
+                int argNameLength = byteBuf.readInt();
+                args[i].setArgNameLength(argNameLength);
+                byte[] argNameBytes = new byte[argNameLength];
+                byteBuf.readBytes(argNameBytes);
+                args[i].setArgName(new String(argNameBytes));
+                int contentLength = byteBuf.readInt();
+                args[i].setContentLength(contentLength);
+                byte[] contentBytes = new byte[contentLength];
+                byteBuf.readBytes(contentBytes);
+                args[i].setContent(contentBytes);
+            }
+        }else {
             int resultNameLength=byteBuf.readInt();
             body.setResultNameLength(resultNameLength);
             byte[] resultNameBytes=new byte[resultNameLength];
