@@ -6,10 +6,7 @@ import io.netty.handler.codec.MessageToMessageEncoder;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 import org.meizhuo.rpc.core.RPC;
-import org.meizhuo.rpc.protocol.JavaRPCDecoder;
-import org.meizhuo.rpc.protocol.JavaRPCEncoder;
-import org.meizhuo.rpc.protocol.MZJavaProtocol;
-import org.meizhuo.rpc.protocol.RPCProtocol;
+import org.meizhuo.rpc.protocol.*;
 import org.meizhuo.rpc.zksupport.LoadBalance.LoadBalance;
 import org.meizhuo.rpc.zksupport.ZKConnect;
 import org.meizhuo.rpc.zksupport.service.ServiceInfo;
@@ -41,19 +38,37 @@ public class ClientConfig implements ApplicationContextAware {
     private LoadBalance loadBalance;
     private Integer poolMaxIdle=2;
     private Integer poolMaxTotal=4;
+    private ProtocolEnum protocol=ProtocolEnum.MeiZhuoJavaProtocol;
 
     public LengthFieldBasedFrameDecoder getDecoder(){
-        //TODO 后续根据配置换协议
-        //最大包长1024平方 长度位置偏移0字节 大小一个int
-        return new JavaRPCDecoder(1024*1024,0,4);
+        switch (protocol){
+            case MeiZhuoGeneralProtocol:
+                return null;
+            default:
+                //默认协议
+                //最大包长1024平方 长度位置偏移0字节 大小一个int
+                return new JavaRPCDecoder(1024*1024,0,4);
+        }
     }
 
     public MessageToMessageEncoder getEncoder(){
-        return new JavaRPCEncoder();
+        switch (protocol){
+            case MeiZhuoGeneralProtocol:
+                return null;
+            default:
+                //默认协议
+                return new JavaRPCEncoder();
+        }
     }
 
     public RPCProtocol getRPCProtocol(){
-        return new MZJavaProtocol();
+        switch (protocol){
+            case MeiZhuoGeneralProtocol:
+                return null;
+            default:
+                //默认协议
+                return new MZJavaProtocol();
+        }
     }
 
     public String getZooKeeperHost() {
@@ -102,6 +117,14 @@ public class ClientConfig implements ApplicationContextAware {
 
     public void setPoolMaxTotal(Integer poolMaxTotal) {
         this.poolMaxTotal = poolMaxTotal;
+    }
+
+    public ProtocolEnum getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(ProtocolEnum protocol) {
+        this.protocol = protocol;
     }
 
     /**

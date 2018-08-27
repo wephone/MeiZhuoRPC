@@ -4,10 +4,7 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.MessageToMessageEncoder;
 import org.meizhuo.rpc.core.RPC;
-import org.meizhuo.rpc.protocol.JavaRPCDecoder;
-import org.meizhuo.rpc.protocol.JavaRPCEncoder;
-import org.meizhuo.rpc.protocol.MZJavaProtocol;
-import org.meizhuo.rpc.protocol.RPCProtocol;
+import org.meizhuo.rpc.protocol.*;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -26,19 +23,37 @@ public class ServerConfig implements ApplicationContextAware{
     private String serverHost="127.0.0.1";
 
     private Map<String,String> serverImplMap;
+    private ProtocolEnum protocol=ProtocolEnum.MeiZhuoJavaProtocol;
 
     public LengthFieldBasedFrameDecoder getDecoder(){
-        //TODO 后续根据配置换协议
-        //最大包长1024平方 长度位置偏移0字节 大小一个int
-        return new JavaRPCDecoder(1024*1024,0,4);
+        switch (protocol){
+            case MeiZhuoGeneralProtocol:
+                return null;
+            default:
+                //默认协议
+                //最大包长1024平方 长度位置偏移0字节 大小一个int
+                return new JavaRPCDecoder(1024*1024,0,4);
+        }
     }
 
     public MessageToMessageEncoder getEncoder(){
-        return new JavaRPCEncoder();
+        switch (protocol){
+            case MeiZhuoGeneralProtocol:
+                return null;
+            default:
+                //默认协议
+                return new JavaRPCEncoder();
+        }
     }
 
     public RPCProtocol getRPCProtocol(){
-        return new MZJavaProtocol();
+        switch (protocol){
+            case MeiZhuoGeneralProtocol:
+                return null;
+            default:
+                //默认协议
+                return new MZJavaProtocol();
+        }
     }
 
     public int getPort() {
@@ -73,6 +88,14 @@ public class ServerConfig implements ApplicationContextAware{
 
     public void setServerImplMap(Map<String, String> serverImplMap) {
         this.serverImplMap = serverImplMap;
+    }
+
+    public ProtocolEnum getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(ProtocolEnum protocol) {
+        this.protocol = protocol;
     }
 
     //运行过程中获取IOC容器
