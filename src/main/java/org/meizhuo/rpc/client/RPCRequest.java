@@ -8,7 +8,7 @@ package org.meizhuo.rpc.client;
 public class RPCRequest {
 
     private String requestID;
-    private String className;
+    private String serviceId;
     private String methodName;
 //    private Class[] parameterTypes;
     private Object[] parameters;
@@ -23,12 +23,12 @@ public class RPCRequest {
         this.requestID = requestID;
     }
 
-    public String getClassName() {
-        return className;
+    public String getServiceId() {
+        return serviceId;
     }
 
-    public void setClassName(String className) {
-        this.className = className;
+    public void setServiceId(String serviceId) {
+        this.serviceId = serviceId;
     }
 
     public String getMethodName() {

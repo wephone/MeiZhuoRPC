@@ -51,10 +51,10 @@ public class MZJavaProtocol implements RPCProtocol{
         length=length+4;
         length=length+rpcRequest.getRequestID().length();
         javaBody=new JavaBody();
-        javaBody.setServiceLength(rpcRequest.getClassName().length());
-        javaBody.setService(rpcRequest.getClassName());
+        javaBody.setServiceLength(rpcRequest.getServiceId().length());
+        javaBody.setService(rpcRequest.getServiceId());
         length=length+4;
-        length=length+rpcRequest.getClassName().length();
+        length=length+rpcRequest.getServiceId().length();
         javaBody.setMethodLength(rpcRequest.getMethodName().length());
         javaBody.setMethod(rpcRequest.getMethodName());
         length=length+4;
@@ -127,7 +127,7 @@ public class MZJavaProtocol implements RPCProtocol{
     public RPCRequest buildRequestByProtocol() {
         //TODO 后续将request response命名改为适配器模式adapter
         RPCRequest rpcRequest=new RPCRequest();
-        rpcRequest.setClassName(javaBody.getService());
+        rpcRequest.setServiceId(javaBody.getService());
         rpcRequest.setMethodName(javaBody.getMethod());
         rpcRequest.setRequestID(header.getRequestId());
         Integer argNum=javaBody.getArgsNum();

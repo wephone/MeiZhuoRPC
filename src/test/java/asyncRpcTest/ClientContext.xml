@@ -5,9 +5,10 @@
     <bean class="org.meizhuo.rpc.client.ClientConfig">
         <property name="zooKeeperHost" value="127.0.0.1:2181"></property>
         <property name="serviceInterface">
-            <set>
-                <value>asyncRpcTest.Function</value>
-            </set>
+            <map>
+                <!--配置对应的服务ID及抽象接口全类名-->
+                <entry key="Function" value="asyncRpcTest.Function" ></entry>
+            </map>
         </property>
         <property name="loadBalance" ref="Random"></property>
     </bean>

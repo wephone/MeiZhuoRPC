@@ -5,9 +5,10 @@
     <bean class="org.meizhuo.rpc.client.ClientConfig">
         <property name="zooKeeperHost" value="127.0.0.1:2181"></property>
         <property name="serviceInterface">
-            <set>
-                <value>rpcTest.Service</value>
-            </set>
+            <map>
+                <!--配置对应的服务ID及抽象接口全类名-->
+                <entry key="Service" value="rpcTest.Service" ></entry>
+            </map>
         </property>
         <property name="loadBalance" ref="Random"></property>
     </bean>

@@ -32,7 +32,7 @@ public class HashClient {
                 new String[] { "file:src/test/java/rpcTest/HashContext.xml" });
         context.start();
         for (int i = 0; i <50 ; i++) {
-            Service2 service2= (Service2) RPC.call(Service2.class);
+            Service2 service2= context.getBean(Service2.class);
             service2.count();
             try {
                 Thread.sleep(2000);

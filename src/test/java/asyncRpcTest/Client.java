@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.promise.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import rpcTest.Service;
@@ -17,11 +18,14 @@ import java.util.concurrent.CountDownLatch;
 @ContextConfiguration(locations={"file:src/test/java/asyncRpcTest/ClientContext.xml"})
 public class Client {
 
+    @Autowired
+    Function function;
+
     @Test
     public void start(){
         CountDownLatch countDownLatch=new CountDownLatch(1);
-        Deferred deferred =new Deferred();
-        Function function= (Function) RPC.AsyncCall(Function.class,deferred);
+//        Deferred deferred =new Deferred();
+//        Function function= (Function) RPC.AsyncCall(Function.class,deferred);
         function.getInteger("first args")
                 .then(new ThenCallBack<Integer>(){
                     @Override

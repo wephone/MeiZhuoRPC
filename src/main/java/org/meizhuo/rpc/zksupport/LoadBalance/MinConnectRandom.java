@@ -29,11 +29,11 @@ public class MinConnectRandom{
 
 //    @Override
     public void balanceAll(ZooKeeper zookeeper) {
-        Set<String> allServices= RPC.getClientConfig().getServiceInterface();
+//        Set<String> allServices= RPC.getClientConfig().getServiceInterface();
 //        ZKClientService zkClientService=new ZKClientService(zookeeper);
         ZKServerService zkServerService=new ZKServerService(zookeeper);
-        try {
-            for (String service : allServices) {
+//        try {
+//            for (String service : allServices) {
                 ReadWriteLock readWriteLock=new ReentrantReadWriteLock();
                 //不存在则新建一个锁键值对 存在则不操作
 //                BalanceThreadPool.serviceLockMap.putIfAbsent(service,readWriteLock);
@@ -41,9 +41,9 @@ public class MinConnectRandom{
 //                System.out.println(service+"正在平衡...已加写锁");
 //                BalanceThreadPool.serviceLockMap.get(service).writeLock().lock();
 //                List<String> clientZnodes = zkClientService.getServiceClients(service);
-                List<String> serverZnodes = zkServerService.getAllServiceIP(service);
-                RPCRequestNet.getInstance().serviceNameInfoMap.putIfAbsent(service,new ServiceInfo());
-                ServiceInfo serviceInfo=RPCRequestNet.getInstance().serviceNameInfoMap.get(service);
+//                List<String> serverZnodes = zkServerService.getAllServiceIP(service);
+//                RPCRequestNet.getInstance().serviceNameInfoMap.putIfAbsent(service,new ServiceInfo());
+//                ServiceInfo serviceInfo=RPCRequestNet.getInstance().serviceNameInfoMap.get(service);
 //                serviceInfo.setClientCount(clientZnodes.size());
 //                serviceInfo.setServerCount(serverZnodes.size());
 //                int newConnectNum=getConnectNum(clientZnodes.size(),serverZnodes.size());
@@ -56,17 +56,17 @@ public class MinConnectRandom{
 //                }
 //                serviceInfo.setServiceIPSet(newIPSet);
                 //写入新serviceInfo
-                RPCRequestNet.getInstance().serviceNameInfoMap.put(service,serviceInfo);
+//                RPCRequestNet.getInstance().serviceNameInfoMap.put(service,serviceInfo);
                 //释放写锁
 //                BalanceThreadPool.serviceLockMap.get(service).writeLock().unlock();
-                System.out.println(service+"已平衡 释放写锁,持有连接:"+serviceInfo.getConnectIPSetCount());
-            }
+//                System.out.println(service+"已平衡 释放写锁,持有连接:"+serviceInfo.getConnectIPSetCount());
+//            }
             //下面这句出现了好像死锁
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (KeeperException e) {
-            e.printStackTrace();
-        }
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        } catch (KeeperException e) {
+//            e.printStackTrace();
+//        }
     }
 
 //    @Override

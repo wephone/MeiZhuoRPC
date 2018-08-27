@@ -1,5 +1,6 @@
 package org.meizhuo.rpc.client;
 
+import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.server.RPCResponse;
 
 import java.lang.reflect.InvocationHandler;
@@ -32,7 +33,7 @@ public class RPCProxyHandler  implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         RPCRequest request=new RPCRequest();
         request.setRequestID(buildRequestID(method.getName()));
-        request.setClassName(method.getDeclaringClass().getName());//返回表示声明由此 Method 对象表示的方法的类或接口的Class对象
+        request.setServiceId(RPC.getClientConfig().getServiceId(method.getDeclaringClass().getName()));//返回表示声明由此 Method 对象表示的方法的类或接口的Class对象
         request.setMethodName(method.getName());
 //        request.setParameterTypes(method.getParameterTypes());//返回形参类型
         request.setParameters(args);//输入的实参

@@ -8,7 +8,7 @@
         <property name="serverImplMap">
             <map>
                 <!--配置对应的抽象接口及其实现-->
-                <entry key="asyncRpcTest.Function" value="asyncRpcTest.FunctionImpl"></entry>
+                <entry key="Function" value="asyncRpcTest.FunctionImpl"></entry>
             </map>
         </property>
     </bean>

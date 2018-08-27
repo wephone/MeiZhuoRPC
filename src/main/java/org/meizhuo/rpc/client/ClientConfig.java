@@ -6,17 +6,23 @@ import io.netty.handler.codec.MessageToMessageEncoder;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 import org.meizhuo.rpc.core.RPC;
+import org.meizhuo.rpc.promise.Deferred;
 import org.meizhuo.rpc.protocol.*;
 import org.meizhuo.rpc.zksupport.LoadBalance.LoadBalance;
 import org.meizhuo.rpc.zksupport.ZKConnect;
 import org.meizhuo.rpc.zksupport.service.ServiceInfo;
 import org.meizhuo.rpc.zksupport.service.ZKServerService;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Proxy;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -33,8 +39,19 @@ public class ClientConfig implements ApplicationContextAware {
     private String zooKeeperHost;
     //调用超时时间 默认3秒
     private long overtime=3000;
-    //远程调用接口全类名集合 用于启动时向zookeeper注册提供者服务
-    private Set<String> serviceInterface;
+    /**
+     * 远程调用接口全类名集合 用于启动时代理
+     * key 服务ID 出于跨语言考虑 不能拿全类名作为服务标识 需要自行定义服务ID
+     * value 服务java全类名
+     * 用于用户配置 保证serviceId不回设置重复
+     */
+    private Map<String,String> serviceInterface;
+    /**
+     * 键值与上一对象相反
+     * 用于通过服务名找到服务Id
+     * 不可由用户配置
+     */
+    private Map<String,String> serviceNameForId;
     private LoadBalance loadBalance;
     private Integer poolMaxIdle=2;
     private Integer poolMaxTotal=4;
@@ -87,11 +104,11 @@ public class ClientConfig implements ApplicationContextAware {
         this.overtime = overtime;
     }
 
-    public Set getServiceInterface() {
+    public Map<String, String> getServiceInterface() {
         return serviceInterface;
     }
 
-    public void setServiceInterface(Set serviceInterface) {
+    public void setServiceInterface(Map<String, String> serviceInterface) {
         this.serviceInterface = serviceInterface;
     }
 
@@ -127,6 +144,10 @@ public class ClientConfig implements ApplicationContextAware {
         this.protocol = protocol;
     }
 
+    public String getServiceId(String serviceClass) {
+        return serviceNameForId.get(serviceClass);
+    }
+
     /**
      * 加载Spring配置文件时，如果Spring配置文件中所定义的Bean类
      * 如果该类实现了ApplicationContextAware接口
@@ -141,24 +162,47 @@ public class ClientConfig implements ApplicationContextAware {
         try {
             ZooKeeper zooKeeper= new ZKConnect().clientConnect();
             ZKServerService zkServerService=new ZKServerService(zooKeeper);
-            Set<String> services=RPC.getClientConfig().getServiceInterface();
+            Map<String,String> services=RPC.getClientConfig().getServiceInterface();
+            serviceNameForId=new HashMap<>();
             //初始化所有可用IP 初始化读写锁
-            for (String service:services){
-                List<String> ips=zkServerService.getAllServiceIP(service);
+            for (Map.Entry<String,String> entry :services.entrySet()){
+                String serviceId=entry.getKey();
+                List<String> ips=zkServerService.getAllServiceIP(serviceId);
 //                for (String ip:ips){
 //                    RPCRequestNet.getInstance().IPChannelMap.putIfAbsent(ip,new IPChannelInfo());
 //                }
                 ServiceInfo serviceInfo=new ServiceInfo();
                 serviceInfo.setServiceIPSet(ips);
                 ReadWriteLock readWriteLock=new ReentrantReadWriteLock();
-                RPCRequestNet.getInstance().serviceLockMap.putIfAbsent(service,readWriteLock);
-                RPCRequestNet.getInstance().serviceNameInfoMap.putIfAbsent(service,serviceInfo);
+                String serviceClass=entry.getValue();
+                RPCRequestNet.getInstance().serviceLockMap.putIfAbsent(serviceId,readWriteLock);
+                RPCRequestNet.getInstance().serviceNameInfoMap.putIfAbsent(serviceId,serviceInfo);
+                serviceNameForId.put(serviceClass,serviceId);
+                //生成对应类代理 注入spring
+                Class cls=Class.forName(serviceClass);
+                Annotation async=cls.getAnnotation(Async.class);
+                Object proxy;
+                if (async!=null){
+                    RPCProxyAsyncHandler handler=new RPCProxyAsyncHandler(new Deferred());
+                    proxy=Proxy.newProxyInstance(cls.getClassLoader(),new Class<?>[]{cls},handler);
+                }else {
+                    RPCProxyHandler handler=new RPCProxyHandler();
+                    proxy=Proxy.newProxyInstance(cls.getClassLoader(),new Class<?>[]{cls},handler);
+                }
+                //获取bean工厂
+                DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory)applicationContext.getAutowireCapableBeanFactory();
+                //校验bean
+                applicationContext.getAutowireCapableBeanFactory().applyBeanPostProcessorsAfterInitialization(proxy, serviceClass);
+                //以单例的形式注入bean
+                beanFactory.registerSingleton(serviceClass, proxy);
             }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (KeeperException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
     }

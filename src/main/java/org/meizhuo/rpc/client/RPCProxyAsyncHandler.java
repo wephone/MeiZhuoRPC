@@ -2,6 +2,7 @@ package org.meizhuo.rpc.client;
 
 
 import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
+import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.promise.Deferred;
 
 import java.lang.reflect.InvocationHandler;
@@ -34,7 +35,7 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
             RPCRequest request=new RPCRequest();
             String requesrId=buildRequestID(method.getName());
             request.setRequestID(requesrId);
-            request.setClassName(method.getDeclaringClass().getName());//返回表示声明由此 Method 对象表示的方法的类或接口的Class对象
+            request.setServiceId(RPC.getClientConfig().getServiceId(method.getDeclaringClass().getName()));//返回表示声明由此 Method 对象表示的方法的类或接口的Class对象
             request.setMethodName(method.getName());
 //        request.setParameterTypes(method.getParameterTypes());//返回形参类型
             request.setParameters(args);//输入的实参

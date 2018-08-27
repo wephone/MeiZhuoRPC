@@ -19,7 +19,7 @@ public class InvokeServiceUtil {
     public static Object invoke(RPCRequest request){
         Object result=null;//内部变量必须赋值 全局变量才不用
         //实现类名
-        String implClassName= RPC.getServerConfig().getServerImplMap().get(request.getClassName());
+        String implClassName= RPC.getServerConfig().getServerImplMap().get(request.getServiceId());
         try {
             Class implClass=Class.forName(implClassName);
             Object[] parameters=request.getParameters();

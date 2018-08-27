@@ -3,6 +3,7 @@ package rpcTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.meizhuo.rpc.core.RPC;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -15,10 +16,13 @@ import java.util.concurrent.CountDownLatch;
 @ContextConfiguration(locations={"file:src/test/java/rpcTest/ClientContext.xml"})
 public class Client {
 
+    @Autowired
+    Service service;
+
     @Test
     public void start(){
         CountDownLatch countDownLatch=new CountDownLatch(1);
-        Service service= (Service) RPC.call(Service.class);
+//        Service service= (Service) RPC.call(Service.class);
         System.out.println("RPC接收成功:"+service.remoteService(233.0,"hhh"));
         /**
          * 为了一定程度支持跨语言 没有直接用java原生的反序列化

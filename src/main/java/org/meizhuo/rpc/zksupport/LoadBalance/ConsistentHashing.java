@@ -42,17 +42,17 @@ public class ConsistentHashing implements LoadBalance{
 
     //初始化每个服务对应的红黑树
     private void initRBtree() throws ProvidersNoFoundException {
-        Set<String> services=RPC.getClientConfig().getServiceInterface();
-        for (String service:services){
+        Map<String,String> services=RPC.getClientConfig().getServiceInterface();
+        for (Map.Entry<String,String> entry:services.entrySet()){
             SortedMap<Integer,String> RBTree=new TreeMap<>();
-            Set<String> ipSet=RPCRequestNet.getInstance().serviceNameInfoMap.get(service).getServiceIPSet();
+            Set<String> ipSet=RPCRequestNet.getInstance().serviceNameInfoMap.get(entry.getKey()).getServiceIPSet();
             if (ipSet.isEmpty()){
                 throw new ProvidersNoFoundException();
             }
             for (String ip:ipSet){
                 putVirutalNode(ip,RBTree);
             }
-            sortedServersMap.put(service,RBTree);
+            sortedServersMap.put(entry.getKey(),RBTree);
         }
     }
 

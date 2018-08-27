@@ -87,9 +87,9 @@ public class ZKClientService {
         zkTempZnodes.createSimpleZnode(path,null);
         path=path+ZKConst.servicePath;
         zkTempZnodes.createSimpleZnode(path,null);
-        Set<String> set=RPC.getClientConfig().getServiceInterface();
-        for (String service:set){
-            zkTempZnodes.createSimpleZnode(path+"/"+service,null);
+        Map<String,String> map=RPC.getClientConfig().getServiceInterface();
+        for (Map.Entry<String,String> entry:map.entrySet()){
+            zkTempZnodes.createSimpleZnode(path+"/"+entry.getKey(),null);
         }
     }
 

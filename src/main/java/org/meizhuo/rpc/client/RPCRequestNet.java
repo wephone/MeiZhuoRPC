@@ -77,8 +77,8 @@ public class RPCRequestNet {
 
     //向实现端发送请求
     public void send(RPCRequest request) throws ProvidersNoFoundException {
-        String serviceName=request.getClassName();
-        String ip=loadBalance.chooseIP(serviceName);
+        String serviceId=request.getServiceId();
+        String ip=loadBalance.chooseIP(serviceId);
 //        System.out.println("Send RPC Thread:"+Thread.currentThread().getName());
         try {
             //编解码对象为json 发送请求
@@ -110,8 +110,8 @@ public class RPCRequestNet {
     }
 
     public void asyncSend(RPCRequest request) throws ProvidersNoFoundException {
-        String serviceName=request.getClassName();
-        String ip=loadBalance.chooseIP(serviceName);
+        String serviceId=request.getServiceId();
+        String ip=loadBalance.chooseIP(serviceId);
         try {
 //            String requestJson= null;
 //            requestJson = RPC.requestEncode(request);

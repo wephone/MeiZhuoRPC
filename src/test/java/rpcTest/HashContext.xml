@@ -5,10 +5,11 @@
     <bean class="org.meizhuo.rpc.client.ClientConfig">
         <property name="zooKeeperHost" value="127.0.0.1:2181"></property>
         <property name="serviceInterface">
-            <set>
-                <value>rpcTest.Service1</value>
-                <value>rpcTest.Service2</value>
-            </set>
+            <map>
+                <!--配置对应的服务ID及抽象接口全类名-->
+                <entry key="Service1" value="rpcTest.Service1" ></entry>
+                <entry key="Service2" value="rpcTest.Service2" ></entry>
+            </map>
         </property>
         <!--负载均衡策略-->
         <property name="loadBalance" ref="hashing"></property>

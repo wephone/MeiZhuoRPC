@@ -21,7 +21,10 @@ public class ServerConfig implements ApplicationContextAware{
     private String zooKeeperHost;
     //服务提供者IP 没配置默认127.0.0.1 8888端口
     private String serverHost="127.0.0.1";
-
+    /**
+     * key为serviceId标识 value为对应的实现类
+     * 实现类可以不显式实现抽象接口 但必须要有对应的实现方法
+     */
     private Map<String,String> serverImplMap;
     private ProtocolEnum protocol=ProtocolEnum.MeiZhuoJavaProtocol;
 
