@@ -13,6 +13,7 @@ import org.meizhuo.rpc.promise.Deferred;
 import org.meizhuo.rpc.server.RPCResponse;
 import org.meizhuo.rpc.server.RPCResponseNet;
 import org.meizhuo.rpc.server.ServerConfig;
+import org.meizhuo.rpc.trace.TraceConfig;
 import org.meizhuo.rpc.zksupport.ZKConnect;
 import org.meizhuo.rpc.zksupport.service.ZKServerService;
 import org.springframework.context.ApplicationContext;
@@ -88,5 +89,29 @@ public class RPC {
 
     public static ClientConfig getClientConfig(){
         return clientContext.getBean(ClientConfig.class);
+    }
+
+    public static boolean isTrace(){
+        if (clientContext!=null){
+            if (clientContext.getBean(TraceConfig.class)!=null){
+                return true;
+            }
+        }
+        if (serverContext!=null){
+            if (serverContext.getBean(TraceConfig.class)!=null){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static TraceConfig getTraceConfig(){
+        if (clientContext!=null){
+            return clientContext.getBean(TraceConfig.class);
+        }
+        if (serverContext!=null){
+            return serverContext.getBean(TraceConfig.class);
+        }
+        return null;
     }
 }
