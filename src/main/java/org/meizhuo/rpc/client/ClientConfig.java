@@ -166,6 +166,7 @@ public class ClientConfig implements ApplicationContextAware {
             serviceNameForId=new HashMap<>();
             //初始化所有可用IP 初始化读写锁
             for (Map.Entry<String,String> entry :services.entrySet()){
+                System.out.println("init client bean "+entry.getValue()+"...");
                 String serviceId=entry.getKey();
                 List<String> ips=zkServerService.getAllServiceIP(serviceId);
 //                for (String ip:ips){

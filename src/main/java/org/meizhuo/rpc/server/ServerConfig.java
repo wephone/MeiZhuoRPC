@@ -23,10 +23,10 @@ public class ServerConfig implements ApplicationContextAware{
     //服务提供者IP 没配置默认127.0.0.1 8888端口
     private String serverHost="127.0.0.1";
     /**
-     * key为serviceId标识 value为对应的实现类
+     * key为serviceId标识 value为对应的实现类bean
      * 实现类可以不显式实现抽象接口 但必须要有对应的实现方法
      */
-    private Map<String,String> serverImplMap;
+    private Map<String,Object> serverImplMap;
     private ProtocolEnum protocol=ProtocolEnum.MeiZhuoJavaProtocol;
 
     public LengthFieldBasedFrameDecoder getDecoder(){
@@ -64,7 +64,7 @@ public class ServerConfig implements ApplicationContextAware{
         return port;
     }
 
-    public Map<String, String> getServerImplMap() {
+    public Map<String, Object> getServerImplMap() {
         return serverImplMap;
     }
 
@@ -90,7 +90,7 @@ public class ServerConfig implements ApplicationContextAware{
         this.serverHost = serverHost;
     }
 
-    public void setServerImplMap(Map<String, String> serverImplMap) {
+    public void setServerImplMap(Map<String, Object> serverImplMap) {
         this.serverImplMap = serverImplMap;
     }
 
@@ -106,26 +106,27 @@ public class ServerConfig implements ApplicationContextAware{
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         RPC.serverContext=applicationContext;
-        Map<String,String> servers=RPC.getServerConfig().getServerImplMap();
-        for (Map.Entry<String,String> entry:servers.entrySet()){
-            try {
-                String serviceImplClassName=entry.getValue();
-                Class serviceImplClass=Class.forName(serviceImplClassName);
-                Object serviceImpl=serviceImplClass.newInstance();
-                //获取bean工厂
-                DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory)applicationContext.getAutowireCapableBeanFactory();
-                //校验bean
-                applicationContext.getAutowireCapableBeanFactory().applyBeanPostProcessorsAfterInitialization(serviceImpl, serviceImplClassName);
-                //以单例的形式注入bean
-                beanFactory.registerSingleton(serviceImplClassName, serviceImpl);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            }
-        }
+//        Map<String,String> servers=RPC.getServerConfig().getServerImplMap();
+//        for (Map.Entry<String,String> entry:servers.entrySet()){
+//            try {
+//                String serviceImplClassName=entry.getValue();
+//                System.out.println("init service bean "+serviceImplClassName+"...");
+//                Class serviceImplClass=Class.forName(serviceImplClassName);
+//                Object serviceImpl=serviceImplClass.newInstance();
+//                //获取bean工厂
+//                DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory)applicationContext.getAutowireCapableBeanFactory();
+//                //校验bean
+//                applicationContext.getAutowireCapableBeanFactory().applyBeanPostProcessorsAfterInitialization(serviceImpl, serviceImplClassName);
+//                //以单例的形式注入bean
+//                beanFactory.registerSingleton(serviceImplClassName, serviceImpl);
+//            } catch (ClassNotFoundException e) {
+//                e.printStackTrace();
+//            } catch (IllegalAccessException e) {
+//                e.printStackTrace();
+//            } catch (InstantiationException e) {
+//                e.printStackTrace();
+//            }
+//        }
 
     }
 }

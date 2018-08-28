@@ -8,9 +8,9 @@
         <property name="serverImplMap">
             <map>
                 <!--配置对应的抽象接口及其实现-->
-                <entry key="Service" value-ref="serviceImpl"></entry>
+                <entry key="Second" value-ref="secondImpl"></entry>
             </map>
         </property>
     </bean>
-    <bean id="serviceImpl" class="rpcTest.ServiceImpl"/>
+    <bean id="secondImpl" class="trace.SecondImpl"/>
 </beans>

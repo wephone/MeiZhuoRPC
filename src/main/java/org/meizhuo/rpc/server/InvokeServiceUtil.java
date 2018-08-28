@@ -18,16 +18,16 @@ public class InvokeServiceUtil {
      */
     public static Object invoke(RPCRequest request){
         Object result=null;//内部变量必须赋值 全局变量才不用
-        //实现类名
-        String implClassName= RPC.getServerConfig().getServerImplMap().get(request.getServiceId());
+        //实现类Bean
+        Object implClassBean= RPC.getServerConfig().getServerImplMap().get(request.getServiceId());
         try {
-            Class implClass=Class.forName(implClassName);
+            Class implClass=Class.forName(implClassBean.getClass().getName());
             Object[] parameters=request.getParameters();
             if (parameters==null){
                 //无参方法
                 Method method=implClass.getDeclaredMethod(request.getMethodName());
-                Object implObj=RPC.serverContext.getBean(implClass);
-                result=method.invoke(implObj);
+//                Object implObj=RPC.serverContext.getBean(implClass);
+                result=method.invoke(implClassBean);
             }else {
                 int parameterNums=request.getParameters().length;
                 Class[] parameterTypes=new Class[parameterNums];
@@ -35,8 +35,8 @@ public class InvokeServiceUtil {
                     parameterTypes[i]=parameters[i].getClass();
                 }
                 Method method=implClass.getDeclaredMethod(request.getMethodName(),parameterTypes);
-                Object implObj=RPC.serverContext.getBean(implClass);
-                result=method.invoke(implObj,parameters);
+//                Object implObj=RPC.serverContext.getBean(implClass);
+                result=method.invoke(implClassBean,parameters);
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

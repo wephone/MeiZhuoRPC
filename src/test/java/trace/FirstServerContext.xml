@@ -2,15 +2,16 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-    <bean class="org.meizhuo.rpc.server.ServerConfig">
-        <property name="port" value="9999"></property>
+    <bean class="org.meizhuo.rpc.client.ClientConfig">
         <property name="zooKeeperHost" value="127.0.0.1:2181"></property>
-        <property name="serverImplMap">
+        <property name="serviceInterface">
             <map>
-                <!--配置对应的抽象接口及其实现-->
-                <entry key="Service" value-ref="serviceImpl"></entry>
+                <!--配置对应的服务ID及抽象接口全类名-->
+                <entry key="StartCall" value="trace.StartCall" ></entry>
             </map>
         </property>
+        <property name="loadBalance" ref="Random"></property>
     </bean>
-    <bean id="serviceImpl" class="rpcTest.ServiceImpl"/>
+    <bean scope="prototype" class="org.meizhuo.rpc.zksupport.LoadBalance.RandomBalance" id="Random">
+    </bean>
 </beans>
