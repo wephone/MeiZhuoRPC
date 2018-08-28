@@ -36,6 +36,8 @@ public class RPCRequestHandler extends ChannelHandlerAdapter {
             synchronized (objectLock) {
                 //唤醒在该对象锁上wait的线程
                 RPCRequest request = (RPCRequest) RPCRequestNet.getInstance().requestLockMap.get(response.getRequestID());
+                //标记该调用方法是否已返回 未标记但锁释放说明调用超时
+                request.setIsResponse(true);
                 request.setResult(response.getResult());
                 request.notifyAll();
             }

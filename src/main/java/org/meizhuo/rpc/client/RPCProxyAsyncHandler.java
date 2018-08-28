@@ -4,6 +4,7 @@ package org.meizhuo.rpc.client;
 import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.promise.Deferred;
+import org.meizhuo.rpc.trace.NamedThreadFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -17,9 +18,9 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
 
     private static AtomicLong requestTimes=new AtomicLong(0);
 
-    private static ThreadPoolExecutor asyncSendExecutor=new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),15,15, TimeUnit.SECONDS,
-            //LinkedBlockingDeque 无界队列 所以拒绝策略和最大线程数其实都没作用
+    private static ThreadPoolExecutor asyncSendExecutor=new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors()*2,Runtime.getRuntime().availableProcessors()*3,15, TimeUnit.SECONDS,
             new LinkedBlockingDeque<>(),
+            new NamedThreadFactory("AsyncSend"),
             new ThreadPoolExecutor.DiscardPolicy());
 
     private Deferred promise;
@@ -41,6 +42,7 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
             request.setParameters(args);//输入的实参
             RPCRequestNet.getInstance().promiseMap.put(request.getRequestID(),promise);
             try {
+                //todo 异步调用的超时熔断
                 RPCRequestNet.getInstance().asyncSend(request);
             } catch (ProvidersNoFoundException e) {
                 //这里不输出日志 由failcallback处理

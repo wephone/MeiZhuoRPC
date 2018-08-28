@@ -14,6 +14,7 @@ public class RPCRequest {
     private Object[] parameters;
     //结果异步返回时 赋值在这里
     private Object result;
+    private Boolean isResponse=false;
 
     public String getRequestID() {
         return requestID;
@@ -61,5 +62,13 @@ public class RPCRequest {
 
     public void setResult(Object result) {
         this.result = result;
+    }
+
+    public Boolean getIsResponse() {
+        return isResponse;
+    }
+
+    public void setIsResponse(Boolean response) {
+        isResponse = response;
     }
 }
