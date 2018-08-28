@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 public class InvokeServiceUtil {
 
     /**
-     * 反射调用相应实现类并结果
+     * 从spring中取出实现类 反射调用相应实现类并结果
      * @param request
      * @return
      */
@@ -26,7 +26,7 @@ public class InvokeServiceUtil {
             if (parameters==null){
                 //无参方法
                 Method method=implClass.getDeclaredMethod(request.getMethodName());
-                Object implObj=implClass.newInstance();
+                Object implObj=RPC.serverContext.getBean(implClass);
                 result=method.invoke(implObj);
             }else {
                 int parameterNums=request.getParameters().length;
@@ -35,14 +35,12 @@ public class InvokeServiceUtil {
                     parameterTypes[i]=parameters[i].getClass();
                 }
                 Method method=implClass.getDeclaredMethod(request.getMethodName(),parameterTypes);
-                Object implObj=implClass.newInstance();
+                Object implObj=RPC.serverContext.getBean(implClass);
                 result=method.invoke(implObj,parameters);
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();

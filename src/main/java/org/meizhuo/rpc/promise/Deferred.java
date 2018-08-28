@@ -8,6 +8,9 @@ public class Deferred implements Promise {
     Queue<ThenCallBack> thenCallBackList=new LinkedList<>();
     private SucessCallBack sucessCallBack;
     private FailCallback failCallback;
+    //TODO 每次首个开启异步RPC的操作保持一个调用链traceId 不存在则创建并保存到threadLocal
+    private String traceId;
+    private String parentSpanId;
 
     @Override
     public Promise then(ThenCallBack thenCallBack) {

@@ -6,6 +6,7 @@ import io.netty.handler.codec.MessageToMessageEncoder;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.protocol.*;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -105,5 +106,26 @@ public class ServerConfig implements ApplicationContextAware{
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         RPC.serverContext=applicationContext;
+        Map<String,String> servers=RPC.getServerConfig().getServerImplMap();
+        for (Map.Entry<String,String> entry:servers.entrySet()){
+            try {
+                String serviceImplClassName=entry.getValue();
+                Class serviceImplClass=Class.forName(serviceImplClassName);
+                Object serviceImpl=serviceImplClass.newInstance();
+                //获取bean工厂
+                DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory)applicationContext.getAutowireCapableBeanFactory();
+                //校验bean
+                applicationContext.getAutowireCapableBeanFactory().applyBeanPostProcessorsAfterInitialization(serviceImpl, serviceImplClassName);
+                //以单例的形式注入bean
+                beanFactory.registerSingleton(serviceImplClassName, serviceImpl);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 }

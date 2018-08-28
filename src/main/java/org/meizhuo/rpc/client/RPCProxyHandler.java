@@ -47,6 +47,7 @@ public class RPCProxyHandler  implements InvocationHandler {
         //调用用结束后移除对应的condition映射关系
         RPCRequestNet.getInstance().requestLockMap.remove(request.getRequestID());
 //        lock.unlock();
+        //TODO 判断调用是否成功 否则触发重试或者熔断
         return request.getResult();//目标方法的返回结果
     }
 

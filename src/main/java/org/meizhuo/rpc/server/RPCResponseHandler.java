@@ -30,6 +30,7 @@ public class RPCResponseHandler extends ChannelHandlerAdapter {
         RPCProtocol requestProtocol= (RPCProtocol) msg;
 //        System.out.println("receive request:"+requestJson);
         RPCRequest request= requestProtocol.buildRequestByProtocol();
+        //从spring中取出bean进行调用 而不是直接反射
         Object result=InvokeServiceUtil.invoke(request);
         RPCResponse response=new RPCResponse();
         response.setRequestID(request.getRequestID());
