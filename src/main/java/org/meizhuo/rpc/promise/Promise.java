@@ -2,7 +2,7 @@ package org.meizhuo.rpc.promise;
 
 public interface Promise {
 
-    Promise then(ThenCallBack thenCallBack);
+    Promise then(RxCallBack thenCallBack);
 
     Promise success(SucessCallBack sucessCallBack);
 

@@ -27,15 +27,23 @@ public class Client {
 //        Deferred deferred =new Deferred();
 //        Function function= (Function) RPC.AsyncCall(Function.class,deferred);
         function.getInteger("first args")
-                .then(new ThenCallBack<Integer>(){
+                .then(new NextCallBack<Integer>(){
                     @Override
-                    public Promise done(Integer data) {
+                    public Promise nextRPC(Integer data) {
                         //将得到的结果作为参数 将返回的结果作为下一层调用的参数
                         return function.getString(data);
                     }
-                }).then(new ThenCallBack<String>() {
+                })
+                .then(new ThenCallBack<String,String>() {
                     @Override
-                    public Promise done(String data) {
+                    public String done(String data) {
+                        System.out.println("模拟查询数据库操作......");
+                        return data;
+                    }
+                })
+                .then(new NextCallBack<String>() {
+                    @Override
+                    public Promise nextRPC(String data) {
                         return function.getInteger(data);
                     }
                 }).success(new SucessCallBack<Integer>() {
@@ -61,12 +69,21 @@ public class Client {
     @Test
     public void lamdaStart(){
         CountDownLatch countDownLatch=new CountDownLatch(1);
-        Deferred deferred =new Deferred();
-        Function function= (Function) RPC.AsyncCall(Function.class,deferred);
         function.getInteger("first args")
-                .then((ThenCallBack<Integer>) data -> function.getString(data))
-                .then((ThenCallBack<String>) data -> function.getInteger(data))
-                .success((SucessCallBack<Integer>) result -> System.out.println("result:"+result));
+                .then((NextCallBack<Integer>) arg -> {
+                    //将得到的结果作为参数 将返回的结果作为下一层调用的参数
+                    return function.getString(arg);
+                })
+                .then((ThenCallBack<String, String>) arg -> {
+                    System.out.println("模拟查询数据库操作......");
+                    return arg;
+                })
+                .then((NextCallBack<String>) data -> function.getInteger(data))
+                .success((SucessCallBack<Integer>) result -> System.out.println("result:"+result))
+                .fail(e -> {
+                    System.out.println("rpc fail!");
+                    e.printStackTrace();
+                });
         System.out.println("main thread finish!");
         try {
             countDownLatch.await();

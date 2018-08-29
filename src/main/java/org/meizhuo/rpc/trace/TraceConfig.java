@@ -5,6 +5,8 @@ public class TraceConfig {
     private String zipkinUrl;
     private Integer HTTPMaxIdle=2;
     private Integer HTTPMaxTotal=4;
+    //配置vm参数使用定制ThreadLocal才可以触发链路追踪
+    private Boolean enableTrace=false;
 
     public String getZipkinUrl() {
         return zipkinUrl;
@@ -28,5 +30,13 @@ public class TraceConfig {
 
     public void setHTTPMaxTotal(Integer HTTPMaxTotal) {
         this.HTTPMaxTotal = HTTPMaxTotal;
+    }
+
+    public Boolean getEnableTrace() {
+        return enableTrace;
+    }
+
+    public void setEnableTrace(Boolean enableTrace) {
+        this.enableTrace = enableTrace;
     }
 }

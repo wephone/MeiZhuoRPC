@@ -4,6 +4,7 @@ package org.meizhuo.rpc.client;
 import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.promise.Deferred;
+import org.meizhuo.rpc.threadLocal.PromiseThreadLocal;
 import org.meizhuo.rpc.trace.NamedThreadFactory;
 
 import java.lang.reflect.InvocationHandler;
@@ -25,12 +26,18 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
 
     private Deferred promise;
 
-    public RPCProxyAsyncHandler(Deferred promise) {
-        this.promise = promise;
-    }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
+        //如果当前threadLocal有promise则更换promise 不存在则新建一个 保持全链路promise唯一
+        Deferred deferredInthread=PromiseThreadLocal.getThreadPromise();
+        if (deferredInthread==null){
+            promise=new Deferred();
+        }else {
+            promise=deferredInthread;
+        }
+        // 设置promise的loop为false 要等待RPC异步返回才可以继续 普通方法则可以直接继续loop
+        promise.setLoop(false);
         //直接返回promise 其他操作全部异步
         asyncSendExecutor.submit(() -> {
             RPCRequest request=new RPCRequest();

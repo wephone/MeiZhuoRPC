@@ -71,4 +71,14 @@ public class TraceSendUtils {
         sendToZipkin(span);
     }
 
+    public static void clientAsyncSend(){
+        SpanStruct span=new SpanStruct();
+        sendToZipkin(span);
+    }
+
+    public static void clientAsyncReceived(){
+        SpanStruct span=new SpanStruct();
+        sendToZipkin(span);
+    }
+
 }

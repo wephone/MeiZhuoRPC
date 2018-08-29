@@ -16,6 +16,7 @@ import org.meizhuo.rpc.server.ServerConfig;
 import org.meizhuo.rpc.trace.TraceConfig;
 import org.meizhuo.rpc.zksupport.ZKConnect;
 import org.meizhuo.rpc.zksupport.service.ZKServerService;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class RPC {
     }
 
     public static Object AsyncCall(Class cls,Deferred promise){
-        RPCProxyAsyncHandler handler=new RPCProxyAsyncHandler(promise);
+        RPCProxyAsyncHandler handler=new RPCProxyAsyncHandler();
         Object proxyObj=Proxy.newProxyInstance(cls.getClassLoader(),new Class<?>[]{cls},handler);
         return proxyObj;
     }
@@ -93,16 +94,20 @@ public class RPC {
 
     public static boolean isTrace(){
         if (clientContext!=null){
-            if (clientContext.getBean(TraceConfig.class)!=null){
-                return true;
+            try {
+                clientContext.getBean(TraceConfig.class);
+            }catch (NoSuchBeanDefinitionException e){
+                return false;
             }
         }
         if (serverContext!=null){
-            if (serverContext.getBean(TraceConfig.class)!=null){
-                return true;
+            try {
+                serverContext.getBean(TraceConfig.class);
+            }catch (NoSuchBeanDefinitionException e){
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     public static TraceConfig getTraceConfig(){

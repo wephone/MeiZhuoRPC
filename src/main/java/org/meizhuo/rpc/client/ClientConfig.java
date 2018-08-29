@@ -19,6 +19,8 @@ import org.springframework.context.ApplicationContextAware;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.List;
@@ -184,7 +186,7 @@ public class ClientConfig implements ApplicationContextAware {
                 Annotation async=cls.getAnnotation(Async.class);
                 Object proxy;
                 if (async!=null){
-                    RPCProxyAsyncHandler handler=new RPCProxyAsyncHandler(new Deferred());
+                    RPCProxyAsyncHandler handler=new RPCProxyAsyncHandler();
                     proxy=Proxy.newProxyInstance(cls.getClassLoader(),new Class<?>[]{cls},handler);
                 }else {
                     RPCProxyHandler handler=new RPCProxyHandler();
@@ -196,6 +198,17 @@ public class ClientConfig implements ApplicationContextAware {
                 applicationContext.getAutowireCapableBeanFactory().applyBeanPostProcessorsAfterInitialization(proxy, serviceClass);
                 //以单例的形式注入bean
                 beanFactory.registerSingleton(serviceClass, proxy);
+            }
+            if (RPC.isTrace()){
+                RuntimeMXBean runtimeMBean = ManagementFactory.getRuntimeMXBean();
+                List<String> vmArgs=runtimeMBean.getInputArguments();
+                for (String arg:vmArgs){
+                    //必须设置vm参数才能启用链路追踪
+                    if (arg.contains("transmittable-thread-local")){
+                        RPC.getTraceConfig().setEnableTrace(true);
+                        break;
+                    }
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

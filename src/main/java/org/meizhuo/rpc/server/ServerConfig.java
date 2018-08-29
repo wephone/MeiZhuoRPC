@@ -10,6 +10,9 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -106,27 +109,15 @@ public class ServerConfig implements ApplicationContextAware{
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         RPC.serverContext=applicationContext;
-//        Map<String,String> servers=RPC.getServerConfig().getServerImplMap();
-//        for (Map.Entry<String,String> entry:servers.entrySet()){
-//            try {
-//                String serviceImplClassName=entry.getValue();
-//                System.out.println("init service bean "+serviceImplClassName+"...");
-//                Class serviceImplClass=Class.forName(serviceImplClassName);
-//                Object serviceImpl=serviceImplClass.newInstance();
-//                //获取bean工厂
-//                DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory)applicationContext.getAutowireCapableBeanFactory();
-//                //校验bean
-//                applicationContext.getAutowireCapableBeanFactory().applyBeanPostProcessorsAfterInitialization(serviceImpl, serviceImplClassName);
-//                //以单例的形式注入bean
-//                beanFactory.registerSingleton(serviceImplClassName, serviceImpl);
-//            } catch (ClassNotFoundException e) {
-//                e.printStackTrace();
-//            } catch (IllegalAccessException e) {
-//                e.printStackTrace();
-//            } catch (InstantiationException e) {
-//                e.printStackTrace();
-//            }
-//        }
-
+        if (RPC.isTrace()){
+            RuntimeMXBean runtimeMBean = ManagementFactory.getRuntimeMXBean();
+            List<String> vmArgs=runtimeMBean.getInputArguments();
+            for (String arg:vmArgs){
+                if (arg.contains("transmittable-thread-local")){
+                    RPC.getTraceConfig().setEnableTrace(true);
+                    break;
+                }
+            }
+        }
     }
 }
