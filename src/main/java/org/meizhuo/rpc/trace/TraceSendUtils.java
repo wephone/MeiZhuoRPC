@@ -9,6 +9,8 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.promise.Deferred;
+import org.meizhuo.rpc.protocol.IdUtils;
+import org.meizhuo.rpc.threadLocal.TraceThreadLocal;
 
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -75,6 +77,7 @@ public class TraceSendUtils {
     public static void clientAsyncSend(Deferred promise){
         if (RPC.isTrace()) {
             SpanStruct span = new SpanStruct();
+            buildTraceSpanIdByPromise(promise,span);
             sendToZipkin(span);
         }
     }
@@ -82,7 +85,37 @@ public class TraceSendUtils {
     public static void clientAsyncReceived(Deferred promise){
         if (RPC.isTrace()) {
             SpanStruct span = new SpanStruct();
+            buildTraceSpanIdByPromise(promise,span);
             sendToZipkin(span);
+        }
+    }
+
+    private static void buildTraceSpanIdByPromise(Deferred promise,SpanStruct span){
+        String traceId;
+        String parentSpanId=null;
+        //promise中不存在 则取threadLocal的tracee
+        //threadLocal的不存在则新建一个trace
+        if (promise.getTraceId()==null){
+            String traceInThread=TraceThreadLocal.getTraceIdInThread();
+            if (traceInThread==null) {
+                traceId = IdUtils.getTraceId();
+                promise.setTraceId(traceId);
+            }else {
+                traceId=traceInThread;
+            }
+        }else {
+            traceId=promise.getTraceId();
+        }
+        if (promise.getParentSpanId()==null){
+            String spanInThread=TraceThreadLocal.getParentSpanIdInThread();
+            if (spanInThread!=null) {
+                parentSpanId=spanInThread;
+            }
+        }else {
+            parentSpanId=promise.getParentSpanId();
+        }
+        if (parentSpanId!=null){
+            span.setParentId(parentSpanId);
         }
     }
 

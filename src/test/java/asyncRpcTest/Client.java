@@ -31,15 +31,15 @@ public class Client {
                     @Override
                     public Promise nextRPC(Integer data) {
                         //将得到的结果作为参数 将返回的结果作为下一层调用的参数
-                        //一个回调里出现2个以上的异步RPC时 需要2个都执行完毕时才会触发下一个then或next
-                        function.getString(data);
+                        //不可在同一个next里执行多个异步RPC 需要不等待RPC结果执行请用直接then
+//                        function.getString(data);
                         return function.getString(data);
                     }
                 })
                 .then(new ThenCallBack<String,String>() {
                     @Override
                     public String done(String data) {
-                        //若不按规则 then里出现异步RPC调用 则需要等RPC响应后才可触发下一个then或next
+                        //将异步RPC写在thenCallBack而不是nextRPC回调中 则该异步RPC结果不会被等待 而是直接异步执行
                         System.out.println("模拟查询数据库操作......");
                         return data;
                     }

@@ -37,8 +37,7 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
         }else {
             promise=deferredInthread;
         }
-        //设置RPC调用数+1 要等待RPC异步返回才-1 减到0才可以继续 普通方法则可以直接继续loop
-        promise.increaseLoop();
+//        promise.increaseLoop();
 //        TraceSendUtils.clientAsyncSend(promise);
         //直接返回promise 其他操作全部异步
         asyncSendExecutor.submit(() -> {

@@ -15,15 +15,32 @@ public class Deferred implements Promise {
     //TODO 每次首个开启异步RPC的操作保持一个调用链traceId 不存在则创建并保存到threadLocal
     private String traceId;
     private String parentSpanId;
-    //是否可以直接循环执行所有回调 当回调中有其他异步RPC时不可继续循环
-    private AtomicInteger loop=new AtomicInteger();
+//    //是否可以直接循环执行所有回调 当回调中有其他异步RPC时不可继续循环
+//    private AtomicInteger loop=new AtomicInteger();
+//
+//    public void increaseLoop() {
+//        loop.incrementAndGet();
+//    }
+//
+//    public void reduceLoop() {
+//        loop.decrementAndGet();
+//    }
 
-    public void increaseLoop() {
-        loop.incrementAndGet();
+
+    public String getTraceId() {
+        return traceId;
     }
 
-    public void reduceLoop() {
-        loop.decrementAndGet();
+    public void setTraceId(String traceId) {
+        this.traceId = traceId;
+    }
+
+    public String getParentSpanId() {
+        return parentSpanId;
+    }
+
+    public void setParentSpanId(String parentSpanId) {
+        this.parentSpanId = parentSpanId;
     }
 
     @Override
@@ -50,7 +67,8 @@ public class Deferred implements Promise {
         //上一层的RPC调用作为下一层的入参 RPC调用就算是无返回值也会得到null结果
         Object argForThen=result;
         //判断此时loop是否为0 是的话继续循环 不是的话说明还有异步调用未返回退出循环
-        while (loop.get()==0) {
+        boolean loop=true;
+        while (loop) {
             //每次取出队列的第一个执行真正的操作
             Object callBack = thenCallBackList.poll();
             if (callBack != null) {
@@ -71,9 +89,13 @@ public class Deferred implements Promise {
                 }else if (callBack instanceof NextCallBack){
                     //下一级RPC回调 返回参数不用设置 因为此时会结束循环
                     ((NextCallBack)callBack).nextRPC(argForThen);
+                    //next调用不可继续后续事件 需要等待RPC返回
+                    loop=false;
                 }else if (callBack instanceof NextVoidArgCallBack){
                     //下一级无参RPC回调 返回参数不用设置 因为此时会结束循环
                     ((NextVoidArgCallBack)callBack).nextRPC();
+                    //next调用不可继续后续事件 需要等待RPC返回
+                    loop=false;
                 }
                 // 释放threadLocal的Promise
                 PromiseThreadLocal.removeThreadPromise();
