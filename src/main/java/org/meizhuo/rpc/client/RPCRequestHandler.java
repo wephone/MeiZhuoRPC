@@ -43,7 +43,7 @@ public class RPCRequestHandler extends ChannelHandlerAdapter {
             }
         }else {
             Deferred deferred=RPCRequestNet.getInstance().promiseMap.get(response.getRequestID());
-            deferred.setLoop(true);
+            deferred.reduceLoop();
             deferred.resolve(response.getResult());
         }
     }

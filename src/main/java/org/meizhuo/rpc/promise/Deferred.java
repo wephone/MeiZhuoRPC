@@ -4,6 +4,8 @@ import org.meizhuo.rpc.threadLocal.PromiseThreadLocal;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Deferred implements Promise {
 
@@ -14,10 +16,14 @@ public class Deferred implements Promise {
     private String traceId;
     private String parentSpanId;
     //是否可以直接循环执行所有回调 当回调中有其他异步RPC时不可继续循环
-    private Boolean loop;
+    private AtomicInteger loop=new AtomicInteger();
 
-    public void setLoop(Boolean loop) {
-        this.loop = loop;
+    public void increaseLoop() {
+        loop.incrementAndGet();
+    }
+
+    public void reduceLoop() {
+        loop.decrementAndGet();
     }
 
     @Override
@@ -43,8 +49,8 @@ public class Deferred implements Promise {
     public void resolve(Object result){
         //上一层的RPC调用作为下一层的入参 RPC调用就算是无返回值也会得到null结果
         Object argForThen=result;
-        //TODO 判断此时loop是否为true 是的话继续循环 直到出现false为止
-        while (loop) {
+        //判断此时loop是否为0 是的话继续循环 不是的话说明还有异步调用未返回退出循环
+        while (loop.get()==0) {
             //每次取出队列的第一个执行真正的操作
             Object callBack = thenCallBackList.poll();
             if (callBack != null) {
@@ -75,8 +81,7 @@ public class Deferred implements Promise {
                 if (sucessCallBack!=null) {
                     sucessCallBack.done(argForThen);
                 }
-                //没有中间级后停止
-                loop=false;
+                break;
             }
         }
     }

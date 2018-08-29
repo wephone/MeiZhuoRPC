@@ -111,11 +111,13 @@ public class RPC {
     }
 
     public static TraceConfig getTraceConfig(){
-        if (clientContext!=null){
-            return clientContext.getBean(TraceConfig.class);
-        }
-        if (serverContext!=null){
-            return serverContext.getBean(TraceConfig.class);
+        if (isTrace()) {
+            if (clientContext != null) {
+                return clientContext.getBean(TraceConfig.class);
+            }
+            if (serverContext != null) {
+                return serverContext.getBean(TraceConfig.class);
+            }
         }
         return null;
     }

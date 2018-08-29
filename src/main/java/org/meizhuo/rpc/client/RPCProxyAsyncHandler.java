@@ -6,6 +6,7 @@ import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.promise.Deferred;
 import org.meizhuo.rpc.threadLocal.PromiseThreadLocal;
 import org.meizhuo.rpc.trace.NamedThreadFactory;
+import org.meizhuo.rpc.trace.TraceSendUtils;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -36,8 +37,9 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
         }else {
             promise=deferredInthread;
         }
-        // 设置promise的loop为false 要等待RPC异步返回才可以继续 普通方法则可以直接继续loop
-        promise.setLoop(false);
+        //设置RPC调用数+1 要等待RPC异步返回才-1 减到0才可以继续 普通方法则可以直接继续loop
+        promise.increaseLoop();
+//        TraceSendUtils.clientAsyncSend(promise);
         //直接返回promise 其他操作全部异步
         asyncSendExecutor.submit(() -> {
             RPCRequest request=new RPCRequest();

@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
 import org.meizhuo.rpc.core.RPC;
+import org.meizhuo.rpc.promise.Deferred;
 
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -71,14 +72,18 @@ public class TraceSendUtils {
         sendToZipkin(span);
     }
 
-    public static void clientAsyncSend(){
-        SpanStruct span=new SpanStruct();
-        sendToZipkin(span);
+    public static void clientAsyncSend(Deferred promise){
+        if (RPC.isTrace()) {
+            SpanStruct span = new SpanStruct();
+            sendToZipkin(span);
+        }
     }
 
-    public static void clientAsyncReceived(){
-        SpanStruct span=new SpanStruct();
-        sendToZipkin(span);
+    public static void clientAsyncReceived(Deferred promise){
+        if (RPC.isTrace()) {
+            SpanStruct span = new SpanStruct();
+            sendToZipkin(span);
+        }
     }
 
 }
