@@ -4,6 +4,7 @@ package org.meizhuo.rpc.client;
 import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.promise.Deferred;
+import org.meizhuo.rpc.threadLocal.NeedReturnThreadLocal;
 import org.meizhuo.rpc.threadLocal.PromiseThreadLocal;
 import org.meizhuo.rpc.trace.NamedThreadFactory;
 import org.meizhuo.rpc.trace.TraceSendUtils;
@@ -37,6 +38,7 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
         }else {
             promise=deferredInthread;
         }
+        boolean needReturn=NeedReturnThreadLocal.needReturn();
 //        promise.increaseLoop();
 //        TraceSendUtils.clientAsyncSend(promise);
         //直接返回promise 其他操作全部异步
@@ -48,7 +50,9 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
             request.setMethodName(method.getName());
 //        request.setParameterTypes(method.getParameterTypes());//返回形参类型
             request.setParameters(args);//输入的实参
-            RPCRequestNet.getInstance().promiseMap.put(request.getRequestID(),promise);
+            if (needReturn) {
+                RPCRequestNet.getInstance().promiseMap.put(request.getRequestID(), promise);
+            }
             try {
                 //todo 异步调用的超时熔断
                 RPCRequestNet.getInstance().asyncSend(request);

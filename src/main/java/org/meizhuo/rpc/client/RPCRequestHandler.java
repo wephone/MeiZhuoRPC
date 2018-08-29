@@ -40,11 +40,16 @@ public class RPCRequestHandler extends ChannelHandlerAdapter {
                 request.setIsResponse(true);
                 request.setResult(response.getResult());
                 request.notifyAll();
+                RPCRequestNet.getInstance().requestLockMap.remove(response.getRequestID());
             }
         }else {
             Deferred deferred=RPCRequestNet.getInstance().promiseMap.get(response.getRequestID());
 //            deferred.reduceLoop();
-            deferred.resolve(response.getResult());
+            if (deferred!=null) {
+                //写在then里的异步RPC不触发resolve
+                deferred.resolve(response.getResult());
+                RPCRequestNet.getInstance().promiseMap.remove(response.getRequestID());
+            }
         }
     }
 }

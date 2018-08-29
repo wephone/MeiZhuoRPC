@@ -1,5 +1,6 @@
 package org.meizhuo.rpc.promise;
 
+import org.meizhuo.rpc.threadLocal.NeedReturnThreadLocal;
 import org.meizhuo.rpc.threadLocal.PromiseThreadLocal;
 
 import java.util.LinkedList;
@@ -75,16 +76,28 @@ public class Deferred implements Promise {
                 // 在此处设置promise到threadLocal 保持全链路promise唯一
                 PromiseThreadLocal.setThreadPromise(this);
                 if (callBack instanceof ThenCallBack){
+                    //设置then方法的异步RPC不处理返回结果
+                    NeedReturnThreadLocal.noNeedReturn();
                     //上级回调结果作为此级参数
                     argForThen=((ThenCallBack)callBack).done(argForThen);
+                    NeedReturnThreadLocal.removeNeedReturn();
                 }else if (callBack instanceof ThenVoidArgCallBack){
+                    //设置then方法的异步RPC不处理返回结果
+                    NeedReturnThreadLocal.noNeedReturn();
                     //此级回调无需参数
                     argForThen=((ThenVoidArgCallBack)callBack).done();
+                    NeedReturnThreadLocal.removeNeedReturn();
                 }else if (callBack instanceof ThenVoidResCallBack){
+                    //设置then方法的异步RPC不处理返回结果
+                    NeedReturnThreadLocal.noNeedReturn();
                     ((ThenVoidResCallBack)callBack).done(argForThen);
+                    NeedReturnThreadLocal.removeNeedReturn();
                     argForThen=null;
                 }else if (callBack instanceof ThenVoidCallBack){
+                    //设置then方法的异步RPC不处理返回结果
+                    NeedReturnThreadLocal.noNeedReturn();
                     ((ThenVoidCallBack)callBack).done();
+                    NeedReturnThreadLocal.removeNeedReturn();
                     argForThen=null;
                 }else if (callBack instanceof NextCallBack){
                     //下一级RPC回调 返回参数不用设置 因为此时会结束循环

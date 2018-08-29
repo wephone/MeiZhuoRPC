@@ -31,7 +31,7 @@ public class Client {
                     @Override
                     public Promise nextRPC(Integer data) {
                         //将得到的结果作为参数 将返回的结果作为下一层调用的参数
-                        //不可在同一个next里执行多个异步RPC 需要不等待RPC结果执行请用直接then
+                        //不可在同一个next里执行多个异步RPC 需要不等待RPC结果执行请用直接then TODO 后续这么写抛出异常
 //                        function.getString(data);
                         return function.getString(data);
                     }
@@ -40,6 +40,7 @@ public class Client {
                     @Override
                     public String done(String data) {
                         //将异步RPC写在thenCallBack而不是nextRPC回调中 则该异步RPC结果不会被等待 而是直接异步执行
+                        function.getInteger("hello world");
                         System.out.println("模拟查询数据库操作......");
                         return data;
                     }
@@ -47,6 +48,7 @@ public class Client {
                 .then(new NextCallBack<String>() {
                     @Override
                     public Promise nextRPC(String data) {
+                        //一些其他乱七八糟的操作
                         return function.getInteger(data);
                     }
                 }).success(new SucessCallBack<Integer>() {

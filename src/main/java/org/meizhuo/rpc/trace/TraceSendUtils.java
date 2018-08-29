@@ -117,6 +117,7 @@ public class TraceSendUtils {
         if (parentSpanId!=null){
             span.setParentId(parentSpanId);
         }
+        span.setTraceId(traceId);
     }
 
 }
