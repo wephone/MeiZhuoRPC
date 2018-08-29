@@ -15,6 +15,11 @@ public class RPCRequest {
     //结果异步返回时 赋值在这里
     private Object result;
     private Boolean isResponse=false;
+    //本次请求的traceId
+    private String traceId;
+    //本次请求的spanId
+    private String spanId;
+    private Long requestTime;
 
     public String getRequestID() {
         return requestID;
@@ -70,5 +75,29 @@ public class RPCRequest {
 
     public void setIsResponse(Boolean response) {
         isResponse = response;
+    }
+
+    public String getTraceId() {
+        return traceId;
+    }
+
+    public void setTraceId(String traceId) {
+        this.traceId = traceId;
+    }
+
+    public String getSpanId() {
+        return spanId;
+    }
+
+    public void setSpanId(String spanId) {
+        this.spanId = spanId;
+    }
+
+    public Long getRequestTime() {
+        return requestTime;
+    }
+
+    public void setRequestTime(Long requestTime) {
+        this.requestTime = requestTime;
     }
 }

@@ -17,6 +17,7 @@ public class SpanStruct {
 
     class LocalEndpoint{
         private String serviceName;
+        private String ipv4;
 
         public String getServiceName() {
             return serviceName;
@@ -24,6 +25,14 @@ public class SpanStruct {
 
         public void setServiceName(String serviceName) {
             this.serviceName = serviceName;
+        }
+
+        public String getIpv4() {
+            return ipv4;
+        }
+
+        public void setIpv4(String ipv4) {
+            this.ipv4 = ipv4;
         }
     }
 
