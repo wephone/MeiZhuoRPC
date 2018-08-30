@@ -131,6 +131,8 @@ public class MZJavaProtocol implements RPCProtocol{
     public RPCRequest buildRequestByProtocol() {
         //TODO 后续将request response命名改为适配器模式adapter
         RPCRequest rpcRequest=new RPCRequest();
+        rpcRequest.setTraceId(header.getTraceId());
+        rpcRequest.setSpanId(header.getSpanId());
         rpcRequest.setServiceId(javaBody.getService());
         rpcRequest.setMethodName(javaBody.getMethod());
         rpcRequest.setRequestID(header.getRequestId());
@@ -149,6 +151,8 @@ public class MZJavaProtocol implements RPCProtocol{
     public RPCResponse buildResponseByProtocol() {
         RPCResponse response=new RPCResponse();
         response.setRequestID(header.getRequestId());
+        response.setTraceId(header.getTraceId());
+        response.setSpanId(header.getSpanId());
         response.setResult(ObjToBytesUtils.bytesToObject(javaBody.getResult()));
         response.setResponseTime(header.getTime());
         return response;

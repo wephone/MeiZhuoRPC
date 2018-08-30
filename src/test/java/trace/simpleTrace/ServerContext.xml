@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean class="org.meizhuo.rpc.server.ServerConfig">
+        <property name="port" value="9999"></property>
+        <property name="zooKeeperHost" value="127.0.0.1:2181"></property>
+        <property name="serverImplMap">
+            <map>
+                <!--配置对应的抽象接口及其实现-->
+                <entry key="RPCService" value-ref="serviceImpl"></entry>
+            </map>
+        </property>
+    </bean>
+    <bean id="serviceImpl" class="rpcTest.ServiceImpl"/>
+    <bean class="org.meizhuo.rpc.trace.TraceConfig">
+        <property name="appId" value="2"/>
+        <property name="zipkinUrl" value="127.0.0.1:9411"/>
+    </bean>
+</beans>

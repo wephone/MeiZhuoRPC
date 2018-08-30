@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean class="org.meizhuo.rpc.client.ClientConfig">
+        <property name="zooKeeperHost" value="127.0.0.1:2181"></property>
+        <property name="serviceInterface">
+            <map>
+                <!--配置对应的服务ID及抽象接口全类名-->
+                <entry key="RPCService" value="rpcTest.Service" ></entry>
+            </map>
+        </property>
+        <property name="loadBalance" ref="Random"></property>
+        <property name="overtime" value="5000"/>
+    </bean>
+    <bean scope="prototype" class="org.meizhuo.rpc.zksupport.LoadBalance.RandomBalance" id="Random">
+    </bean>
+    <bean class="org.meizhuo.rpc.trace.TraceConfig">
+        <property name="appId" value="1"/>
+        <property name="zipkinUrl" value="127.0.0.1:9411"/>
+    </bean>
+</beans>

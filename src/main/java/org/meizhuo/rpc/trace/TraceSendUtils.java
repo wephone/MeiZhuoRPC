@@ -62,8 +62,12 @@ public class TraceSendUtils {
         if (RPC.isTrace()) {
             //查看threadLocal是否有链路信息
             SpanStruct spanInThread = TraceThreadLocal.getSpanInThread();
-            String traceId = spanInThread.getTraceId();
-            String parentSpanId = spanInThread.getParentId();
+            String traceId=null;
+            String parentSpanId=null;
+            if (spanInThread!=null) {
+                traceId= spanInThread.getTraceId();
+                parentSpanId = spanInThread.getParentId();
+            }
             String spanId = IdUtils.getSpanId();
             SpanStruct span = new SpanStruct();
             if (traceId == null) {
@@ -87,10 +91,13 @@ public class TraceSendUtils {
     public static void clientSend(SpanStruct span){
         if (RPC.isTrace()) {
             SpanStruct spanInThread = TraceThreadLocal.getSpanInThread();
-            Long lastTime = spanInThread.getTimestamp();
+            Long lastTime = null;
+            if (spanInThread!=null){
+                lastTime = spanInThread.getTimestamp();
+            }
+            Long now = System.currentTimeMillis();
+            span.setTimestamp(now * 1000);
             if (lastTime != null) {
-                Long now = System.currentTimeMillis();
-                span.setTimestamp(now * 1000);
                 span.setDuration((now - lastTime) * 1000);
             }
             postSpanExecutor.submit(new Runnable() {
@@ -172,7 +179,14 @@ public class TraceSendUtils {
             SpanStruct span = new SpanStruct();
             String spanId = IdUtils.getSpanId();
             SpanStruct spanInThread = TraceThreadLocal.getSpanInThread();
-            spanInThread.setParentId(spanId);
+            if (spanInThread!=null) {
+                spanInThread.setParentId(spanId);
+            }else {
+                spanInThread=new SpanStruct();
+                spanInThread.setTraceId(rpcRequest.getTraceId());
+                spanInThread.setParentId(spanId);
+            }
+            TraceThreadLocal.setSpanInThread(spanInThread);
             span.setId(spanId);
             span.setTraceId(rpcRequest.getTraceId());
             span.setParentId(rpcRequest.getSpanId());
