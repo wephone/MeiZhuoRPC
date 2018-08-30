@@ -14,6 +14,8 @@ import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.promise.Deferred;
 import org.meizhuo.rpc.protocol.RPCProtocol;
+import org.meizhuo.rpc.trace.SpanStruct;
+import org.meizhuo.rpc.trace.TraceSendUtils;
 import org.meizhuo.rpc.zksupport.LoadBalance.LoadBalance;
 import org.meizhuo.rpc.zksupport.service.ServiceInfo;
 
@@ -109,9 +111,12 @@ public class RPCRequestNet {
         }
     }
 
-    public void asyncSend(RPCRequest request) throws ProvidersNoFoundException {
+    public void asyncSend(RPCRequest request, SpanStruct span) throws ProvidersNoFoundException {
         String serviceId=request.getServiceId();
         String ip=loadBalance.chooseIP(serviceId);
+        SpanStruct.RemoteEndpoint remoteEndpoint=span.new RemoteEndpoint();
+        remoteEndpoint.setIpv4(ip);
+        span.setRemoteEndpoint(remoteEndpoint);
         try {
 //            String requestJson= null;
 //            requestJson = RPC.requestEncode(request);
@@ -120,6 +125,9 @@ public class RPCRequestNet {
             RPCProtocol rpcProtocol=RPC.getClientConfig().getRPCProtocol();
             rpcProtocol.buildRequestProtocol(request);
             channel.writeAndFlush(rpcProtocol);
+            span.setTimestamp(System.currentTimeMillis());
+            //埋点发送链路信息
+            TraceSendUtils.clientAsyncSend(span);
             connectionPoolMap.get(ip).releaseChannel(channel);
         } catch (Exception e) {
             e.printStackTrace();

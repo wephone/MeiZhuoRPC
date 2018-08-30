@@ -101,21 +101,12 @@ public class TraceSendUtils {
             }
         });
     }
-
-    /**
-     * TODO 异步发送由于负载均衡等都需要异步,又需要变更传递promise 所以发送给zipkin要比实际RPC发送稍前一些
-     * @param promise
-     * @param serviceId
-     */
-    public static void clientAsyncSend(Deferred promise,String serviceId){
+    
+    public static void clientAsyncSend(SpanStruct span){
         if (RPC.isTrace()) {
-            SpanStruct span = new SpanStruct();
-            buildAsyncClientSendTrace(promise,span);
             postSpanExecutor.submit(new Runnable() {
                 @Override
                 public void run() {
-                    span.setId(IdUtils.getSpanId());
-                    span.setName(serviceId);
                     span.setKind(SpanStruct.CLIENT_KIND);
                     //单位是微秒
                     span.setTimestamp(System.currentTimeMillis()*1000);
@@ -150,40 +141,61 @@ public class TraceSendUtils {
         }
     }
 
-    private static void buildAsyncClientSendTrace(Deferred promise,SpanStruct span){
-        String traceId;
-        String parentSpanId=null;
-        //promise中不存在 则取threadLocal的tracee
-        //threadLocal的不存在则新建一个trace
-        if (promise.getTraceId()==null){
-            String traceInThread=TraceThreadLocal.getTraceIdInThread();
-            if (traceInThread==null) {
-                traceId = IdUtils.getTraceId();
-                promise.setTraceId(traceId);
-            }else {
-                traceId=traceInThread;
-            }
-        }else {
-            traceId=promise.getTraceId();
+//    private static void buildAsyncClientSendTrace(Deferred promise,SpanStruct span){
+//        String traceId;
+//        String parentSpanId=null;
+//        //promise中不存在 则取threadLocal的tracee
+//        //threadLocal的不存在则新建一个trace
+//        if (promise.getTraceId()==null){
+//            String traceInThread=TraceThreadLocal.getTraceIdInThread();
+//            if (traceInThread==null) {
+//                traceId = IdUtils.getTraceId();
+//                promise.setTraceId(traceId);
+//            }else {
+//                traceId=traceInThread;
+//            }
+//        }else {
+//            traceId=promise.getTraceId();
+//        }
+//        if (promise.getParentSpanId()==null){
+//            String spanInThread=TraceThreadLocal.getParentSpanIdInThread();
+//            if (spanInThread!=null) {
+//                parentSpanId=spanInThread;
+//            }else {
+//                promise.setParentSpanId(parentSpanId);
+//            }
+//        }else {
+//            parentSpanId=promise.getParentSpanId();
+//        }
+//        if (parentSpanId!=null){
+//            span.setParentId(parentSpanId);
+//        }
+//        span.setTraceId(traceId);
+//    }
+
+    /**
+     * 取出promise中的链路信息 修改parentId后归还promise给下级调用 返回span在发送时拼接信息
+     * @param promise
+     * @return
+     */
+    public static SpanStruct getPromiseTraceInfo(Deferred promise){
+        SpanStruct span=new SpanStruct();
+        //取出trace和parentSpan 不存在trace则生成
+        String traceId=promise.getTraceId();
+        if (traceId==null){
+            traceId=IdUtils.getTraceId();
+            promise.setTraceId(traceId);
         }
-        if (promise.getParentSpanId()==null){
-            String spanInThread=TraceThreadLocal.getParentSpanIdInThread();
-            if (spanInThread!=null) {
-                parentSpanId=spanInThread;
-            }else {
-                promise.setParentSpanId(parentSpanId);
-            }
-        }else {
-            parentSpanId=promise.getParentSpanId();
-        }
+        span.setTraceId(traceId);
+        String parentSpanId=promise.getParentSpanId();
         if (parentSpanId!=null){
             span.setParentId(parentSpanId);
         }
-        span.setTraceId(traceId);
-    }
-
-    private static void buildAsyncClientReceivedTrace(Deferred promise, SpanStruct span,RPCResponse rpcResponse){
-
+        //生成本次的spanId传递给promise 交给下一级调用
+        String spanId=IdUtils.getSpanId();
+        span.setId(spanId);
+        promise.setParentSpanId(spanId);
+        return span;
     }
 
 }

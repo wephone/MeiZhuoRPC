@@ -15,7 +15,7 @@ public class SpanStruct {
     public final static String SERVER_KIND="SERVER";
     public final static String CLIENT_KIND="CLIENT";
 
-    class LocalEndpoint{
+    public class LocalEndpoint{
         private String serviceName;
         private String ipv4;
 
@@ -36,7 +36,7 @@ public class SpanStruct {
         }
     }
 
-    class RemoteEndpoint{
+    public class RemoteEndpoint{
         private String serviceName;
         private String ipv4;
         private Integer port;

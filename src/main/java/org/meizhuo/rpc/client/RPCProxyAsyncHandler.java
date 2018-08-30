@@ -7,6 +7,7 @@ import org.meizhuo.rpc.promise.Deferred;
 import org.meizhuo.rpc.threadLocal.NeedReturnThreadLocal;
 import org.meizhuo.rpc.threadLocal.PromiseThreadLocal;
 import org.meizhuo.rpc.trace.NamedThreadFactory;
+import org.meizhuo.rpc.trace.SpanStruct;
 import org.meizhuo.rpc.trace.TraceSendUtils;
 
 import java.lang.reflect.InvocationHandler;
@@ -33,7 +34,6 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) {
         //如果当前threadLocal有promise则更换promise 不存在则新建一个 保持全链路promise唯一
         Deferred deferredInthread=PromiseThreadLocal.getThreadPromise();
-        String serviceId=RPC.getClientConfig().getServiceId(method.getDeclaringClass().getName());
         if (deferredInthread==null){
             promise=new Deferred();
         }else {
@@ -41,14 +41,19 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
         }
         boolean needReturn=NeedReturnThreadLocal.needReturn();
 //        promise.increaseLoop();
-        TraceSendUtils.clientAsyncSend(promise,serviceId);
+//        TraceSendUtils.clientAsyncSend(promise,serviceId);
+        SpanStruct span=TraceSendUtils.getPromiseTraceInfo(promise);
         //直接返回promise 其他操作全部异步
         asyncSendExecutor.submit(() -> {
+            String serviceId=RPC.getClientConfig().getServiceId(method.getDeclaringClass().getName());
             RPCRequest request=new RPCRequest();
             String requesrId=buildRequestID(method.getName());
             request.setRequestID(requesrId);
             request.setServiceId(serviceId);//返回表示声明由此 Method 对象表示的方法的类或接口的Class对象
             request.setMethodName(method.getName());
+            span.setName(serviceId);
+            request.setTraceId(span.getTraceId());
+            request.setSpanId(span.getId());
 //        request.setParameterTypes(method.getParameterTypes());//返回形参类型
             request.setParameters(args);//输入的实参
             if (needReturn) {
@@ -56,7 +61,7 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
             }
             try {
                 //todo 异步调用的超时熔断
-                RPCRequestNet.getInstance().asyncSend(request);
+                RPCRequestNet.getInstance().asyncSend(request,span);
             } catch (ProvidersNoFoundException e) {
                 //这里不输出日志 由failcallback处理
                 Deferred deferred=RPCRequestNet.getInstance().promiseMap.get(requesrId);
