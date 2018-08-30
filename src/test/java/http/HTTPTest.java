@@ -7,7 +7,7 @@ public class HTTPTest {
 
     @Test
     public void testClientSend(){
-        TraceSendUtils.clientSend();
+        TraceSendUtils.clientSend(null);
     }
 
 }

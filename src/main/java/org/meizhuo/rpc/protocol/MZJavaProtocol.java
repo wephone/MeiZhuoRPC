@@ -50,6 +50,8 @@ public class MZJavaProtocol implements RPCProtocol{
         header.setRequestId(rpcRequest.getRequestID());
         length=length+4;
         length=length+rpcRequest.getRequestID().length();
+        header.setTime(rpcRequest.getRequestTime());
+        length=length+8;
         javaBody=new JavaBody();
         javaBody.setServiceLength(rpcRequest.getServiceId().length());
         javaBody.setService(rpcRequest.getServiceId());
@@ -108,6 +110,8 @@ public class MZJavaProtocol implements RPCProtocol{
         header.setRequestId(rpcResponse.getRequestID());
         length=length+4;
         length=length+rpcResponse.getRequestID().length();
+        header.setTime(rpcResponse.getResponseTime());
+        length=length+8;
         javaBody=new JavaBody();
         Object result=rpcResponse.getResult();
         byte[] resultBytes=ObjToBytesUtils.objectToBytes(result);
@@ -130,6 +134,7 @@ public class MZJavaProtocol implements RPCProtocol{
         rpcRequest.setServiceId(javaBody.getService());
         rpcRequest.setMethodName(javaBody.getMethod());
         rpcRequest.setRequestID(header.getRequestId());
+        rpcRequest.setRequestTime(header.getTime());
         Integer argNum=javaBody.getArgsNum();
         Object[] parameters=new Object[argNum];
         JavaBody.Arg[] args=javaBody.getArgs();
@@ -145,6 +150,7 @@ public class MZJavaProtocol implements RPCProtocol{
         RPCResponse response=new RPCResponse();
         response.setRequestID(header.getRequestId());
         response.setResult(ObjToBytesUtils.bytesToObject(javaBody.getResult()));
+        response.setResponseTime(header.getTime());
         return response;
     }
 }

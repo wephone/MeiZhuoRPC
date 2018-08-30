@@ -42,6 +42,7 @@ public class RPCResponseHandler extends ChannelHandlerAdapter {
 //        String respStr=RPC.responseEncode(response);
 //        ByteBuf responseBuf= Unpooled.copiedBuffer(respStr.getBytes());
         RPCProtocol rpcResponseProtocol=RPC.getServerConfig().getRPCProtocol();
+        response.setResponseTime(System.currentTimeMillis());
         rpcResponseProtocol.buildResponseProtocol(response);
         ctx.writeAndFlush(rpcResponseProtocol);
         TraceSendUtils.serverResponse(span);

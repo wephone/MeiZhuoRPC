@@ -47,6 +47,7 @@ public class JavaRPCDecoder extends LengthFieldBasedFrameDecoder {
         byteBuf.readBytes(requestIdBytes);
         header.setRequestId(new String(requestIdBytes));
         header.setType(byteBuf.readByte());
+        header.setTime(byteBuf.readLong());
         if (header.getType().equals(Header.T_REQ)) {
             //先读出对应字符串的长度 开辟一个改长度的字节数组 再读取这么多长度的内容到这个字节数组里 最后转换为需要的类型
             int serviceLength = byteBuf.readInt();

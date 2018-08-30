@@ -91,9 +91,10 @@ public class RPCRequestNet {
 //                e.printStackTrace();
 //            }
             RPCProtocol rpcProtocol=RPC.getClientConfig().getRPCProtocol();
+            Channel channel=connect(ip);
+            request.setRequestTime(System.currentTimeMillis());
             rpcProtocol.buildRequestProtocol(request);
 //            ByteBuf requestBuf= Unpooled.copiedBuffer(requestJson.getBytes());
-            Channel channel=connect(ip);
             channel.writeAndFlush(rpcProtocol);
             connectionPoolMap.get(ip).releaseChannel(channel);
 //            System.out.println("调用"+request.getRequestID()+"已发送");
@@ -123,9 +124,10 @@ public class RPCRequestNet {
 //            ByteBuf requestBuf= Unpooled.copiedBuffer(requestJson.getBytes());
             Channel channel=connect(ip);
             RPCProtocol rpcProtocol=RPC.getClientConfig().getRPCProtocol();
+            request.setRequestTime(System.currentTimeMillis());
             rpcProtocol.buildRequestProtocol(request);
             channel.writeAndFlush(rpcProtocol);
-            span.setTimestamp(System.currentTimeMillis());
+            span.setTimestamp(request.getRequestTime());
             //埋点发送链路信息
             TraceSendUtils.clientAsyncSend(span);
             connectionPoolMap.get(ip).releaseChannel(channel);

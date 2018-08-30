@@ -25,6 +25,7 @@ public class Header {
      * 调用类型 1:RPC请求 2:RPC响应 2:异常RPC响应
      */
     private Byte type;
+    private Long time;
 
     public final static Byte T_REQ=1;
     public final static Byte T_RESP=2;
@@ -92,5 +93,13 @@ public class Header {
 
     public void setType(Byte type) {
         this.type = type;
+    }
+
+    public Long getTime() {
+        return time;
+    }
+
+    public void setTime(Long time) {
+        this.time = time;
     }
 }

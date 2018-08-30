@@ -23,6 +23,7 @@ public class JavaRPCEncoder extends MessageToMessageEncoder<MZJavaProtocol> {
         byteBuf.writeInt(protocol.getHeader().getRequestIdLength());
         byteBuf.writeBytes(protocol.getHeader().getRequestId().getBytes());
         byteBuf.writeByte(protocol.getHeader().getType());
+        byteBuf.writeLong(protocol.getHeader().getTime());
         if (protocol.getHeader().getType().equals(Header.T_REQ)) {
             byteBuf.writeInt(protocol.getJavaBody().getServiceLength());
             byteBuf.writeBytes(protocol.getJavaBody().getService().getBytes());
