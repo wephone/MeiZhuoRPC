@@ -6,6 +6,7 @@ import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.promise.Deferred;
 import org.meizhuo.rpc.protocol.RPCProtocol;
 import org.meizhuo.rpc.server.RPCResponse;
+import org.meizhuo.rpc.trace.TraceSendUtils;
 
 import java.util.concurrent.locks.Condition;
 
@@ -37,13 +38,13 @@ public class RPCRequestHandler extends ChannelHandlerAdapter {
                 //唤醒在该对象锁上wait的线程
                 RPCRequest request = (RPCRequest) RPCRequestNet.getInstance().requestLockMap.get(response.getRequestID());
                 //标记该调用方法是否已返回 未标记但锁释放说明调用超时
-                request.setIsResponse(true);
-                request.setResult(response.getResult());
+                request.setRpcResponse(response);
                 request.notifyAll();
                 RPCRequestNet.getInstance().requestLockMap.remove(response.getRequestID());
             }
         }else {
             Deferred deferred=RPCRequestNet.getInstance().promiseMap.get(response.getRequestID());
+            TraceSendUtils.clientAsyncReceived(response,deferred);
 //            deferred.reduceLoop();
             if (deferred!=null) {
                 //写在then里的异步RPC不触发resolve

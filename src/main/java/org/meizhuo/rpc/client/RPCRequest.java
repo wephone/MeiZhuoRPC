@@ -1,5 +1,7 @@
 package org.meizhuo.rpc.client;
 
+import org.meizhuo.rpc.server.RPCResponse;
+
 /**
  * Created by wephone on 17-12-27.
  * 调用端发送请求实体类
@@ -13,8 +15,7 @@ public class RPCRequest {
 //    private Class[] parameterTypes;
     private Object[] parameters;
     //结果异步返回时 赋值在这里
-    private Object result;
-    private Boolean isResponse=false;
+    private RPCResponse rpcResponse;
     //本次请求的traceId
     private String traceId;
     //本次请求的spanId
@@ -61,20 +62,19 @@ public class RPCRequest {
         this.parameters = parameters;
     }
 
-    public Object getResult() {
-        return result;
-    }
-
-    public void setResult(Object result) {
-        this.result = result;
-    }
-
     public Boolean getIsResponse() {
-        return isResponse;
+        if (rpcResponse==null){
+            return false;
+        }
+        return true;
     }
 
-    public void setIsResponse(Boolean response) {
-        isResponse = response;
+    public RPCResponse getRpcResponse() {
+        return rpcResponse;
+    }
+
+    public void setRpcResponse(RPCResponse rpcResponse) {
+        this.rpcResponse = rpcResponse;
     }
 
     public String getTraceId() {

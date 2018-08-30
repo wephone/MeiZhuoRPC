@@ -8,7 +8,7 @@ public class RPCResponse {
     //每个请求对应的唯一ID
     private String requestID;
     private Object result;
-    private Long receivedTime;
+    private Long responseTime;
     private String serviceId;
     //本次响应的traceId
     private String traceId;
@@ -31,12 +31,12 @@ public class RPCResponse {
         this.result = result;
     }
 
-    public Long getReceivedTime() {
-        return receivedTime;
+    public Long getResponseTime() {
+        return responseTime;
     }
 
-    public void setReceivedTime(Long receivedTime) {
-        this.receivedTime = receivedTime;
+    public void setResponseTime(Long responseTime) {
+        this.responseTime = responseTime;
     }
 
     public String getTraceId() {

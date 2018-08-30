@@ -9,6 +9,8 @@ import io.netty.channel.ChannelHandlerContext;
 import org.meizhuo.rpc.client.RPCRequest;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.protocol.RPCProtocol;
+import org.meizhuo.rpc.trace.SpanStruct;
+import org.meizhuo.rpc.trace.TraceSendUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -30,9 +32,11 @@ public class RPCResponseHandler extends ChannelHandlerAdapter {
         RPCProtocol requestProtocol= (RPCProtocol) msg;
 //        System.out.println("receive request:"+requestJson);
         RPCRequest request= requestProtocol.buildRequestByProtocol();
+        TraceSendUtils.serverReceived(request);
+        RPCResponse response=new RPCResponse();
+        SpanStruct span=TraceSendUtils.preServerResponse(request,response);
         //从spring中取出bean进行调用 而不是直接反射
         Object result=InvokeServiceUtil.invoke(request);
-        RPCResponse response=new RPCResponse();
         response.setRequestID(request.getRequestID());
         response.setResult(result);
 //        String respStr=RPC.responseEncode(response);
@@ -40,6 +44,7 @@ public class RPCResponseHandler extends ChannelHandlerAdapter {
         RPCProtocol rpcResponseProtocol=RPC.getServerConfig().getRPCProtocol();
         rpcResponseProtocol.buildResponseProtocol(response);
         ctx.writeAndFlush(rpcResponseProtocol);
+        TraceSendUtils.serverResponse(span);
     }
 
     @Override

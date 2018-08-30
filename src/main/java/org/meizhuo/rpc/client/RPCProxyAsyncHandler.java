@@ -42,7 +42,7 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
         boolean needReturn=NeedReturnThreadLocal.needReturn();
 //        promise.increaseLoop();
 //        TraceSendUtils.clientAsyncSend(promise,serviceId);
-        SpanStruct span=TraceSendUtils.getPromiseTraceInfo(promise);
+        SpanStruct span=TraceSendUtils.preClientAsyncSend(promise);
         //直接返回promise 其他操作全部异步
         asyncSendExecutor.submit(() -> {
             String serviceId=RPC.getClientConfig().getServiceId(method.getDeclaringClass().getName());

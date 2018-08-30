@@ -10,13 +10,15 @@ public class HTTPConnectionPool {
     private GenericObjectPool<Channel> pool;
 
     public HTTPConnectionPool() {
-        HTTPConnectionFactory httpConnectionFactory=new HTTPConnectionFactory();
-        GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-        //最大空闲连接数
-        config.setMaxIdle(RPC.getTraceConfig().getHTTPMaxIdle());
-        //最大连接数
-        config.setMaxTotal(RPC.getTraceConfig().getHTTPMaxTotal());
-        pool=new GenericObjectPool(httpConnectionFactory,config);
+        if (RPC.isTrace()) {
+            HTTPConnectionFactory httpConnectionFactory = new HTTPConnectionFactory();
+            GenericObjectPoolConfig config = new GenericObjectPoolConfig();
+            //最大空闲连接数
+            config.setMaxIdle(RPC.getTraceConfig().getHTTPMaxIdle());
+            //最大连接数
+            config.setMaxTotal(RPC.getTraceConfig().getHTTPMaxTotal());
+            pool = new GenericObjectPool(httpConnectionFactory, config);
+        }
     }
 
     public Channel getHTTPChannel() throws Exception {
