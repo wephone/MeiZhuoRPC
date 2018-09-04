@@ -23,7 +23,7 @@ public class InvokeServiceUtil {
         try {
             Class implClass=Class.forName(implClassBean.getClass().getName());
             Object[] parameters=request.getParameters();
-            if (parameters==null){
+            if (parameters.length==0){
                 //无参方法
                 Method method=implClass.getDeclaredMethod(request.getMethodName());
 //                Object implObj=RPC.serverContext.getBean(implClass);
