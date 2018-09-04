@@ -32,13 +32,13 @@ public class MZJavaProtocol implements RPCProtocol{
         //计算整包长度
         int length=0;
         header=new Header();
-        String traceId=IdUtils.getTraceId();
+        String traceId=rpcRequest.getTraceId();
         header.setTraceIdLength(traceId.length());
         header.setTraceId(traceId);
         //int 4字节
         length=length+4;
         length=length+traceId.length();
-        String spanId=IdUtils.getSpanId();
+        String spanId=rpcRequest.getSpanId();
         header.setSpanIdLength(spanId.length());
         header.setSpanId(spanId);
         length=length+4;
@@ -94,12 +94,12 @@ public class MZJavaProtocol implements RPCProtocol{
         //计算整包长度
         int length=0;
         header=new Header();
-        String traceId=IdUtils.getTraceId();
+        String traceId=rpcResponse.getTraceId();
         header.setTraceIdLength(traceId.length());
         header.setTraceId(traceId);
         length=length+4;
         length=length+traceId.length();
-        String spanId=IdUtils.getSpanId();
+        String spanId=rpcResponse.getSpanId();
         header.setSpanIdLength(spanId.length());
         header.setSpanId(spanId);
         length=length+4;

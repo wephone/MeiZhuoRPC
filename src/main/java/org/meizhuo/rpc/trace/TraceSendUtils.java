@@ -3,6 +3,7 @@ package org.meizhuo.rpc.trace;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
@@ -46,7 +47,9 @@ public class TraceSendUtils {
                 HttpHeaders.Names.CONNECTION);
         request.headers().set(HttpHeaders.Names.CONTENT_LENGTH, request.content().readableBytes());
         try {
-            httpPool.getHTTPChannel().writeAndFlush(request);
+            Channel channel=httpPool.getHTTPChannel();
+            channel.writeAndFlush(request);
+            httpPool.releaseHTTPChannel(channel);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -82,7 +85,7 @@ public class TraceSendUtils {
             rpcRequest.setTraceId(traceId);
             rpcRequest.setSpanId(spanId);
             span.setKind(SpanStruct.CLIENT_KIND);
-            span.setName(rpcRequest.getServiceId());
+            span.setName(rpcRequest.getMethodName());
             return span;
         }
         return null;
@@ -113,7 +116,7 @@ public class TraceSendUtils {
         if (RPC.isTrace()) {
             SpanStruct span = new SpanStruct();
             Long now = System.currentTimeMillis();
-            span.setTimestamp(now);
+            span.setTimestamp(now*1000);
             span.setTraceId(rpcResponse.getTraceId());
             span.setParentId(rpcResponse.getSpanId());
             String spanId = IdUtils.getSpanId();
@@ -143,7 +146,7 @@ public class TraceSendUtils {
             Long now = System.currentTimeMillis();
             String spanId = IdUtils.getSpanId();
             spanInThread.setTraceId(rpcRequest.getTraceId());
-            spanInThread.setParentId(rpcRequest.getSpanId());
+            spanInThread.setParentId(spanId);
             spanInThread.setTimestamp(now * 1000);
             //设置链路信息在threadLocal
             TraceThreadLocal.setSpanInThread(spanInThread);
@@ -153,7 +156,7 @@ public class TraceSendUtils {
                     span.setId(spanId);
                     span.setTraceId(rpcRequest.getTraceId());
                     span.setParentId(rpcRequest.getSpanId());
-                    span.setName(rpcRequest.getServiceId());
+                    span.setName(rpcRequest.getMethodName());
                     span.setKind(SpanStruct.SERVER_KIND);
                     span.setTimestamp(now * 1000);
                     Long duration = now - rpcRequest.getRequestTime();
@@ -179,19 +182,20 @@ public class TraceSendUtils {
             SpanStruct span = new SpanStruct();
             String spanId = IdUtils.getSpanId();
             SpanStruct spanInThread = TraceThreadLocal.getSpanInThread();
-            if (spanInThread!=null) {
-                spanInThread.setParentId(spanId);
-            }else {
-                spanInThread=new SpanStruct();
-                spanInThread.setTraceId(rpcRequest.getTraceId());
-                spanInThread.setParentId(spanId);
-            }
-            TraceThreadLocal.setSpanInThread(spanInThread);
+            //server response前肯定有接受的链路 所以spanInThread肯定不能空
+//            if (spanInThread!=null) {
+//                spanInThread.setParentId(spanId);
+//            }else {
+//                spanInThread=new SpanStruct();
+//                spanInThread.setTraceId(rpcRequest.getTraceId());
+//                spanInThread.setParentId(spanId);
+//            }
+//            TraceThreadLocal.setSpanInThread(spanInThread);
             span.setId(spanId);
-            span.setTraceId(rpcRequest.getTraceId());
-            span.setParentId(rpcRequest.getSpanId());
-            span.setName(rpcRequest.getServiceId());
-            span.setKind(SpanStruct.SERVER_KIND);
+            span.setTraceId(spanInThread.getTraceId());
+            span.setParentId(spanInThread.getParentId());
+            span.setName(rpcRequest.getMethodName());
+            span.setKind(SpanStruct.SERVER_KIND+" res");
             String localIp = RPC.getServerConfig().getServerHost();
             SpanStruct.LocalEndpoint localEndpoint = span.new LocalEndpoint();
             localEndpoint.setIpv4(localIp);
@@ -207,8 +211,10 @@ public class TraceSendUtils {
         if (RPC.isTrace()) {
             Long now = System.currentTimeMillis();
             SpanStruct spanInThread = TraceThreadLocal.getSpanInThread();
-            span.setDuration((now - spanInThread.getTimestamp()) * 1000);
+            span.setDuration(now * 1000 - spanInThread.getTimestamp());
             span.setTimestamp(now * 1000);
+            spanInThread.setParentId(span.getId());
+            TraceThreadLocal.setSpanInThread(spanInThread);
             //无需再处理threadLocal中的链路信息
             postSpanExecutor.submit(new Runnable() {
                 @Override

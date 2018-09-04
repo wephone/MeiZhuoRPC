@@ -45,7 +45,6 @@ public class RPCResponseHandler extends ChannelHandlerAdapter {
         response.setResponseTime(System.currentTimeMillis());
         rpcResponseProtocol.buildResponseProtocol(response);
         ctx.writeAndFlush(rpcResponseProtocol);
-        System.out.println("response "+response.getRequestID());
         TraceSendUtils.serverResponse(span);
     }
 

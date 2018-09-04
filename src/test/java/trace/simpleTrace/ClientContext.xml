@@ -17,6 +17,6 @@
     </bean>
     <bean class="org.meizhuo.rpc.trace.TraceConfig">
         <property name="appId" value="1"/>
-        <property name="zipkinUrl" value="127.0.0.1:9411"/>
+        <property name="zipkinUrl" value="127.0.0.1:8899"/>
     </bean>
 </beans>

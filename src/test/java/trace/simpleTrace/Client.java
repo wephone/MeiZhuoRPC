@@ -24,8 +24,8 @@ public class Client {
         CountDownLatch countDownLatch=new CountDownLatch(1);
 //        Service service= (Service) RPC.call(Service.class);
         System.out.println("RPC接收成功:"+service.remoteService(233.0,"hhh"));
-        System.out.println("测试Integer类型传参与返回:"+service.IntegerMethodTest(233));
-        System.out.println("测试Integer,Double类型传参与返回String对象:"+service.stringMethodIntegerArgsTest(233,666.66));
+//        System.out.println("测试Integer类型传参与返回:"+service.IntegerMethodTest(233));
+//        System.out.println("测试Integer,Double类型传参与返回String对象:"+service.stringMethodIntegerArgsTest(233,666.66));
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {

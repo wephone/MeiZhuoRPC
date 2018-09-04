@@ -1,5 +1,6 @@
 package org.meizhuo.rpc.client;
 
+import org.meizhuo.rpc.Exception.RPCTimeOutException;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.server.RPCResponse;
 import org.meizhuo.rpc.trace.SpanStruct;
@@ -46,11 +47,12 @@ public class RPCProxyHandler  implements InvocationHandler {
         SpanStruct span=TraceSendUtils.preClientSend(request);
         RPCRequestNet.getInstance().requestLockMap.put(request.getRequestID(),request);
 //        lock.lock();//获取锁
-        RPCRequestNet.getInstance().send(request);
         TraceSendUtils.clientSend(span);
+        RPCRequestNet.getInstance().send(request);
 //        lock.unlock();
         if (!request.getIsResponse()){
             //TODO 调用超时 触发重试或者熔断
+            throw new RPCTimeOutException();
         }
         TraceSendUtils.clientReceived(request.getRpcResponse());
         return request.getRpcResponse().getResult();//目标方法的返回结果
