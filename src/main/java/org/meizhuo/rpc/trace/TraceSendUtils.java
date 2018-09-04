@@ -28,6 +28,8 @@ public class TraceSendUtils {
             new LinkedBlockingDeque<>(),
             new NamedThreadFactory("PostSpan"),
             new ThreadPoolExecutor.DiscardPolicy());
+    private static final String serverSuffix="-SERVER";
+    private static final String clientSuffix="-CLIENT";
 
 
     private static void zipKinHTTPSend(SpanStruct span){
@@ -87,6 +89,9 @@ public class TraceSendUtils {
             rpcRequest.setSpanId(spanId);
             span.setKind(SpanStruct.CLIENT_KIND);
             span.setName(rpcRequest.getMethodName());
+            SpanStruct.LocalEndpoint localEndpoint=span.new LocalEndpoint();
+            localEndpoint.setServiceName(rpcRequest.getMethodName()+clientSuffix);
+            span.setLocalEndpoint(localEndpoint);
             return span;
         }
         return null;
@@ -134,6 +139,9 @@ public class TraceSendUtils {
                 public void run() {
                     span.setDuration((now - rpcResponse.getResponseTime()) * 1000);
                     span.setKind(SpanStruct.CLIENT_KIND);
+                    SpanStruct.LocalEndpoint localEndpoint=span.new LocalEndpoint();
+                    localEndpoint.setServiceName(rpcRequest.getMethodName()+clientSuffix);
+                    span.setLocalEndpoint(localEndpoint);
                     zipKinHTTPSend(span);
                 }
             });
@@ -165,6 +173,7 @@ public class TraceSendUtils {
                     String localIp = RPC.getServerConfig().getServerHost();
                     SpanStruct.LocalEndpoint localEndpoint = span.new LocalEndpoint();
                     localEndpoint.setIpv4(localIp);
+                    localEndpoint.setServiceName(rpcRequest.getMethodName()+serverSuffix);
                     span.setLocalEndpoint(localEndpoint);
                     zipKinHTTPSend(span);
                 }
@@ -196,9 +205,10 @@ public class TraceSendUtils {
             span.setTraceId(spanInThread.getTraceId());
             span.setParentId(spanInThread.getParentId());
             span.setName(rpcRequest.getMethodName());
-            span.setKind(SpanStruct.SERVER_KIND+" res");
+            span.setKind(SpanStruct.SERVER_KIND);
             String localIp = RPC.getServerConfig().getServerHost();
             SpanStruct.LocalEndpoint localEndpoint = span.new LocalEndpoint();
+            localEndpoint.setServiceName(rpcRequest.getMethodName()+serverSuffix);
             localEndpoint.setIpv4(localIp);
             span.setLocalEndpoint(localEndpoint);
             rpcResponse.setTraceId(rpcRequest.getTraceId());
