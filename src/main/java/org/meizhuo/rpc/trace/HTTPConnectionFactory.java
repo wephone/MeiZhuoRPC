@@ -49,4 +49,14 @@ public class HTTPConnectionFactory extends BasePooledObjectFactory<Channel> {
         p.getObject().close();
     }
 
+    @Override
+    public boolean validateObject(PooledObject<Channel> p) {
+        Channel channel=p.getObject();
+        if (channel.isActive()){
+            return true;
+        }else {
+            //超时断开的HTTP连接不能通过校验
+            return false;
+        }
+    }
 }

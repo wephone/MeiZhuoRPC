@@ -34,6 +34,7 @@ public class TraceSendUtils {
         String spanJson="";
         try {
             spanJson=objectMapper.writeValueAsString(span);
+            spanJson="["+spanJson+"]";
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }

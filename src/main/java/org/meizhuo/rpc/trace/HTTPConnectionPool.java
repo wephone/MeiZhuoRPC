@@ -17,6 +17,8 @@ public class HTTPConnectionPool {
             config.setMaxIdle(RPC.getTraceConfig().getHTTPMaxIdle());
             //最大连接数
             config.setMaxTotal(RPC.getTraceConfig().getHTTPMaxTotal());
+            //需要如下设置 才能在borrow的时候触发validateObject校验对象是否可用
+            config.setTestOnBorrow(true);
             pool = new GenericObjectPool(httpConnectionFactory, config);
         }
     }

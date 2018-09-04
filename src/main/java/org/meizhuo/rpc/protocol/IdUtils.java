@@ -18,7 +18,8 @@ public class IdUtils {
         if (RPC.isTrace()) {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(Long.toUnsignedString(System.currentTimeMillis(), 16));
-            stringBuilder.append(RPC.getTraceConfig().getAppId());
+            Integer appId=RPC.getTraceConfig().getAppId();
+            stringBuilder.append(appId);
             stringBuilder.append(Long.toUnsignedString(traceCount.getAndIncrement(), 16));
             return stringBuilder.toString();
         }
@@ -32,7 +33,8 @@ public class IdUtils {
         if (RPC.isTrace()) {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(Long.toUnsignedString(System.currentTimeMillis(), 16));
-            stringBuilder.append(RPC.getTraceConfig().getAppId());
+            Integer appId=RPC.getTraceConfig().getAppId();
+            stringBuilder.append(appId);
             stringBuilder.append(Long.toUnsignedString(spanCount.getAndIncrement(), 16));
             return stringBuilder.toString();
         }
