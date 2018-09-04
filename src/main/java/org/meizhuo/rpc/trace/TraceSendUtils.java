@@ -112,13 +112,14 @@ public class TraceSendUtils {
         }
     }
 
-    public static void clientReceived(RPCResponse rpcResponse){
+    public static void clientReceived(RPCResponse rpcResponse,RPCRequest rpcRequest){
         if (RPC.isTrace()) {
             SpanStruct span = new SpanStruct();
             Long now = System.currentTimeMillis();
             span.setTimestamp(now*1000);
             span.setTraceId(rpcResponse.getTraceId());
             span.setParentId(rpcResponse.getSpanId());
+            span.setName(rpcRequest.getMethodName());
             String spanId = IdUtils.getSpanId();
             span.setId(spanId);
             //将链路信息存到threadLocal
@@ -131,7 +132,6 @@ public class TraceSendUtils {
                 @Override
                 public void run() {
                     span.setDuration((now - rpcResponse.getResponseTime()) * 1000);
-                    span.setName(rpcResponse.getServiceId());
                     span.setKind(SpanStruct.CLIENT_KIND);
                     zipKinHTTPSend(span);
                 }

@@ -40,7 +40,8 @@ public class RPCRequestHandler extends ChannelHandlerAdapter {
                 //标记该调用方法是否已返回 未标记但锁释放说明调用超时
                 request.setRpcResponse(response);
                 request.notifyAll();
-                RPCRequestNet.getInstance().requestLockMap.remove(response.getRequestID());
+                //同步方法在代理回调里释放引用
+//                RPCRequestNet.getInstance().requestLockMap.remove(response.getRequestID());
             }
         }else {
             Deferred deferred=RPCRequestNet.getInstance().promiseMap.get(response.getRequestID());

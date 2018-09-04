@@ -52,9 +52,11 @@ public class RPCProxyHandler  implements InvocationHandler {
 //        lock.unlock();
         if (!request.getIsResponse()){
             //TODO 调用超时 触发重试或者熔断
+            RPCRequestNet.getInstance().requestLockMap.remove(request.getRequestID());
             throw new RPCTimeOutException();
         }
-        TraceSendUtils.clientReceived(request.getRpcResponse());
+        TraceSendUtils.clientReceived(request.getRpcResponse(),request);
+        RPCRequestNet.getInstance().requestLockMap.remove(request.getRequestID());
         return request.getRpcResponse().getResult();//目标方法的返回结果
     }
 
