@@ -24,8 +24,8 @@ public class Client {
         CountDownLatch countDownLatch=new CountDownLatch(1);
 //        Service service= (Service) RPC.call(Service.class);
         System.out.println("RPC span1:"+service.remoteService(233.0,"hhh"));
-//        System.out.println("RPC span2:"+service.IntegerMethodTest(233));
-//        System.out.println("RPC span3:"+service.stringMethodIntegerArgsTest(233,666.66));
+        System.out.println("RPC span2:"+service.IntegerMethodTest(233));
+        System.out.println("RPC span3:"+service.stringMethodIntegerArgsTest(233,666.66));
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {

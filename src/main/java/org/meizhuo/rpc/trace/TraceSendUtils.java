@@ -78,9 +78,9 @@ public class TraceSendUtils {
             SpanStruct span = new SpanStruct();
             if (traceId == null) {
                 traceId = IdUtils.getTraceId();
-                span.setTraceId(traceId);
-                span.setId(spanId);
             }
+            span.setTraceId(traceId);
+            span.setId(spanId);
             if (parentSpanId != null) {
                 span.setParentId(parentSpanId);
             }
@@ -107,7 +107,7 @@ public class TraceSendUtils {
             Long now = System.currentTimeMillis();
             span.setTimestamp(now * 1000);
             if (lastTime != null) {
-                span.setDuration((now - lastTime) * 1000);
+                span.setDuration(now*1000 - lastTime);
             }
             postSpanExecutor.submit(new Runnable() {
                 @Override
@@ -132,7 +132,8 @@ public class TraceSendUtils {
             SpanStruct spanInThread = new SpanStruct();
             spanInThread.setParentId(spanId);
             spanInThread.setTraceId(rpcResponse.getTraceId());
-            spanInThread.setTimestamp(now);
+            //存入thread的都*1000
+            spanInThread.setTimestamp(now*1000);
             TraceThreadLocal.setSpanInThread(spanInThread);
             postSpanExecutor.submit(new Runnable() {
                 @Override
