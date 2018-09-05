@@ -9,7 +9,8 @@ public class ShopImpl implements ShopInterface {
 
     @Override
     public String buyFood() {
-        System.out.println("处理原料"+factory.getMaterial());
+        String str=factory.getMaterial();
+        System.out.println("处理原料"+str);
         return "食物";
     }
 }

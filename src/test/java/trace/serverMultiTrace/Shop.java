@@ -18,6 +18,7 @@ public class Shop {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
                 new String[] { "file:src/test/java/trace/serverMultiTrace/ShopContext.xml" });
         context.start();
+//        ShopImpl shop= context.getBean(ShopImpl.class);
         //启动spring后才可启动 防止容器尚未加载完毕
         RPC.start();
     }

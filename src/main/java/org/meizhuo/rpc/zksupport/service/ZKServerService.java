@@ -24,9 +24,9 @@ public class ZKServerService {
     //生成所有注册的服务znode
     public void createServerService() throws KeeperException, InterruptedException {
         ZKTempZnodes zkTempZnodes=new ZKTempZnodes(zooKeeper);
-        Map<String,Object> serviceMap= RPC.getServerConfig().getServerImplMap();
+        Map<String,String> serviceMap= RPC.getServerConfig().getServerImplMap();
         String ip=RPC.getServerConfig().getServerHost();
-        for (Map.Entry<String,Object> entry:serviceMap.entrySet()){
+        for (Map.Entry<String,String> entry:serviceMap.entrySet()){
             //获取配置中设置的IP设置为IP顺序节点的值 默认127.0.0.1:8888
             zkTempZnodes.createTempZnode(ZKConst.rootPath+ZKConst.servicePath+"/"+entry.getKey()+ZKConst.providersPath+"/"+ip,null);
             //创建连接数节点 首次增加时连接数为0
@@ -51,8 +51,8 @@ public class ZKServerService {
 //        zkTempZnodes.createSimpleZnode(balancePath,null);
         pathBuilder.append(ZKConst.servicePath);
         zkTempZnodes.createSimpleZnode(pathBuilder.toString(),null);
-        Map<String,Object> serverImplMap=RPC.getServerConfig().getServerImplMap();
-        for (Map.Entry<String,Object> entry:serverImplMap.entrySet()){
+        Map<String,String> serverImplMap=RPC.getServerConfig().getServerImplMap();
+        for (Map.Entry<String,String> entry:serverImplMap.entrySet()){
 //            zkTempZnodes.createSimpleZnode(balancePath+"/"+entry.getKey(),null);
             StringBuilder serviceBuilder=new StringBuilder(pathBuilder.toString());
             serviceBuilder.append("/");

@@ -8,11 +8,10 @@
         <property name="serverImplMap">
             <map>
                 <!--配置对应的抽象接口及其实现-->
-                <entry key="Factory" value-ref="FactoryImpl"></entry>
+                <entry key="Factory" value="trace.serverMultiTrace.FactoryImpl"></entry>
             </map>
         </property>
     </bean>
-    <bean id="FactoryImpl" class="trace.serverMultiTrace.FactoryImpl"/>
     <bean class="org.meizhuo.rpc.trace.TraceConfig">
         <property name="appId" value="3"/>
         <property name="zipkinUrl" value="127.0.0.1:9411"/>

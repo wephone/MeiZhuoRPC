@@ -13,7 +13,13 @@ import org.meizhuo.rpc.zksupport.ZKConnect;
 import org.meizhuo.rpc.zksupport.service.ServiceInfo;
 import org.meizhuo.rpc.zksupport.service.ZKServerService;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.MutablePropertyValues;
+import org.springframework.beans.PropertyValue;
+import org.springframework.beans.PropertyValues;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.TypedStringValue;
+import org.springframework.beans.factory.support.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -33,7 +39,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * Created by wephone on 17-12-26.
  */
-public class ClientConfig implements ApplicationContextAware {
+public class ClientConfig implements ApplicationContextAware,BeanDefinitionRegistryPostProcessor {
 
 //    private String host;
 //    private int port;
@@ -182,22 +188,22 @@ public class ClientConfig implements ApplicationContextAware {
                 RPCRequestNet.getInstance().serviceNameInfoMap.putIfAbsent(serviceId,serviceInfo);
                 serviceNameForId.put(serviceClass,serviceId);
                 //生成对应类代理 注入spring
-                Class cls=Class.forName(serviceClass);
-                Annotation async=cls.getAnnotation(Async.class);
-                Object proxy;
-                if (async!=null){
-                    RPCProxyAsyncHandler handler=new RPCProxyAsyncHandler();
-                    proxy=Proxy.newProxyInstance(cls.getClassLoader(),new Class<?>[]{cls},handler);
-                }else {
-                    RPCProxyHandler handler=new RPCProxyHandler();
-                    proxy=Proxy.newProxyInstance(cls.getClassLoader(),new Class<?>[]{cls},handler);
-                }
-                //获取bean工厂
-                DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory)applicationContext.getAutowireCapableBeanFactory();
-                //校验bean
-                applicationContext.getAutowireCapableBeanFactory().applyBeanPostProcessorsAfterInitialization(proxy, serviceClass);
-                //以单例的形式注入bean
-                beanFactory.registerSingleton(serviceClass, proxy);
+//                Class cls=Class.forName(serviceClass);
+//                Annotation async=cls.getAnnotation(Async.class);
+//                Object proxy;
+//                if (async!=null){
+//                    RPCProxyAsyncHandler handler=new RPCProxyAsyncHandler();
+//                    proxy=Proxy.newProxyInstance(cls.getClassLoader(),new Class<?>[]{cls},handler);
+//                }else {
+//                    RPCProxyHandler handler=new RPCProxyHandler();
+//                    proxy=Proxy.newProxyInstance(cls.getClassLoader(),new Class<?>[]{cls},handler);
+//                }
+//                //获取bean工厂
+//                DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory)applicationContext.getAutowireCapableBeanFactory();
+//                //校验bean
+//                applicationContext.getAutowireCapableBeanFactory().applyBeanPostProcessorsAfterInitialization(proxy, serviceClass);
+//                //以单例的形式注入bean
+//                beanFactory.registerSingleton(serviceClass, proxy);
             }
             if (RPC.isTrace()){
                 RuntimeMXBean runtimeMBean = ManagementFactory.getRuntimeMXBean();
@@ -216,8 +222,41 @@ public class ClientConfig implements ApplicationContextAware {
             e.printStackTrace();
         } catch (KeeperException e) {
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         }
+    }
+
+    @Override
+    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) throws BeansException {
+        //todo 为何要加#0
+        BeanDefinition beanDefinition=beanDefinitionRegistry.getBeanDefinition("org.meizhuo.rpc.client.ClientConfig#0");
+        MutablePropertyValues mutablePropertyValues=beanDefinition.getPropertyValues();
+        PropertyValue propertyValue=mutablePropertyValues.getPropertyValue("serviceInterface");
+        Map<TypedStringValue,TypedStringValue> map= (Map) propertyValue.getValue();
+        for (Map.Entry<TypedStringValue,TypedStringValue> entry:map.entrySet()){
+            String serviceInterface=entry.getValue().getValue();
+            //生成对应类代理 注入spring
+            try {
+                Class cls=Class.forName(serviceInterface);
+                Annotation async=cls.getAnnotation(Async.class);
+                BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(cls);
+                GenericBeanDefinition definition = (GenericBeanDefinition) builder.getRawBeanDefinition();
+                definition.getPropertyValues().add("RPCInterface", definition.getBeanClassName());
+                definition.setAutowireMode(GenericBeanDefinition.AUTOWIRE_BY_TYPE);
+                if (async!=null){
+                    //异步代理
+                }else {
+                    //同步代理
+                    definition.setBeanClass(RPCProxyBeanFactory.class);
+                }
+                beanDefinitionRegistry.registerBeanDefinition(serviceInterface, definition);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
+
     }
 }

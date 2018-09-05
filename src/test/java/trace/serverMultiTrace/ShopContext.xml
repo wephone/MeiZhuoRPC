@@ -9,15 +9,16 @@
         <property name="serverImplMap">
             <map>
                 <!--配置对应的抽象接口及其实现-->
-                <entry key="Shop" value-ref="shopImpl"></entry>
+                <entry key="Shop" value="trace.serverMultiTrace.ShopImpl"></entry>
             </map>
         </property>
     </bean>
-    <bean id="shopImpl" class="trace.serverMultiTrace.ShopImpl"/>
+    <!--<bean id="shopImpl" class="trace.serverMultiTrace.ShopImpl"/>-->
     <bean class="org.meizhuo.rpc.trace.TraceConfig">
         <property name="appId" value="2"/>
         <property name="zipkinUrl" value="127.0.0.1:9411"/>
     </bean>
+    <context:component-scan base-package="trace.serverMultiTrace"/>
     <bean class="org.meizhuo.rpc.client.ClientConfig">
         <property name="zooKeeperHost" value="127.0.0.1:2181"></property>
         <property name="serviceInterface">
