@@ -34,9 +34,11 @@ public class RPCResponseHandler extends ChannelHandlerAdapter {
         RPCRequest request= requestProtocol.buildRequestByProtocol();
         TraceSendUtils.serverReceived(request);
         RPCResponse response=new RPCResponse();
-        SpanStruct span=TraceSendUtils.preServerResponse(request,response);
+//        System.out.println("server response thread"+Thread.currentThread().getName());
         //从spring中取出bean进行调用 而不是直接反射
         Object result=InvokeServiceUtil.invoke(request);
+        //目标方法调用之后埋点server response 而不是在目标方法前
+        SpanStruct span=TraceSendUtils.preServerResponse(request,response);
         response.setRequestID(request.getRequestID());
         response.setResult(result);
 //        String respStr=RPC.responseEncode(response);

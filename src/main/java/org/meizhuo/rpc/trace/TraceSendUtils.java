@@ -204,6 +204,7 @@ public class TraceSendUtils {
 //            TraceThreadLocal.setSpanInThread(spanInThread);
             span.setId(spanId);
             span.setTraceId(spanInThread.getTraceId());
+            //threadLocal中取出上级调用的链路信息
             span.setParentId(spanInThread.getParentId());
             span.setName(rpcRequest.getMethodName());
             span.setKind(SpanStruct.SERVER_KIND);
