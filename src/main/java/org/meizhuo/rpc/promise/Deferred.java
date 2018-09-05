@@ -5,6 +5,7 @@ import org.meizhuo.rpc.threadLocal.PromiseThreadLocal;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -16,7 +17,7 @@ public class Deferred implements Promise {
     //TODO 每次首个开启异步RPC的操作保持一个调用链traceId 不存在则创建并保存到threadLocal
     private String traceId;
     private String parentSpanId;
-    private String methodName;
+    private Stack<String> methodStack=new Stack<>();
 //    //是否可以直接循环执行所有回调 当回调中有其他异步RPC时不可继续循环
 //    private AtomicInteger loop=new AtomicInteger();
 //
@@ -45,12 +46,16 @@ public class Deferred implements Promise {
         this.parentSpanId = parentSpanId;
     }
 
-    public String getMethodName() {
-        return methodName;
+    public void invokeMethod(String method){
+        methodStack.push(method);
     }
 
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
+    public void finishMethod(){
+        methodStack.pop();
+    }
+
+    public String getMethodName(){
+        return methodStack.peek();
     }
 
     @Override

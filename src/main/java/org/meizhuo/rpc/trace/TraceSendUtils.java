@@ -316,7 +316,8 @@ public class TraceSendUtils {
             String traceId=rpcResponse.getTraceId();
             String parentSpanId=rpcResponse.getSpanId();
             promise.setParentSpanId(parentSpanId);
-            Long duration=System.currentTimeMillis()-rpcResponse.getResponseTime();
+            Long now=System.currentTimeMillis();
+            Long duration=now-rpcResponse.getResponseTime();
             span.setDuration(duration*1000);
             postSpanExecutor.submit(new Runnable() {
                 @Override
@@ -327,9 +328,11 @@ public class TraceSendUtils {
                     span.setName(rpcResponse.getServiceId());
                     span.setKind(SpanStruct.CLIENT_KIND);
                     //单位是微秒
-                    span.setTimestamp(System.currentTimeMillis()*1000);
+                    span.setTimestamp(now*1000);
                     SpanStruct.LocalEndpoint localEndpoint=span.new LocalEndpoint();
                     localEndpoint.setServiceName(promise.getMethodName()+clientSuffix);
+                    //方法异步调用结束 弹出栈
+                    promise.finishMethod();
                     span.setLocalEndpoint(localEndpoint);
                     zipKinHTTPSend(span);
                 }

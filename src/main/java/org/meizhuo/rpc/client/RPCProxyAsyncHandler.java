@@ -39,7 +39,7 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
         }else {
             promise=deferredInthread;
         }
-        promise.setMethodName(method.getName());
+        promise.invokeMethod(method.getName());
         boolean needReturn=NeedReturnThreadLocal.needReturn();
 //        promise.increaseLoop();
 //        TraceSendUtils.clientAsyncSend(promise,serviceId);

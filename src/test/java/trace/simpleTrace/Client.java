@@ -2,6 +2,8 @@ package trace.simpleTrace;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.meizhuo.rpc.promise.NextCallBack;
+import org.meizhuo.rpc.promise.Promise;
 import org.meizhuo.rpc.promise.SucessCallBack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -40,12 +42,20 @@ public class Client {
     public void asyncStart(){
         CountDownLatch countDownLatch=new CountDownLatch(1);
         asyncServer.remoteService(233.0,"hhh")
-                .success(new SucessCallBack<Double>() {
+                .then(new NextCallBack<Double>() {
                     @Override
-                    public void done(Double result) {
-                        System.out.println("double result:"+result);
+                    public Promise nextRPC(Double arg) {
+                        System.out.println("double arg:"+arg);
+                        return asyncServer.stringMethodIntegerArgsTest(123,arg);
+                    }
+                })
+                .success(new SucessCallBack<String>() {
+                    @Override
+                    public void done(String result) {
+                        System.out.println("string result:"+result);
                     }
                 });
+        System.out.println("main thread finish");
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {
