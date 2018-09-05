@@ -319,6 +319,9 @@ public class TraceSendUtils {
             Long now=System.currentTimeMillis();
             Long duration=now-rpcResponse.getResponseTime();
             span.setDuration(duration*1000);
+            String methodName=promise.getMethodName();
+            //方法异步调用结束 弹出栈 必须同步完成 异步会导致链路紊乱
+            promise.finishMethod();
             postSpanExecutor.submit(new Runnable() {
                 @Override
                 public void run() {
@@ -330,9 +333,7 @@ public class TraceSendUtils {
                     //单位是微秒
                     span.setTimestamp(now*1000);
                     SpanStruct.LocalEndpoint localEndpoint=span.new LocalEndpoint();
-                    localEndpoint.setServiceName(promise.getMethodName()+clientSuffix);
-                    //方法异步调用结束 弹出栈
-                    promise.finishMethod();
+                    localEndpoint.setServiceName(methodName+clientSuffix);
                     span.setLocalEndpoint(localEndpoint);
                     zipKinHTTPSend(span);
                 }
