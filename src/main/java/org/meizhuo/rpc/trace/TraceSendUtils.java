@@ -280,6 +280,7 @@ public class TraceSendUtils {
             TraceThreadLocal.setSpanInThread(spanInThread);
             SpanStruct.LocalEndpoint localEndpoint=span.new LocalEndpoint();
             localEndpoint.setServiceName(promise.getMethodName()+clientSuffix);
+            span.setName(promise.getMethodName());
             span.setLocalEndpoint(localEndpoint);
             return span;
         }
@@ -328,7 +329,7 @@ public class TraceSendUtils {
                     span.setTraceId(traceId);
                     span.setParentId(parentSpanId);
                     span.setId(IdUtils.getSpanId());
-                    span.setName(rpcResponse.getServiceId());
+                    span.setName(methodName);
                     span.setKind(SpanStruct.CLIENT_KIND);
                     //单位是微秒
                     span.setTimestamp(now*1000);

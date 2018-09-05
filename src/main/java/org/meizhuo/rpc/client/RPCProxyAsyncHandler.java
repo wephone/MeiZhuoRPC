@@ -52,7 +52,6 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
             request.setServiceId(serviceId);//返回表示声明由此 Method 对象表示的方法的类或接口的Class对象
             request.setMethodName(method.getName());
             SpanStruct span=TraceSendUtils.preClientAsyncSend(promise);
-            span.setName(serviceId);
             request.setTraceId(span.getTraceId());
             request.setSpanId(span.getId());
 //        request.setParameterTypes(method.getParameterTypes());//返回形参类型
