@@ -16,6 +16,7 @@ public class Deferred implements Promise {
     //TODO 每次首个开启异步RPC的操作保持一个调用链traceId 不存在则创建并保存到threadLocal
     private String traceId;
     private String parentSpanId;
+    private String methodName;
 //    //是否可以直接循环执行所有回调 当回调中有其他异步RPC时不可继续循环
 //    private AtomicInteger loop=new AtomicInteger();
 //
@@ -42,6 +43,14 @@ public class Deferred implements Promise {
 
     public void setParentSpanId(String parentSpanId) {
         this.parentSpanId = parentSpanId;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
     }
 
     @Override

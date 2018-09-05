@@ -244,6 +244,7 @@ public class ClientConfig implements ApplicationContextAware,BeanDefinitionRegis
                 definition.setAutowireMode(GenericBeanDefinition.AUTOWIRE_BY_TYPE);
                 if (async!=null){
                     //异步代理
+                    definition.setBeanClass(RPCProxyAsyncBeanFactory.class);
                 }else {
                     //同步代理
                     definition.setBeanClass(RPCProxyBeanFactory.class);

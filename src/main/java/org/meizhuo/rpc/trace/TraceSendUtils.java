@@ -251,19 +251,19 @@ public class TraceSendUtils {
             //取出trace和parentSpan 不存在则查找threadLocal 否则生成
             String traceId = promise.getTraceId();
             if (traceId == null) {
-                if (spanInThread.getTraceId() == null) {
+                if (spanInThread==null){
                     traceId = IdUtils.getTraceId();
-                    promise.setTraceId(traceId);
-                } else {
+                }else {
                     traceId = spanInThread.getTraceId();
                 }
             }
+            promise.setTraceId(traceId);
             span.setTraceId(traceId);
             String parentSpanId = promise.getParentSpanId();
             if (parentSpanId != null) {
                 span.setParentId(parentSpanId);
             } else {
-                if (spanInThread.getParentId() != null) {
+                if (spanInThread != null) {
                     span.setParentId(spanInThread.getParentId());
                 }
             }
@@ -272,7 +272,15 @@ public class TraceSendUtils {
             span.setId(spanId);
             promise.setParentSpanId(spanId);
             //将链路信息存入threadLocal
+            if (spanInThread==null){
+                spanInThread=new SpanStruct();
+            }
+            spanInThread.setTraceId(traceId);
             spanInThread.setParentId(spanId);
+            TraceThreadLocal.setSpanInThread(spanInThread);
+            SpanStruct.LocalEndpoint localEndpoint=span.new LocalEndpoint();
+            localEndpoint.setServiceName(promise.getMethodName()+clientSuffix);
+            span.setLocalEndpoint(localEndpoint);
             return span;
         }
         return null;
@@ -283,8 +291,12 @@ public class TraceSendUtils {
             Long now=System.currentTimeMillis();
             SpanStruct spanInThread=TraceThreadLocal.getSpanInThread();
             if (spanInThread.getTimestamp()!=null){
-                span.setDuration((now-spanInThread.getTimestamp())*1000);
+                span.setDuration(now*1000-spanInThread.getTimestamp());
+            }else {
+                span.setDuration(0L);
             }
+            spanInThread.setTimestamp(now*1000);
+            TraceThreadLocal.setSpanInThread(spanInThread);
             postSpanExecutor.submit(new Runnable() {
                 @Override
                 public void run() {
@@ -316,6 +328,9 @@ public class TraceSendUtils {
                     span.setKind(SpanStruct.CLIENT_KIND);
                     //单位是微秒
                     span.setTimestamp(System.currentTimeMillis()*1000);
+                    SpanStruct.LocalEndpoint localEndpoint=span.new LocalEndpoint();
+                    localEndpoint.setServiceName(promise.getMethodName()+clientSuffix);
+                    span.setLocalEndpoint(localEndpoint);
                     zipKinHTTPSend(span);
                 }
             });

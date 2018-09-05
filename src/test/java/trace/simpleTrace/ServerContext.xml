@@ -8,11 +8,11 @@
         <property name="serverImplMap">
             <map>
                 <!--配置对应的抽象接口及其实现-->
-                <entry key="RPCService" value-ref="serviceImpl"></entry>
+                <entry key="RPCService" value="trace.simpleTrace.ServiceImpl"></entry>
+                <entry key="AsyncRPCService" value="trace.simpleTrace.ServiceImpl"></entry>
             </map>
         </property>
     </bean>
-    <bean id="serviceImpl" class="rpcTest.ServiceImpl"/>
     <bean class="org.meizhuo.rpc.trace.TraceConfig">
         <property name="appId" value="2"/>
         <property name="zipkinUrl" value="127.0.0.1:9411"/>

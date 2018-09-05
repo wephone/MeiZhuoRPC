@@ -7,7 +7,8 @@
         <property name="serviceInterface">
             <map>
                 <!--配置对应的服务ID及抽象接口全类名-->
-                <entry key="RPCService" value="rpcTest.Service" ></entry>
+                <entry key="RPCService" value="trace.simpleTrace.ServiceInterface" ></entry>
+                <entry key="AsyncRPCService" value="trace.simpleTrace.AsyncServerInterface" ></entry>
             </map>
         </property>
         <property name="loadBalance" ref="Random"></property>

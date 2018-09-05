@@ -2,6 +2,7 @@ package trace.simpleTrace;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.meizhuo.rpc.promise.SucessCallBack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -17,7 +18,9 @@ import java.util.concurrent.CountDownLatch;
 public class Client {
 
     @Autowired
-    Service service;
+    ServiceInterface service;
+    @Autowired
+    AsyncServerInterface asyncServer;
 
     @Test
     public void start(){
@@ -26,6 +29,23 @@ public class Client {
         System.out.println("RPC span1:"+service.remoteService(233.0,"hhh"));
         System.out.println("RPC span2:"+service.IntegerMethodTest(233));
         System.out.println("RPC span3:"+service.stringMethodIntegerArgsTest(233,666.66));
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void asyncStart(){
+        CountDownLatch countDownLatch=new CountDownLatch(1);
+        asyncServer.remoteService(233.0,"hhh")
+                .success(new SucessCallBack<Double>() {
+                    @Override
+                    public void done(Double result) {
+                        System.out.println("double result:"+result);
+                    }
+                });
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {

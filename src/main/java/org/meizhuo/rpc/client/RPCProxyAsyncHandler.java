@@ -39,10 +39,10 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
         }else {
             promise=deferredInthread;
         }
+        promise.setMethodName(method.getName());
         boolean needReturn=NeedReturnThreadLocal.needReturn();
 //        promise.increaseLoop();
 //        TraceSendUtils.clientAsyncSend(promise,serviceId);
-        SpanStruct span=TraceSendUtils.preClientAsyncSend(promise);
         //直接返回promise 其他操作全部异步
         asyncSendExecutor.submit(() -> {
             String serviceId=RPC.getClientConfig().getServiceId(method.getDeclaringClass().getName());
@@ -51,6 +51,7 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
             request.setRequestID(requesrId);
             request.setServiceId(serviceId);//返回表示声明由此 Method 对象表示的方法的类或接口的Class对象
             request.setMethodName(method.getName());
+            SpanStruct span=TraceSendUtils.preClientAsyncSend(promise);
             span.setName(serviceId);
             request.setTraceId(span.getTraceId());
             request.setSpanId(span.getId());
