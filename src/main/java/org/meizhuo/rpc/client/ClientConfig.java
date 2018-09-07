@@ -168,8 +168,8 @@ public class ClientConfig implements ApplicationContextAware,BeanDefinitionRegis
         RPC.clientContext=applicationContext;
         //获得IOC容器后 读取配置中的服务
         try {
-            ZooKeeper zooKeeper= new ZKConnect().clientConnect();
-            ZKServerService zkServerService=new ZKServerService(zooKeeper);
+            RPC.zkConnect= new ZKConnect().clientConnect();
+            ZKServerService zkServerService=new ZKServerService();
             Map<String,String> services=RPC.getClientConfig().getServiceInterface();
             serviceNameForId=new HashMap<>();
             //初始化所有可用IP 初始化读写锁

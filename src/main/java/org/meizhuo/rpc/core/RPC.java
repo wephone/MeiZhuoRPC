@@ -32,6 +32,7 @@ public class RPC {
 //    private static Gson gson=new Gson();
     public static ApplicationContext serverContext;
     public static ApplicationContext clientContext;
+    public static ZooKeeper zkConnect;
     /**
      * 暴露调用端使用的静态方法 为抽象接口生成动态代理对象
      * TODO 考虑后面优化不在使用时仍需强转
@@ -55,8 +56,8 @@ public class RPC {
      */
     public static void start() throws InterruptedException, IOException {
         System.out.println("welcome to use MeiZhuoRPC");
-        ZooKeeper zooKeeper= new ZKConnect().serverConnect();
-        ZKServerService zkServerService=new ZKServerService(zooKeeper);
+        zkConnect= new ZKConnect().serverConnect();
+        ZKServerService zkServerService=new ZKServerService();
         try {
             zkServerService.initZnode();
             //创建所有提供者服务的znode

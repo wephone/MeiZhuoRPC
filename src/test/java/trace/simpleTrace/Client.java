@@ -5,6 +5,7 @@ import org.junit.runner.RunWith;
 import org.meizhuo.rpc.promise.NextCallBack;
 import org.meizhuo.rpc.promise.Promise;
 import org.meizhuo.rpc.promise.SucessCallBack;
+import org.meizhuo.rpc.promise.ThenCallBack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -42,6 +43,38 @@ public class Client {
     public void asyncStart(){
         CountDownLatch countDownLatch=new CountDownLatch(1);
         asyncServer.remoteService(233.0,"hhh")
+                .then(new NextCallBack<Double>() {
+                    @Override
+                    public Promise nextRPC(Double arg) {
+                        System.out.println("double arg:"+arg);
+                        return asyncServer.stringMethodIntegerArgsTest(123,arg);
+                    }
+                })
+                .success(new SucessCallBack<String>() {
+                    @Override
+                    public void done(String result) {
+                        System.out.println("string result:"+result);
+                    }
+                });
+        System.out.println("main thread finish");
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void asyncAsyncStart(){
+        CountDownLatch countDownLatch=new CountDownLatch(1);
+        asyncServer.remoteService(233.0,"hhh")
+                .then(new ThenCallBack<Double,Double>() {
+                    @Override
+                    public Double done(Double arg) {
+                        //不等待结果得再调用下一个异步rpc 例如日志记录等等
+                        return arg;
+                    }
+                })
                 .then(new NextCallBack<Double>() {
                     @Override
                     public Promise nextRPC(Double arg) {

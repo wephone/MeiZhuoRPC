@@ -4,6 +4,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.meizhuo.rpc.core.RPC;
+import org.meizhuo.rpc.zksupport.watcher.SessionExpiredWatcher;
 
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
@@ -18,14 +19,7 @@ public class ZKConnect {
     private ZooKeeper connect(String host) throws InterruptedException, IOException {
         CountDownLatch countDownLatch=new CountDownLatch(1);
         //2秒sessionTimeOut
-        zooKeeper=new ZooKeeper(host, ZKConst.sessionTimeout, new Watcher() {
-            @Override
-            public void process(WatchedEvent watchedEvent) {
-                if (watchedEvent.getState()== Event.KeeperState.SyncConnected){
-                    countDownLatch.countDown();
-                }
-            }
-        });
+        zooKeeper=new ZooKeeper(host, ZKConst.sessionTimeout, new SessionExpiredWatcher(host,countDownLatch));
         countDownLatch.await();
         return zooKeeper;
     }

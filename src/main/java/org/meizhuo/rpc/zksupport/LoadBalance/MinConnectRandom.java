@@ -31,7 +31,7 @@ public class MinConnectRandom{
     public void balanceAll(ZooKeeper zookeeper) {
 //        Set<String> allServices= RPC.getClientConfig().getServiceInterface();
 //        ZKClientService zkClientService=new ZKClientService(zookeeper);
-        ZKServerService zkServerService=new ZKServerService(zookeeper);
+//        ZKServerService zkServerService=new ZKServerService(zookeeper);
 //        try {
 //            for (String service : allServices) {
                 ReadWriteLock readWriteLock=new ReentrantReadWriteLock();

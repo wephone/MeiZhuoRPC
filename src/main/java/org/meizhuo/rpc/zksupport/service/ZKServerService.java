@@ -15,11 +15,11 @@ import java.util.Map;
  * 提供者端服务znode维护类
  */
 public class ZKServerService {
-    private ZooKeeper zooKeeper;
+    private ZooKeeper zooKeeper=RPC.zkConnect;
 
-    public ZKServerService(ZooKeeper zooKeeper) {
-        this.zooKeeper = zooKeeper;
-    }
+//    public ZKServerService(ZooKeeper zooKeeper) {
+//        this.zooKeeper = zooKeeper;
+//    }
 
     //生成所有注册的服务znode
     public void createServerService() throws KeeperException, InterruptedException {
