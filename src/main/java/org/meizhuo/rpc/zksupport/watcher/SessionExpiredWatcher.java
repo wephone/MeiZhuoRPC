@@ -59,6 +59,9 @@ public class SessionExpiredWatcher implements Watcher {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }else {
+            //TODO 出现disconnect状态
+            System.out.println("zookeeper state:"+watchedEvent.getState());
         }
     }
 }

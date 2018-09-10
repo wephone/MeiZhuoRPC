@@ -38,7 +38,7 @@ public class JavaRPCDecoder extends LengthFieldBasedFrameDecoder {
         header.setTraceId(new String(traceBytes));
         Integer spanLength=byteBuf.readInt();
         header.setSpanIdLength(spanLength);
-        byte[] spanBytes=new byte[traceLength];
+        byte[] spanBytes=new byte[spanLength];
         byteBuf.readBytes(spanBytes);
         header.setSpanId(new String(spanBytes));
         Integer requestIdLength=byteBuf.readInt();
