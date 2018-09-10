@@ -4,6 +4,7 @@ package org.meizhuo.rpc.client;
 import org.meizhuo.rpc.Exception.ProvidersNoFoundException;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.promise.Deferred;
+import org.meizhuo.rpc.protocol.IdUtils;
 import org.meizhuo.rpc.threadLocal.NeedReturnThreadLocal;
 import org.meizhuo.rpc.threadLocal.PromiseThreadLocal;
 import org.meizhuo.rpc.trace.NamedThreadFactory;
@@ -47,7 +48,7 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
         asyncSendExecutor.submit(() -> {
             String serviceId=RPC.getClientConfig().getServiceId(method.getDeclaringClass().getName());
             RPCRequest request=new RPCRequest();
-            String requesrId=buildRequestID(method.getName());
+            String requesrId=IdUtils.getRequestId();
             request.setRequestID(requesrId);
             request.setServiceId(serviceId);//返回表示声明由此 Method 对象表示的方法的类或接口的Class对象
             request.setMethodName(method.getName());
@@ -74,14 +75,14 @@ public class RPCProxyAsyncHandler implements InvocationHandler {
         return promise;
     }
 
-    //生成请求的唯一ID
-    private String buildRequestID(String methodName){
-        StringBuilder sb=new StringBuilder();
-        sb.append(requestTimes.incrementAndGet());
-        sb.append(System.currentTimeMillis());
-        sb.append(methodName);
-        Random random = new Random();
-        sb.append(random.nextInt(1000));
-        return sb.toString();
-    }
+//    //生成请求的唯一ID
+//    private String buildRequestID(String methodName){
+//        StringBuilder sb=new StringBuilder();
+//        sb.append(requestTimes.incrementAndGet());
+//        sb.append(System.currentTimeMillis());
+//        sb.append(methodName);
+//        Random random = new Random();
+//        sb.append(random.nextInt(1000));
+//        return sb.toString();
+//    }
 }

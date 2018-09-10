@@ -71,6 +71,7 @@ public class Client {
                 .then(new ThenCallBack<Double,Double>() {
                     @Override
                     public Double done(Double arg) {
+                        asyncServer.IntegerMethodTest(2);
                         //不等待结果得再调用下一个异步rpc 例如日志记录等等
                         return arg;
                     }

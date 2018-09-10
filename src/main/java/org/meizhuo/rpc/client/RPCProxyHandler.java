@@ -2,6 +2,7 @@ package org.meizhuo.rpc.client;
 
 import org.meizhuo.rpc.Exception.RPCTimeOutException;
 import org.meizhuo.rpc.core.RPC;
+import org.meizhuo.rpc.protocol.IdUtils;
 import org.meizhuo.rpc.server.RPCResponse;
 import org.meizhuo.rpc.trace.SpanStruct;
 import org.meizhuo.rpc.trace.TraceSendUtils;
@@ -35,7 +36,7 @@ public class RPCProxyHandler  implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         RPCRequest request=new RPCRequest();
-        request.setRequestID(buildRequestID(method.getName()));
+        request.setRequestID(IdUtils.getRequestId());
         request.setServiceId(RPC.getClientConfig().getServiceId(method.getDeclaringClass().getName()));//返回表示声明由此 Method 对象表示的方法的类或接口的Class对象
         request.setMethodName(method.getName());
 //        request.setParameterTypes(method.getParameterTypes());//返回形参类型
@@ -61,13 +62,13 @@ public class RPCProxyHandler  implements InvocationHandler {
     }
 
     //生成请求的唯一ID
-    private String buildRequestID(String methodName){
-        StringBuilder sb=new StringBuilder();
-        sb.append(requestTimes.incrementAndGet());
-        sb.append(System.currentTimeMillis());
-        sb.append(methodName);
-        Random random = new Random();
-        sb.append(random.nextInt(1000));
-        return sb.toString();
-    }
+//    private String buildRequestID(String methodName){
+//        StringBuilder sb=new StringBuilder();
+//        sb.append(requestTimes.incrementAndGet());
+//        sb.append(System.currentTimeMillis());
+//        sb.append(methodName);
+//        Random random = new Random();
+//        sb.append(random.nextInt(1000));
+//        return sb.toString();
+//    }
 }
