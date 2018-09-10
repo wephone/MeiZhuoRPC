@@ -4,11 +4,15 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
+import org.meizhuo.rpc.client.RPCRequestNet;
 import org.meizhuo.rpc.core.RPC;
 import org.meizhuo.rpc.zksupport.ZKConst;
+import org.meizhuo.rpc.zksupport.service.ServiceInfo;
 import org.meizhuo.rpc.zksupport.service.ZKServerService;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -35,8 +39,8 @@ public class SessionExpiredWatcher implements Watcher {
             }
             if (reconnect){
                 RPC.zkConnect=reconnectZk;
-                if (RPC.getServerConfig()!=null) {
-                    ZKServerService zkServerService = new ZKServerService();
+                ZKServerService zkServerService=new ZKServerService();
+                if (RPC.serverContext!=null) {
                     try {
                         zkServerService.initZnode();
                         //创建所有提供者服务的znode
@@ -47,6 +51,21 @@ public class SessionExpiredWatcher implements Watcher {
                         e.printStackTrace();
                     }
                     System.out.println("zookeeper recreate service infos success");
+                }else if (RPC.clientContext!=null){
+                    //重新监听各个服务信息
+                    Map<String,String> services=RPC.getClientConfig().getServiceInterface();
+                    for (Map.Entry<String,String> entry :services.entrySet()){
+                        String serviceId=entry.getKey();
+                        try {
+                            //重新注册一个watcher 更改IP todo 考虑做不做服务可用ip的更改
+                            zkServerService.getAllServiceIP(serviceId);
+                            System.out.println("zookeeper recreate client infos success");
+                        } catch (KeeperException e) {
+                            e.printStackTrace();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
                 System.out.println("zookeeper reconnect success");
             }
