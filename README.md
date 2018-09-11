@@ -65,14 +65,15 @@ public class Client {
                         .then(new ThenCallBack<Double,Double>() {
                             @Override
                             public Double done(Double arg) {
-                                //不等待结果得再调用下一个异步rpc 例如日志记录等等
                                 asyncServer.IntegerMethodTest(2);
+                                //不等待结果得再调用下一个异步rpc 例如日志记录等等
                                 return arg;
                             }
                         })
                         .then(new NextCallBack<Double>() {
                             @Override
                             public Promise nextRPC(Double arg) {
+                                //arg为上级调用的返回结果
                                 System.out.println("double arg:"+arg);
                                 //必须此异步调用返回时才会触发下一级then 用于多级异步rpc调用
                                 return asyncServer.stringMethodIntegerArgsTest(123,arg);
@@ -113,9 +114,8 @@ public class Client {
 - SuccessCallBack 所有异步rpc调用成功时调用
 - FailCallback 失败时调用
 - NextCallBack 下一级RPC调用，rpc调用返回时才会触发下一级then 泛型为上一级返回结果
-- NextVoidArgCallBack 作用同NextCallBack 但没有处理上一级的返回结果
 - ThenCallBack 处理非需等待结果的RPC操作 或其他普通操作
-- ThenVoidArgCallBack 作用同ThenCallBack 但没有处理上一级的返回结果
+- ThenVoidResCallBack 作用同ThenCallBack 但返回空结果给下一级
 
 #### 实现端 Provider
 ```
@@ -224,6 +224,8 @@ resultName | 返回结果类名
 resultLength | 返回内容字节长度
 result | 字节数组 返回内容
 
-**通用协议**
-
-尚未实现 将采用tag-length-value模式
+**通用协议(尚未实现)**
+- 支持异构语言
+- 将采用tag-length-value模式
+- 调用参数及返回结果仅支持基本类型与Map Set List 
+- 欢迎熟悉其他语言的朋友一起参与
